@@ -67,7 +67,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ onSignIn, onSignUp, onAdminAccess }
 
   const handleSignIn = async () => {
     if (!selectedUser || !credentials.password) {
-      alert('Please select a user and enter password');
+      alert('Veuillez sélectionner un utilisateur et entrer le mot de passe');
       return;
     }
 
@@ -98,11 +98,11 @@ const AuthPage: React.FC<AuthPageProps> = ({ onSignIn, onSignUp, onAdminAccess }
         onSignIn(user);
       } else {
         console.log('❌ AuthPage: Invalid credentials');
-        alert('Invalid credentials');
+        alert('Identifiants invalides');
       }
     } catch (error) {
       console.error('Sign in error:', error);
-      alert('Sign in failed');
+      alert('Échec de la connexion');
     }
   };
 
@@ -265,11 +265,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ onSignIn, onSignUp, onAdminAccess }
           </div>
         </div>
 
-        {/* Footer */}
-        <div className="text-center mt-6 text-sm text-gray-500 dark:text-gray-400">
-          <p>E-audit - Votre assistant IA personnel</p>
-          <p className="mt-1">Toutes vos données restent locales et privées</p>
-        </div>
+        {/* Footer - Removed as per user request */}
       </div>
     </div>
   );

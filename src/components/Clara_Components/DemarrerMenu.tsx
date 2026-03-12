@@ -119,58 +119,202 @@ const MENU_DATA: LogicielItem[] = [
         label: 'Phase de préparation',
         etapes: [
           {
+            id: 'collecte-documentaire',
+            label: 'Collecte documentaire',
+            icon: <FileSearch className="w-4 h-4" />,
+            modes: [
+              {
+                id: 'normal',
+                label: 'Normal',
+                command: `[Command] = Etape de mission
+[Processus] = rapprochements bancaires
+[Etape précédente] = Cartographie des risques
+[Etape de mission] = Collecte documentaire
+[Modele] : Processus, document, Direction, operationnel
+[Nb de lignes] = 30`
+              },
+              {
+                id: 'avance',
+                label: 'Avancé',
+                command: `[Command] = Etape de mission
+[Processus] = rapprochements bancaires
+[Etape précédente] = Cartographie des risques
+[Etape de mission] = Collecte documentaire
+[Modele] : Processus, document, Direction, operationnel
+[Nb de lignes] = 30
+[Variable 1] = Contenu de [Variable 1]
+[Variable 2] = Contenu de [Variable 2]`
+              }
+            ]
+          },
+          {
+            id: 'questionnaire-prise-connaissance',
+            label: 'Questionnaire prise de connaissance',
+            icon: <HelpCircle className="w-4 h-4" />,
+            modes: [
+              {
+                id: 'normal',
+                label: 'Normal',
+                command: `[Command] = Etape de mission
+[Processus] = rapprochements bancaires
+[Etape précédente] = Collecte documentaire
+[Etape de mission] = Questionnaire prise de connaissance
+[Modele] : Processus, sous processus, Questionnaire de prise de connaissance
+[Nb de lignes] = 30`
+              },
+              {
+                id: 'avance',
+                label: 'Avancé',
+                command: `[Command] = Etape de mission
+[Processus] = rapprochements bancaires
+[Etape précédente] = Collecte documentaire
+[Etape de mission] = Questionnaire prise de connaissance
+[Modele] : Processus, sous processus, Questionnaire de prise de connaissance
+[Nb de lignes] = 30
+[Variable 1] = Contenu de [Variable 1]
+[Variable 2] = Contenu de [Variable 2]`
+              }
+            ]
+          },
+          {
+            id: 'cartographie-processus',
+            label: 'Cartographie des processus',
+            icon: <Map className="w-4 h-4" />,
+            modes: [
+              {
+                id: 'normal',
+                label: 'Normal',
+                command: `[Command] = Etape de mission
+[Processus] = rapprochements bancaires
+[Etape précédente] = Questionnaire prise de connaissance
+[Etape de mission] = Cartographie des processus
+[Modele] : Cycle, Processus, sous processus, operations
+[Nb de lignes] = 30`
+              },
+              {
+                id: 'avance',
+                label: 'Avancé',
+                command: `[Command] = Etape de mission
+[Processus] = rapprochements bancaires
+[Etape précédente] = Questionnaire prise de connaissance
+[Etape de mission] = Cartographie des processus
+[Modele] : Cycle, Processus, sous processus, operations
+[Nb de lignes] = 30
+[Variable 1] = Contenu de [Variable 1]
+[Variable 2] = Contenu de [Variable 2]`
+              }
+            ]
+          },
+          {
             id: 'cartographie-risques',
             label: 'Cartographie des risques',
-            norme: '13.2 Évaluation des risques dans le cadre de la mission',
-            icon: <Map className="w-4 h-4" />,
-            command: `[Command] = Cartographie des risques
-[Processus] = inventaire de caisse
-[Risques critiques] = fraude
-[Objectif] = couvrir la fraude`
+            icon: <AlertTriangle className="w-4 h-4" />,
+            modes: [
+              {
+                id: 'normal',
+                label: 'Normal',
+                command: `[Command] = /Cartographie des risques
+[Processus] = Sécurité trésorerie
+[Nb de lignes] = 30`
+              },
+              {
+                id: 'avance',
+                label: 'Avancé',
+                command: `[Command] = /Cartographie des risques
+[Processus] = Sécurité trésorerie
+[Modele] : operationnel, risque, évaluation risque, probabilité, impact, controle audit
+[Matrice de criticite] = Matrice numerique - 5 niveau
+[Integration] = integration_min
+[Nb de lignes] = 40
+[Variable 1] = Contenu de [Variable 1]
+[Variable 2] = Contenu de [Variable 2]`
+              }
+            ]
           },
           {
             id: 'referentiel-ci',
-            label: 'Référentiel de contrôle interne',
-            norme: '13.4 Critères d\'évaluation',
+            label: 'Referentiel de controle interne',
             icon: <Shield className="w-4 h-4" />,
-            command: `[Command] = Référentiel de contrôle interne
-[Processus] = 
-[Objectif] = `
-          },
-          {
-            id: 'questionnaire-ci',
-            label: 'Questionnaire de contrôle interne',
-            norme: '14.1 Collecte d\'informations pour l\'analyse et l\'évaluation',
-            icon: <ClipboardList className="w-4 h-4" />,
-            command: `[Command] = Questionnaire de contrôle interne
-[Processus] = 
-[Objectif] = `
-          },
-          {
-            id: 'tableau-ffa',
-            label: 'Tableau des forces et faiblesses',
-            norme: '14.2 Analyses et constats potentiels de la mission',
-            icon: <BarChart3 className="w-4 h-4" />,
-            command: `[Command] = Tableau des forces et faiblesses apparentes
-[Processus] = 
-[Objectif] = `
+            modes: [
+              {
+                id: 'normal',
+                label: 'Normal',
+                command: `[Command] = Etape de mission
+[Processus] = rapprochements bancaires
+[Etape précédente] = Cartographie des risques
+[Etape de mission] = Referentiel de controle interne
+[Modele] : Processus, Tache clé, objectif de contrôle, risques, contrôles clé
+[Nb de lignes] = 30`
+              },
+              {
+                id: 'avance',
+                label: 'Avancé',
+                command: `[Command] = Etape de mission
+[Processus] = rapprochements bancaires
+[Etape précédente] = Cartographie des risques
+[Etape de mission] = Referentiel de controle interne
+[Modele] : Processus, Tache clé, objectif de contrôle, risques, contrôles clé
+[Nb de lignes] = 30
+[Variable 1] = Contenu de [Variable 1]
+[Variable 2] = Contenu de [Variable 2]`
+              }
+            ]
           },
           {
             id: 'rapport-orientation',
             label: "Rapport d'orientation",
-            norme: '13.3 Objectifs et périmètre de la mission',
             icon: <Target className="w-4 h-4" />,
-            command: `[Command] = Rapport d'orientation
-[Processus] = 
-[Objectif] = `
+            modes: [
+              {
+                id: 'normal',
+                label: 'Normal',
+                command: `[Command] = Etape de mission
+[Processus] = rapprochements bancaires
+[Etape précédente] = Referentiel de controle interne
+[Etape de mission] = Rapport d'orientation
+[Modele] : Processus, Objectifs generaux de contrôle interne, Objectifs spécifiques
+[Nb de lignes] = 30`
+              },
+              {
+                id: 'avance',
+                label: 'Avancé',
+                command: `[Command] = Etape de mission
+[Processus] = rapprochements bancaires
+[Etape précédente] = Referentiel de controle interne
+[Etape de mission] = Rapport d'orientation
+[Modele] : Processus, Objectifs generaux de contrôle interne, Objectifs spécifiques
+[Nb de lignes] = 30
+[Variable 1] = Contenu de [Variable 1]
+[Variable 2] = Contenu de [Variable 2]`
+              }
+            ]
           },
           {
             id: 'programme-travail',
             label: 'Programme de travail',
-            norme: '13.6 Programme de travail',
             icon: <FileText className="w-4 h-4" />,
-            command: `[Command] = Programme de travail
-[Processus] = inventaire de caisse`
+            modes: [
+              {
+                id: 'normal',
+                label: 'Normal',
+                command: `[Command] = Programme de travail
+[Processus] = inventaire de caisse
+[Nb de lignes] = 25`
+              },
+              {
+                id: 'avance',
+                label: 'Avancé',
+                command: `[Command] = Programme de travail
+[Processus] = inventaire de caisse
+[Modele] : Point de controle, Risque, assertion, anomalie courantes, document
+[Extension] = objectif de controle, document
+[Integration] = integration_min
+[Nb de lignes] = 20
+[Directive] = Cibler uniquement les operations d'inventaire de caisse en priorite
+[Variable 1] = Contenu de [Variable 1]
+[Variable 2] = Contenu de [Variable 2]`
+              }
+            ]
           }
         ]
       },
@@ -454,19 +598,51 @@ Contenu de [Contexte de base]
             id: 'revue-analytique-generale',
             label: 'Revue analytique générale',
             icon: <BarChart3 className="w-4 h-4" />,
-            command: `[Command] = Revue analytique
+            modes: [
+              {
+                id: 'normal',
+                label: 'Normal',
+                command: `[Command] = Revue analytique
 [Processus] = 
 [Période] = 
 [Objectif] = `
+              },
+              {
+                id: 'avance',
+                label: 'Avancé',
+                command: `[Command] = Revue analytique
+[Processus] = 
+[Période] = 
+[Objectif] = 
+[Variable 1] = Contenu de [Variable 1]
+[Variable 2] = Contenu de [Variable 2]`
+              }
+            ]
           },
           {
             id: 'analyse-variations',
             label: 'Analyse des variations',
             icon: <TrendingUp className="w-4 h-4" />,
-            command: `[Command] = Analyse des variations
+            modes: [
+              {
+                id: 'normal',
+                label: 'Normal',
+                command: `[Command] = Analyse des variations
 [Compte] = 
 [Période] = 
 [Seuil] = `
+              },
+              {
+                id: 'avance',
+                label: 'Avancé',
+                command: `[Command] = Analyse des variations
+[Compte] = 
+[Période] = 
+[Seuil] = 
+[Variable 1] = Contenu de [Variable 1]
+[Variable 2] = Contenu de [Variable 2]`
+              }
+            ]
           }
         ]
       },
@@ -1757,55 +1933,144 @@ Contenu de [Contexte de base]
             id: 'frap',
             label: 'Frap',
             icon: <AlertTriangle className="w-4 h-4" />,
-            command: `[Command] = /Frap
+            modes: [
+              {
+                id: 'normal',
+                label: 'Normal',
+                command: `[Command] = /Frap
 [Cycle] = Tresorerie
 [Assertion] = validité, formalisation
 [Anomalie] = pertes des factures pour 888 0000 FCFA
 [Integration] = integration_min`
+              },
+              {
+                id: 'avance',
+                label: 'Avancé',
+                command: `[Command] = /Frap
+[Cycle] = Tresorerie
+[Assertion] = validité, formalisation
+[Anomalie] = pertes des factures pour 888 0000 FCFA
+[Integration] = integration_min
+[Variable 1] = Contenu de [Variable 1]
+[Variable 2] = Contenu de [Variable 2]`
+              }
+            ]
           },
           {
             id: 'synthese-frap',
             label: 'Synthèse des frap',
             icon: <FileSearch className="w-4 h-4" />,
-            command: `[Command] = /Table synthese
+            modes: [
+              {
+                id: 'normal',
+                label: 'Normal',
+                command: `[Command] = /Table synthese
 [Command Manuel] = Étape mission
 [Étape précédente] = Frap
 [Étape mission] = Synthèse des Frap
 [Modèle] = 
 [Pièces jointes] = Frap de la mission`
+              },
+              {
+                id: 'avance',
+                label: 'Avancé',
+                command: `[Command] = /Table synthese
+[Command Manuel] = Étape mission
+[Étape précédente] = Frap
+[Étape mission] = Synthèse des Frap
+[Modèle] = 
+[Pièces jointes] = Frap de la mission
+[Variable 1] = Contenu de [Variable 1]
+[Variable 2] = Contenu de [Variable 2]`
+              }
+            ]
           },
           {
             id: 'rapport-provisoire',
             label: 'Rapport provisoire',
             icon: <FileText className="w-4 h-4" />,
-            command: `[Command] = /Table rapport_provisoire
+            modes: [
+              {
+                id: 'normal',
+                label: 'Normal',
+                command: `[Command] = /Table rapport_provisoire
 [Command Manuel] = Étape mission
 [Étape précédente] = Synthèse des Frap
 [Étape mission] = Rapport provisoire
 [Modèle] = 
 [Pièces jointes] = Synthèse des Frap`
+              },
+              {
+                id: 'avance',
+                label: 'Avancé',
+                command: `[Command] = /Table rapport_provisoire
+[Command Manuel] = Étape mission
+[Étape précédente] = Synthèse des Frap
+[Étape mission] = Rapport provisoire
+[Modèle] = 
+[Pièces jointes] = Synthèse des Frap
+[Variable 1] = Contenu de [Variable 1]
+[Variable 2] = Contenu de [Variable 2]`
+              }
+            ]
           },
           {
             id: 'rapport-final',
             label: 'Rapport final',
             icon: <FileCheck className="w-4 h-4" />,
-            command: `[Command] = /Table rapport_final
+            modes: [
+              {
+                id: 'normal',
+                label: 'Normal',
+                command: `[Command] = /Table rapport_final
 [Command Manuel] = Étape mission
 [Étape précédente] = Rapport provisoire
 [Étape mission] = Rapport final
 [Modèle] = 
 [Pièces jointes] = Rapport provisoire`
+              },
+              {
+                id: 'avance',
+                label: 'Avancé',
+                command: `[Command] = /Table rapport_final
+[Command Manuel] = Étape mission
+[Étape précédente] = Rapport provisoire
+[Étape mission] = Rapport final
+[Modèle] = 
+[Pièces jointes] = Rapport provisoire
+[Variable 1] = Contenu de [Variable 1]
+[Variable 2] = Contenu de [Variable 2]`
+              }
+            ]
           },
           {
             id: 'suivi-recos',
             label: 'Suivi des recos',
             icon: <CheckSquare className="w-4 h-4" />,
-            command: `[Command] = /Table suivi_recos
+            modes: [
+              {
+                id: 'normal',
+                label: 'Normal',
+                command: `[Command] = /Table suivi_recos
 [Command Manuel] = Étape mission
 [Étape précédente] = Rapport final
 [Étape mission] = Suivi des recos
 [Modèle] = 
 [Pièces jointes] = Rapport final`
+              },
+              {
+                id: 'avance',
+                label: 'Avancé',
+                command: `[Command] = /Table suivi_recos
+[Command Manuel] = Étape mission
+[Étape précédente] = Rapport final
+[Étape mission] = Suivi des recos
+[Modèle] = 
+[Pièces jointes] = Rapport final
+[Variable 1] = Contenu de [Variable 1]
+[Variable 2] = Contenu de [Variable 2]`
+              }
+            ]
           }
         ]
       }
@@ -1824,69 +2089,179 @@ Contenu de [Contexte de base]
             id: 'cartographie-processus',
             label: 'Cartographie des processus',
             icon: <Target className="w-4 h-4" />,
-            command: `[Command] = Etape de mission
+            modes: [
+              {
+                id: 'normal',
+                label: 'Normal',
+                command: `[Command] = Etape de mission
 [Cycle] = Tresorerie
 [Processus] = rapprochements bancaires
 [Etape précédente] = Prise de connaissance
 [Etape de mission] = Cartographie des processus
 [Modele] = Cycle, processus, sous processus, operations
 [Nb de lignes] = 50`
+              },
+              {
+                id: 'avance',
+                label: 'Avancé',
+                command: `[Command] = Etape de mission
+[Cycle] = Tresorerie
+[Processus] = rapprochements bancaires
+[Etape précédente] = Prise de connaissance
+[Etape de mission] = Cartographie des processus
+[Modele] = Cycle, processus, sous processus, operations
+[Nb de lignes] = 50
+[Variable 1] = Contenu de [Variable 1]
+[Variable 2] = Contenu de [Variable 2]`
+              }
+            ]
           },
           {
             id: 'question-identification-risques',
             label: 'Question Identification des risques',
             icon: <HelpCircle className="w-4 h-4" />,
-            command: `[Command] = Etape de mission
+            modes: [
+              {
+                id: 'normal',
+                label: 'Normal',
+                command: `[Command] = Etape de mission
 [Processus] = rapprochements bancaires
 [Etape précédente] = Cartographie des processus
 [Etape de mission] = Question Identification des risques
 [Modele] = Processus, sous processus, Questionnaire Identification des risques, Dispositif de maitrise des risques attendus
 [Nb de lignes] = 50`
+              },
+              {
+                id: 'avance',
+                label: 'Avancé',
+                command: `[Command] = Etape de mission
+[Processus] = rapprochements bancaires
+[Etape précédente] = Cartographie des processus
+[Etape de mission] = Question Identification des risques
+[Modele] = Processus, sous processus, Questionnaire Identification des risques, Dispositif de maitrise des risques attendus
+[Nb de lignes] = 50
+[Variable 1] = Contenu de [Variable 1]
+[Variable 2] = Contenu de [Variable 2]`
+              }
+            ]
           },
           {
             id: 'identification-risques',
             label: 'Identification des risques',
             icon: <AlertTriangle className="w-4 h-4" />,
-            command: `[Command] = Etape de mission
+            modes: [
+              {
+                id: 'normal',
+                label: 'Normal',
+                command: `[Command] = Etape de mission
 [Processus] = rapprochements bancaires
 [Etape précédente] = Question Identification des risques
 [Etape de mission] = Identification des risques
 [Modele] = sous processus, Point de controle, risque
 [Nb de lignes] = 50`
+              },
+              {
+                id: 'avance',
+                label: 'Avancé',
+                command: `[Command] = Etape de mission
+[Processus] = rapprochements bancaires
+[Etape précédente] = Question Identification des risques
+[Etape de mission] = Identification des risques
+[Modele] = sous processus, Point de controle, risque
+[Nb de lignes] = 50
+[Variable 1] = Contenu de [Variable 1]
+[Variable 2] = Contenu de [Variable 2]`
+              }
+            ]
           },
           {
             id: 'evaluation-risques',
             label: 'Évaluation des risques',
             icon: <BarChart3 className="w-4 h-4" />,
-            command: `[Command] = Etape de mission
+            modes: [
+              {
+                id: 'normal',
+                label: 'Normal',
+                command: `[Command] = Etape de mission
 [Processus] = rapprochements bancaires
 [Etape précédente] = Identification des risques
 [Etape de mission] = Evaluation des risques
 [Modele] = Point de controle, risque, évaluation risque, probabilité, impact
 [Nb de lignes] = 50`
+              },
+              {
+                id: 'avance',
+                label: 'Avancé',
+                command: `[Command] = Etape de mission
+[Processus] = rapprochements bancaires
+[Etape précédente] = Identification des risques
+[Etape de mission] = Evaluation des risques
+[Modele] = Point de controle, risque, évaluation risque, probabilité, impact
+[Nb de lignes] = 50
+[Variable 1] = Contenu de [Variable 1]
+[Variable 2] = Contenu de [Variable 2]`
+              }
+            ]
           },
           {
             id: 'plan-action-couverture',
             label: 'Plan d\'action de couverture des risques',
             icon: <CheckSquare className="w-4 h-4" />,
-            command: `[Command] = Etape de mission
+            modes: [
+              {
+                id: 'normal',
+                label: 'Normal',
+                command: `[Command] = Etape de mission
 [Processus] = rapprochements bancaires
 [Etape précédente] = Evaluation des risques
 [Etape de mission] = Plan d'action de couverture des risques
 [Modele] = Point de controle, risque, évaluation risque, probabilité, impact, Plan d'action de couverture des risques
 [Nb de lignes] = 50`
+              },
+              {
+                id: 'avance',
+                label: 'Avancé',
+                command: `[Command] = Etape de mission
+[Processus] = rapprochements bancaires
+[Etape précédente] = Evaluation des risques
+[Etape de mission] = Plan d'action de couverture des risques
+[Modele] = Point de controle, risque, évaluation risque, probabilité, impact, Plan d'action de couverture des risques
+[Nb de lignes] = 50
+[Variable 1] = Contenu de [Variable 1]
+[Variable 2] = Contenu de [Variable 2]`
+              }
+            ]
           },
           {
             id: 'mise-a-jour-cartographie',
             label: 'Mise à jour cartographie N-1',
             icon: <FileText className="w-4 h-4" />,
-            command: `[Command] = Etape de mission
+            modes: [
+              {
+                id: 'normal',
+                label: 'Normal',
+                command: `[Command] = Etape de mission
 [Processus] = rapprochements bancaires
 [Etape précédente] = Cartographie des risques N-1
 [Etape de mission] = Cartographie des risques
 [Modele] = Point de controle, risque, évaluation risque, probabilité, impact, controle audit
 [Extension] = objectif de controle, document
 [Nb de lignes] = 50`
+              },
+              {
+                id: 'avance',
+                label: 'Avancé',
+                command: `[Command] = Etape de mission
+[Processus] = rapprochements bancaires
+[Etape précédente] = Cartographie des risques N-1
+[Etape de mission] = Cartographie des risques
+[Modele] = Point de controle, risque, évaluation risque, probabilité, impact, controle audit
+[Extension] = objectif de controle, document
+[Nb de lignes] = 50
+[Variable 1] = Contenu de [Variable 1]
+[Variable 2] = Contenu de [Variable 2]`
+              }
+            ]
           }
         ]
       }
@@ -1906,23 +2281,58 @@ Contenu de [Contexte de base]
             label: 'Cartographie des risques',
             norme: '13.2 Évaluation des risques dans le cadre de la mission',
             icon: <Map className="w-4 h-4" />,
-            command: `[Command] = Cartographie des risques
+            modes: [
+              {
+                id: 'normal',
+                label: 'Normal',
+                command: `[Command] = Cartographie des risques
 [Processus] = inventaire de caisse
 [Risques critiques] = fraude
 [Objectif] = couvrir la fraude`
+              },
+              {
+                id: 'avance',
+                label: 'Avancé',
+                command: `[Command] = Cartographie des risques
+[Processus] = inventaire de caisse
+[Risques critiques] = fraude
+[Objectif] = couvrir la fraude
+[Variable 1] = Contenu de [Variable 1]
+[Variable 2] = Contenu de [Variable 2]`
+              }
+            ]
           },
           {
             id: 'matrice-surveillance',
             label: 'Matrice de surveillance permanente',
             norme: '13.5 Surveillance permanente des risques',
             icon: <BarChart3 className="w-4 h-4" />,
-            command: `[Command] = Etape de mission
+            modes: [
+              {
+                id: 'normal',
+                label: 'Normal',
+                command: `[Command] = Etape de mission
 [Processus] = rapprochements bancaires
 [Etape précédente] = Cartographie des risques
 [Etape de mission] = Matrice de surveillance permanente
 [Modele] = Point de controle, risque, controle de premier niveau, controle de second niveau, document
 [Directives] = 
 [Nb de lignes] = 50`
+              },
+              {
+                id: 'avance',
+                label: 'Avancé',
+                command: `[Command] = Etape de mission
+[Processus] = rapprochements bancaires
+[Etape précédente] = Cartographie des risques
+[Etape de mission] = Matrice de surveillance permanente
+[Modele] = Point de controle, risque, controle de premier niveau, controle de second niveau, document
+[Directives] = 
+[Nb de lignes] = 50
+[Variable 1] = Contenu de [Variable 1]
+[Variable 2] = Contenu de [Variable 2]`
+              }
+            ]
           }
         ]
       },
@@ -1935,12 +2345,30 @@ Contenu de [Contexte de base]
             label: 'Feuille couverture',
             norme: '14.6 Documentation relative à la mission',
             icon: <FileCheck className="w-4 h-4" />,
-            command: `[Command] = Couverture
+            modes: [
+              {
+                id: 'normal',
+                label: 'Normal',
+                command: `[Command] = Couverture
 [Processus] = Sécurité trésorerie
 [Contrôle] = Verifier l exhaustivite des inventaires de caisse
 [Instruction] = Template
 [Nb de lignes] = 15
 [Modele de test] = no, compte, site, libelle, solde BG, Solde Pv inventaire`
+              },
+              {
+                id: 'avance',
+                label: 'Avancé',
+                command: `[Command] = Couverture
+[Processus] = Sécurité trésorerie
+[Contrôle] = Verifier l exhaustivite des inventaires de caisse
+[Instruction] = Template
+[Nb de lignes] = 15
+[Modele de test] = no, compte, site, libelle, solde BG, Solde Pv inventaire
+[Variable 1] = Contenu de [Variable 1]
+[Variable 2] = Contenu de [Variable 2]`
+              }
+            ]
           }
         ]
       },
@@ -1953,67 +2381,170 @@ Contenu de [Contexte de base]
             label: 'Frap',
             norme: '14.3 Évaluation des constats',
             icon: <AlertTriangle className="w-4 h-4" />,
-            command: `[Command] = Frap
+            modes: [
+              {
+                id: 'normal',
+                label: 'Normal',
+                command: `[Command] = Frap
 [Processus] = 
 [Constat] = 
 [Recommandation] = `
+              },
+              {
+                id: 'avance',
+                label: 'Avancé',
+                command: `[Command] = Frap
+[Processus] = 
+[Constat] = 
+[Recommandation] = 
+[Variable 1] = Contenu de [Variable 1]
+[Variable 2] = Contenu de [Variable 2]`
+              }
+            ]
           },
           {
             id: 'synthese-frap',
             label: 'Synthèse des Frap',
             norme: '14.2 Analyses et constats potentiels de la mission',
             icon: <FileSearch className="w-4 h-4" />,
-            command: `[Command] = /Table synthese
+            modes: [
+              {
+                id: 'normal',
+                label: 'Normal',
+                command: `[Command] = /Table synthese
 [Command Manuel] = Étape mission
 [Étape précédente] = Frap
 [Étape mission] = Synthèse des Frap
 [Modèle] = 
 [Pièces jointes] = Frap de la mission`
+              },
+              {
+                id: 'avance',
+                label: 'Avancé',
+                command: `[Command] = /Table synthese
+[Command Manuel] = Étape mission
+[Étape précédente] = Frap
+[Étape mission] = Synthèse des Frap
+[Modèle] = 
+[Pièces jointes] = Frap de la mission
+[Variable 1] = Contenu de [Variable 1]
+[Variable 2] = Contenu de [Variable 2]`
+              }
+            ]
           },
           {
             id: 'rapport-provisoire',
             label: 'Rapport provisoire',
             norme: '14.5 Conclusions de la mission',
             icon: <FileText className="w-4 h-4" />,
-            command: `[Command] = /Table rapport_provisoire
+            modes: [
+              {
+                id: 'normal',
+                label: 'Normal',
+                command: `[Command] = /Table rapport_provisoire
 [Command Manuel] = Étape mission
 [Étape précédente] = Synthèse des Frap
 [Étape mission] = Rapport provisoire
 [Modèle] = 
 [Pièces jointes] = Synthèse des Frap`
+              },
+              {
+                id: 'avance',
+                label: 'Avancé',
+                command: `[Command] = /Table rapport_provisoire
+[Command Manuel] = Étape mission
+[Étape précédente] = Synthèse des Frap
+[Étape mission] = Rapport provisoire
+[Modèle] = 
+[Pièces jointes] = Synthèse des Frap
+[Variable 1] = Contenu de [Variable 1]
+[Variable 2] = Contenu de [Variable 2]`
+              }
+            ]
           },
           {
             id: 'reunion-cloture',
             label: 'Réunion de clôture',
             norme: '11.3 Communication des résultats',
             icon: <CheckSquare className="w-4 h-4" />,
-            command: `[Command] = Réunion de clôture
+            modes: [
+              {
+                id: 'normal',
+                label: 'Normal',
+                command: `[Command] = Réunion de clôture
 [Processus] = 
 [Objectif] = `
+              },
+              {
+                id: 'avance',
+                label: 'Avancé',
+                command: `[Command] = Réunion de clôture
+[Processus] = 
+[Objectif] = 
+[Variable 1] = Contenu de [Variable 1]
+[Variable 2] = Contenu de [Variable 2]`
+              }
+            ]
           },
           {
             id: 'rapport-final',
             label: 'Rapport final',
             norme: '15.1 Communication des résultats définitifs de la mission',
             icon: <FileCheck className="w-4 h-4" />,
-            command: `[Command] = /Table rapport_final
+            modes: [
+              {
+                id: 'normal',
+                label: 'Normal',
+                command: `[Command] = /Table rapport_final
 [Command Manuel] = Étape mission
 [Étape précédente] = Rapport provisoire
 [Étape mission] = Rapport final
 [Modèle] = 
 [Pièces jointes] = Rapport provisoire`
+              },
+              {
+                id: 'avance',
+                label: 'Avancé',
+                command: `[Command] = /Table rapport_final
+[Command Manuel] = Étape mission
+[Étape précédente] = Rapport provisoire
+[Étape mission] = Rapport final
+[Modèle] = 
+[Pièces jointes] = Rapport provisoire
+[Variable 1] = Contenu de [Variable 1]
+[Variable 2] = Contenu de [Variable 2]`
+              }
+            ]
           },
           {
             id: 'suivi-recos',
             label: 'Suivi des recos',
             norme: '15.2 Suivi des recommandations',
             icon: <CheckSquare className="w-4 h-4" />,
-            command: `[Command] = /Table suivi_recos
+            modes: [
+              {
+                id: 'normal',
+                label: 'Normal',
+                command: `[Command] = /Table suivi_recos
 [Command Manuel] = Étape mission
 [Étape précédente] = Rapport final
 [Étape mission] = Suivi des recos
 [Modèle] = 
 [Pièces jointes] = Rapport final`
+              },
+              {
+                id: 'avance',
+                label: 'Avancé',
+                command: `[Command] = /Table suivi_recos
+[Command Manuel] = Étape mission
+[Étape précédente] = Rapport final
+[Étape mission] = Suivi des recos
+[Modèle] = 
+[Pièces jointes] = Rapport final
+[Variable 1] = Contenu de [Variable 1]
+[Variable 2] = Contenu de [Variable 2]`
+              }
+            ]
           }
         ]
       }

@@ -212,7 +212,7 @@ const Onboarding = ({onComplete}: OnboardingProps) => {
                                     </div>
 
                                     <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 dark:text-white animate-fadeIn leading-tight">
-                                        Welcome to <span className="text-sakura-500">E-audit</span>
+                                        Bienvenue sur <span className="text-sakura-500">E-audit</span>
                                     </h1>
 
                                     <p className="text-base sm:text-lg md:text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto lg:mx-0 animate-fadeInUp delay-200 leading-relaxed">
@@ -268,13 +268,13 @@ const Onboarding = ({onComplete}: OnboardingProps) => {
                 className={`glassmorphic rounded-2xl p-6 sm:p-8 max-w-md w-full mx-4 space-y-4 sm:space-y-6 shadow-2xl ${animationClass}`}>
                 <div className="text-center space-y-2">
                     <h2 className="text-2xl font-semibold text-gray-900 dark:text-white">
-                        Let's Set Up E-audit
+                        Configuration de E-audit
                     </h2>
                     <p className="text-gray-600 dark:text-gray-400">
-                        {step === 1 ? "First, tell us a bit about yourself" :
-                            step === 2 ? "How can we reach you?" :
-                                step === 3 ? "Create your password" :
-                                    "Choose your preferred theme"}
+                        {step === 1 ? "D'abord, parlez-nous un peu de vous" :
+                            step === 2 ? "Comment pouvons-nous vous contacter ?" :
+                                step === 3 ? "Créez votre mot de passe" :
+                                    "Choisissez votre thème préféré"}
                     </p>
 
                     {/* Progress indicator */}
@@ -298,11 +298,11 @@ const Onboarding = ({onComplete}: OnboardingProps) => {
                                     <User className="w-6 h-6 text-sakura-500"/>
                                 </div>
                                 <h3 className="text-lg font-medium text-gray-900 dark:text-white">
-                                    What should I call you?
+                                    Comment devons-nous vous appeler ?
                                 </h3>
                             </div>
                             <p className="text-sm text-gray-600 dark:text-gray-400">
-                                Your name helps personalize your experience with E-audit.
+                                Votre nom permet de personnaliser votre expérience avec E-audit.
                             </p>
                             <input
                                 type="text"
@@ -310,7 +310,7 @@ const Onboarding = ({onComplete}: OnboardingProps) => {
                                 onChange={(e) => setFormData(prev => ({...prev, name: e.target.value}))}
                                 onKeyDown={handleKeyDown}
                                 className="w-full px-4 py-2 rounded-lg bg-white/50 border border-gray-200 focus:outline-none focus:border-sakura-300 dark:bg-gray-800/50 dark:border-gray-700 dark:text-gray-100"
-                                placeholder="Your name"
+                                placeholder="Votre nom"
                                 autoFocus
                             />
                         </div>
@@ -323,12 +323,11 @@ const Onboarding = ({onComplete}: OnboardingProps) => {
                                     <Mail className="w-6 h-6 text-sakura-500"/>
                                 </div>
                                 <h3 className="text-lg font-medium text-gray-900 dark:text-white">
-                                    How can we reach you?
+                                    Comment pouvons-nous vous contacter ?
                                 </h3>
                             </div>
                             <p className="text-sm text-gray-600 dark:text-gray-400">
-                                Your email is stored locally and never shared. It's used for future features like saving
-                                preferences across devices.
+                                Votre email est stocké localement et n'est jamais partagé. Il sera utilisé pour les fonctionnalités futures comme la sauvegarde des préférences entre appareils.
                             </p>
                             <input
                                 type="email"
@@ -336,7 +335,7 @@ const Onboarding = ({onComplete}: OnboardingProps) => {
                                 onChange={(e) => setFormData(prev => ({...prev, email: e.target.value}))}
                                 onKeyDown={handleKeyDown}
                                 className="w-full px-4 py-2 rounded-lg bg-white/50 border border-gray-200 focus:outline-none focus:border-sakura-300 dark:bg-gray-800/50 dark:border-gray-700 dark:text-gray-100"
-                                placeholder="your.email@example.com"
+                                placeholder="votre.email@exemple.com"
                                 autoFocus
                             />
                         </div>
@@ -350,12 +349,12 @@ const Onboarding = ({onComplete}: OnboardingProps) => {
                                     <Lock className="w-6 h-6 text-sakura-500"/>
                                 </div>
                                 <h3 className="text-lg font-medium text-gray-900 dark:text-white">
-                                    Create Your Password
+                                    Créez votre mot de passe
                                 </h3>
                             </div>
 
                             <p className="text-sm text-gray-600 dark:text-gray-400">
-                                Choose a secure password for your E-audit account.
+                                Choisissez un mot de passe sécurisé pour votre compte E-audit.
                             </p>
                             <input
                                 type="password"
@@ -363,7 +362,7 @@ const Onboarding = ({onComplete}: OnboardingProps) => {
                                 onChange={(e) => setFormData(prev => ({...prev, password: e.target.value}))}
                                 onKeyDown={handleKeyDown}
                                 className="w-full px-4 py-2 rounded-lg bg-white/50 border border-gray-200 focus:outline-none focus:border-sakura-300 dark:bg-gray-800/50 dark:border-gray-700 dark:text-gray-100"
-                                placeholder="Enter your password"
+                                placeholder="Entrez votre mot de passe"
                                 autoFocus
                             />
                         </div>
@@ -376,12 +375,12 @@ const Onboarding = ({onComplete}: OnboardingProps) => {
                                     <Palette className="w-6 h-6 text-sakura-500"/>
                                 </div>
                                 <h3 className="text-lg font-medium text-gray-900 dark:text-white">
-                                    Choose Your Theme
+                                    Choisissez votre thème
                                 </h3>
                             </div>
 
                             <p className="text-sm text-gray-600 dark:text-gray-400">
-                                Select your preferred interface theme. You can change this later in settings.
+                                Sélectionnez votre thème d'interface préféré. Vous pourrez le modifier plus tard dans les paramètres.
                             </p>
 
                             <div className="flex flex-col gap-4 mt-6">
@@ -398,8 +397,8 @@ const Onboarding = ({onComplete}: OnboardingProps) => {
                                         <Moon className="w-6 h-6"/>
                                     </div>
                                     <div className="flex-1 text-left">
-                                        <h4 className="font-medium text-gray-900 dark:text-white">Dark Mode</h4>
-                                        <p className="text-sm text-gray-600 dark:text-gray-400">Easier on the eyes, ideal for most environments</p>
+                                        <h4 className="font-medium text-gray-900 dark:text-white">Mode Sombre</h4>
+                                        <p className="text-sm text-gray-600 dark:text-gray-400">Plus doux pour les yeux, idéal pour la plupart des environnements</p>
                                     </div>
                                     {formData.theme_preference === 'dark' && (
                                         <Check className="w-5 h-5 text-sakura-500"/>
@@ -419,8 +418,8 @@ const Onboarding = ({onComplete}: OnboardingProps) => {
                                         <Sun className="w-6 h-6"/>
                                     </div>
                                     <div className="flex-1 text-left">
-                                        <h4 className="font-medium text-gray-900 dark:text-white">Light Mode</h4>
-                                        <p className="text-sm text-gray-600 dark:text-gray-400">Bright interface for daytime use</p>
+                                        <h4 className="font-medium text-gray-900 dark:text-white">Mode Clair</h4>
+                                        <p className="text-sm text-gray-600 dark:text-gray-400">Interface lumineuse pour une utilisation en journée</p>
                                     </div>
                                     {formData.theme_preference === 'light' && (
                                         <Check className="w-5 h-5 text-sakura-500"/>
@@ -442,8 +441,8 @@ const Onboarding = ({onComplete}: OnboardingProps) => {
                                         </div>
                                     </div>
                                     <div className="flex-1 text-left">
-                                        <h4 className="font-medium text-gray-900 dark:text-white">System Default</h4>
-                                        <p className="text-sm text-gray-600 dark:text-gray-400">Follow your device's theme settings</p>
+                                        <h4 className="font-medium text-gray-900 dark:text-white">Système par défaut</h4>
+                                        <p className="text-sm text-gray-600 dark:text-gray-400">Suit les paramètres de thème de votre appareil</p>
                                     </div>
                                     {formData.theme_preference === 'system' && (
                                         <Check className="w-5 h-5 text-sakura-500"/>
@@ -463,14 +462,14 @@ const Onboarding = ({onComplete}: OnboardingProps) => {
                                     onClick={() => setStep(step - 1)}
                                     className="px-6 py-2 rounded-lg text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-colors"
                                 >
-                                    Back
+                                    Retour
                                 </button>
                             ) : (
                                 <button
                                     onClick={() => handleNextSection('welcome')}
                                     className="px-6 py-2 rounded-lg text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-colors"
                                 >
-                                    Back to Welcome
+                                    Retour à l'accueil
                                 </button>
                             )}
 
@@ -494,7 +493,7 @@ const Onboarding = ({onComplete}: OnboardingProps) => {
                 transition-all disabled:bg-gray-400 disabled:cursor-not-allowed
                 hover:shadow-[0_0_20px_rgba(244,163,187,0.5)] hover:bg-sakura-400"
                             >
-                                {step === 4 ? 'Launch E-audit' : 'Continue'}
+                                {step === 4 ? 'Lancer E-audit' : 'Continuer'}
                             </button>
                         </>
                     )}

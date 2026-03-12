@@ -44,11 +44,14 @@ const UserProfileButton: React.FC<UserProfileButtonProps> = ({
             <div className="font-medium text-gray-800 dark:text-gray-200">{userName}</div>
           </div>
           <button
-            onClick={() => {
-              onPageChange('settings');
-              setIsOpen(false);
+            onClick={(e) => {
+              // Désactivé : le clic ne fait rien
+              e.preventDefault();
+              e.stopPropagation();
             }}
-            className="w-full flex items-center gap-2 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-sakura-50 dark:hover:bg-sakura-100/5"
+            className="w-full flex items-center gap-2 px-4 py-2 text-sm text-gray-400 dark:text-gray-600 cursor-not-allowed opacity-50"
+            disabled
+            title="Fonctionnalité désactivée"
           >
             <Settings className="w-4 h-4" />
             <span>Settings</span>
