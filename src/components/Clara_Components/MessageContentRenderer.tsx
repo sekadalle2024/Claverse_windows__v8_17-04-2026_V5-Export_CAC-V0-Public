@@ -19,6 +19,7 @@ import { Copy, Eye, EyeOff, ExternalLink, Code2, Loader2, BarChart3, GitBranch, 
 import { copyToClipboard } from '../../utils/clipboard';
 import { ClaraFileAttachment } from '../../types/clara_assistant_types';
 import CiaAccordionRenderer from './CiaAccordionRenderer';
+import CiaQcmAccordionRenderer from './CiaQcmAccordionRenderer';
 
 // Import Chart.js components
 import {
@@ -1192,6 +1193,24 @@ const MessageContentRenderer: React.FC<MessageContentRendererProps> = React.memo
     
     return elements;
   };
+
+  // ========================================================================
+  // SPECIAL FORMAT HANDLING: CIA QCM Accordion
+  // ========================================================================
+  if (processedContent.content.startsWith('__CIA_QCM_ACCORDION__')) {
+    try {
+      const jsonStr = processedContent.content.replace('__CIA_QCM_ACCORDION__', '');
+      const ciaQcmData = JSON.parse(jsonStr);
+      return (
+        <div className={`cia-qcm-accordion-container ${className}`}>
+          <CiaQcmAccordionRenderer data={ciaQcmData} isDark={darkMode} />
+        </div>
+      );
+    } catch (e) {
+      console.error('Failed to parse CIA QCM Accordion data:', e);
+      // Fall back to standard rendering if parsing fails
+    }
+  }
 
   // ========================================================================
   // SPECIAL FORMAT HANDLING: CIA Accordion

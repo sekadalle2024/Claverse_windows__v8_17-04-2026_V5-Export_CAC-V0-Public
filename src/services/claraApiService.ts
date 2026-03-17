@@ -71,8 +71,16 @@ export class ClaraApiService {
     } else if (msg.includes("Database")) {
       // Case 10 (endpoint) a priorité sur Case 5 (table locale)
       routeKey = "database_endpoint";
+    } else if ((msg.includes("CIA") || msg.includes("cia") || msg.includes("Cia")) &&
+      (msg.includes("Cours") || msg.includes("COURS") || msg.includes("cours"))) {
+      // Case 11 (CIA Cours)
+      routeKey = "cia_cours";
+    } else if ((msg.includes("CIA") || msg.includes("cia") || msg.includes("Cia")) &&
+      (msg.includes("Qcm") || msg.includes("QCM") || msg.includes("Question"))) {
+      // Case 12 (CIA Qcm)
+      routeKey = "cia_qcm";
     } else if (msg.includes("CIA") || msg.includes("cia") || msg.includes("Cia")) {
-      // Case 11 (CIA)
+      // CIA Générique (Fallback ou autre usage)
       routeKey = "cia";
     } else if (msg.includes("[Integration]")) {
       routeKey = "integration";
@@ -117,10 +125,20 @@ export class ClaraApiService {
         console.log("🔀 Router → Case 10 : integration_database");
         return "https://j17rkv4c.rpcld.cc/webhook/integration_database";
 
-      // ── Case 11 : CIA ───────────────────────────────────────────────────
-      case "cia":
-        console.log("🔀 Router → Case 11 : integration_cia");
+      // ── Case 11 : CIA Cours ───────────────────────────────────────────────────
+      case "cia_cours":
+        console.log("🔀 Router → Case 11 : cia_cours_gemini");
         return "http://localhost:5678/webhook/cia_cours_gemini";
+
+      // ── Case 12 : CIA QCM ─────────────────────────────────────────────────────
+      case "cia_qcm":
+        console.log("🔀 Router → Case 12 : qcm_cia_gemini");
+        return "http://localhost:5678/webhook/qcm_cia_gemini";
+
+      // ── Ancien Case 11 / CIA Générique ─────────────────────────────────────────
+      case "cia":
+        console.log("🔀 Router → Case CIA : integration_cia");
+        return "https://j17rkv4c.rpcld.cc/webhook/integration_cia";
 
       // ── Case 6 : Algorithme ─────────────────────────────────────────────
       case "algorithme":
@@ -598,6 +616,29 @@ export class ClaraApiService {
       return {
         content: "",
         metadata: { error: "Empty response from n8n", format: "error" },
+      };
+    }
+
+    // ========================================================================
+    // FORMAT 6: CIA QCM — Array with "Etape mission - CIA" containing tables
+    // ========================================================================
+    if (
+      Array.isArray(result) &&
+      result.length > 0 &&
+      result[0] &&
+      typeof result[0] === "object" &&
+      "Etape mission - CIA" in result[0]
+    ) {
+      console.log('✅ FORMAT 6 DETECTE: Réponse CIA QCM (Etape mission - CIA)');
+      const content = `__CIA_QCM_ACCORDION__${JSON.stringify(result)}`;
+      console.log("🔍 === FIN ANALYSE (FORMAT 6 - CIA QCM Accordion) ===");
+      return {
+        content,
+        metadata: {
+          format: "cia_qcm_accordion",
+          timestamp: new Date().toISOString(),
+          qcmGroupsCount: result[0]["Etape mission - CIA"].length,
+        },
       };
     }
 
