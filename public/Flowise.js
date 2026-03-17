@@ -1,14 +1,18 @@
 /**
- * Script dynamique pour les tables de critères dans Claraverse - V17.2 (Fix lignes vides rapport)
- * @version 17.2.0
+ * Script dynamique pour les tables de critères dans Claraverse - V17.3 (Table Notification remplace erreur)
+ * @version 17.3.0
  * @description
+ * - FIX V17.3: Remplacement du div d'erreur rouge par une table "Notification" conviviale
+ *   Lorsqu'aucune table de critère n'est trouvée ou que n8n ne retourne pas de tables,
+ *   la table Flowise est remplacée par une table à 1 colonne/1 ligne avec l'en-tête
+ *   "Notification" et un message d'aide invitant l'utilisateur à vérifier les étapes de mission.
  * - FIX V17.2: Suppression des lignes vides dans les tables de réponse n8n pour les rapports
  *   (Rapport final, Rapport provisoire, Synthèse) détectés dans la colonne Description
  * - FIX V17.1: Gestion correcte de tous les formats de réponse n8n (Array, Object, data, output, tables)
  * - Détecte dynamiquement le mot-clé depuis la table "Flowise" elle-même
  * - Plus besoin de SEARCH_KEYWORDS statiques - le mot-clé est extrait de la première ligne de la colonne "Flowise"
  * - Collecte toutes les tables des divs correspondantes basées sur ce mot-clé dynamique
- * - Capture le message utilisateur précédent la table déclencheuse et l'inclut dans l'envoi
+ * - Capture le message utilisateur précédant la table déclencheuse et l'inclut dans l'envoi
  * - Envoie les données HTML consolidées (critères + déclencheur + message utilisateur) à l'endpoint n8n
  * - Intègre les tables avec espacement correct et URLs fonctionnelles
  * - Traitement spécifique du markdown retourné par n8n
@@ -19,7 +23,7 @@
   "use strict";
 
   console.log(
-    "🚀 Initialisation du script dynamique de tables V17.2 (Fix lignes vides rapport)"
+    "🚀 Initialisation du script dynamique de tables V17.3 (Table Notification remplace erreur)"
   );
 
   //http://localhost:5678/webhook/htlm_processor
@@ -1317,29 +1321,60 @@ ${displayHTML}
       console.error("📍 Message d'erreur:", error.message);
       console.error("📍 Stack trace:", error.stack);
 
-      const errorMessage = document.createElement("div");
-      errorMessage.className = "my-4 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg";
-      errorMessage.innerHTML = `
-        <div class="flex items-start">
-          <span class="text-red-600 dark:text-red-400 mr-2">❌</span>
-          <div class="flex-1">
-            <div class="font-semibold text-red-800 dark:text-red-200 mb-1">
-              Erreur n8n
-            </div>
-            <div class="text-sm text-red-700 dark:text-red-300">
-              ${error.message}
-            </div>
-          </div>
-        </div>
-      `;
-
+      // ⭐ FIX V17.3: Remplacer la table Flowise + le message d'erreur par une table de notification unique
+      // Au lieu d'afficher un div d'erreur rouge en dessous de la table, on transforme la table Flowise
+      // en une table "Notification" avec un message convivial, et on ne génère plus d'erreur visible.
       const targetContainer = findTargetContainer(triggerTable);
+
       if (targetContainer) {
-        targetContainer.appendChild(errorMessage);
+        // Construire la table de notification
+        const notifTable = document.createElement("table");
+        notifTable.className = "min-w-full border border-gray-200 dark:border-gray-700 rounded-lg";
+        notifTable.style.cssText = "margin-bottom: 1.5rem; border-collapse: separate; border-spacing: 0;";
+
+        // En-tête : "Notification"
+        const notifThead = document.createElement("thead");
+        const notifHeaderTr = document.createElement("tr");
+        const notifTh = document.createElement("th");
+        notifTh.textContent = "Notification";
+        notifTh.className = "px-4 py-3 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-left font-semibold";
+        notifHeaderTr.appendChild(notifTh);
+        notifThead.appendChild(notifHeaderTr);
+        notifTable.appendChild(notifThead);
+
+        // Corps : une seule ligne avec le message convivial
+        const notifTbody = document.createElement("tbody");
+        const notifTr = document.createElement("tr");
+        notifTr.className = "bg-white dark:bg-gray-900";
+        const notifTd = document.createElement("td");
+        notifTd.textContent = "Merci de vous assurer que l'une des etapes de mission suivante existe dans l'interface : Frap, Synthèse, Rapport provisoire, Rapport Final";
+        notifTd.className = "px-4 py-3 border-b border-gray-200 dark:border-gray-700 text-sm";
+        notifTd.style.cssText = "overflow-wrap: break-word; white-space: pre-wrap;";
+        notifTr.appendChild(notifTd);
+        notifTbody.appendChild(notifTr);
+        notifTable.appendChild(notifTbody);
+
+        // Envelopper la table dans un overflow-x-auto
+        const notifWrapper = document.createElement("div");
+        notifWrapper.className = "overflow-x-auto my-4";
+
+        notifWrapper.appendChild(notifTable);
+
+        // Trouver et supprimer la table Flowise originale (et son wrapper overflow-x-auto si présent)
+        const triggerWrapper = triggerTable.closest(".overflow-x-auto") || triggerTable;
+        if (triggerWrapper && targetContainer.contains(triggerWrapper)) {
+          targetContainer.replaceChild(notifWrapper, triggerWrapper);
+          console.log("✅ Table Flowise remplacée par la table de notification");
+        } else {
+          // Si on ne peut pas remplacer, on insère avant et supprime la trigger table
+          targetContainer.insertBefore(notifWrapper, triggerTable);
+          triggerTable.parentNode && triggerTable.parentNode.removeChild(triggerTable);
+          console.log("✅ Table de notification insérée, table Flowise supprimée");
+        }
       }
 
-      // Retirer la classe processed pour permettre un nouveau traitement
-      parentDiv.classList.remove(CONFIG.PROCESSED_CLASS);
+      console.log(`ℹ️ Traitement terminé avec notification pour "${dynamicKeyword}"`);
+      // Ne pas retirer la classe processed : la table a été remplacée, pas besoin de retraiter
     }
   }
 

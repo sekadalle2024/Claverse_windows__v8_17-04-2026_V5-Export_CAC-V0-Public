@@ -71,6 +71,9 @@ export class ClaraApiService {
     } else if (msg.includes("Database")) {
       // Case 10 (endpoint) a priorité sur Case 5 (table locale)
       routeKey = "database_endpoint";
+    } else if (msg.includes("CIA") || msg.includes("cia") || msg.includes("Cia")) {
+      // Case 11 (CIA)
+      routeKey = "cia";
     } else if (msg.includes("[Integration]")) {
       routeKey = "integration";
     } else if (msg.includes("n8n_doc")) {
@@ -108,10 +111,16 @@ export class ClaraApiService {
         return "https://j17rkv4c.rpcld.cc/webhook/htlm_processor";
 
       // ── Case 5 / Case 10 : Database ─────────────────────────────────────
+      // ── Case 10 : Database ─────────────────────────────────────
       // Case 10 => endpoint HTTP dédié
       case "database_endpoint":
         console.log("🔀 Router → Case 10 : integration_database");
         return "https://j17rkv4c.rpcld.cc/webhook/integration_database";
+
+      // ── Case 11 : CIA ───────────────────────────────────────────────────
+      case "cia":
+        console.log("🔀 Router → Case 11 : integration_cia");
+        return "https://j17rkv4c.rpcld.cc/webhook/integration_cia";
 
       // ── Case 6 : Algorithme ─────────────────────────────────────────────
       case "algorithme":
