@@ -2,7 +2,7 @@
 
 ## Vue d'Ensemble
 
-Le système génère automatiquement 6 états de contrôle exhaustifs pour garantir la fiabilité et la cohérence des états financiers produits.
+Le système génère automatiquement 8 états de contrôle exhaustifs pour garantir la fiabilité et la cohérence des états financiers produits.
 
 ## 1. Statistiques de Couverture 📊
 
@@ -179,6 +179,150 @@ Ces comptes créent un déséquilibre car leur sens est contraire à celui atten
 
 ---
 
+## 7. Hypothèse d'Affectation du Résultat 💡
+
+### Objectif
+Calculer une hypothèse de ce qui se passerait si le résultat était affecté au passif (compte 13).
+
+### Principe
+Ce contrôle ne modifie PAS les données, il calcule uniquement une hypothèse pour vérifier si l'affectation du résultat équilibrerait le bilan.
+
+### Informations Affichées
+
+#### Situation Actuelle
+- **Actif** : Total de l'actif
+- **Passif** : Total du passif (sans le résultat)
+- **Différence** : Actif - Passif
+
+#### Hypothèse (si résultat affecté au passif)
+- **Résultat Net** : Montant du résultat (Produits - Charges)
+- **Passif + Résultat** : Passif après affectation hypothétique
+- **Différence** : Actif - (Passif + Résultat)
+- **Équilibre** : OUI si différence < 0,01
+
+### Type de Résultat
+- **Bénéfice** : Résultat positif (badge vert)
+- **Perte** : Résultat négatif (badge rouge)
+- **Nul** : Résultat = 0
+
+### Recommandation
+- **"Affecter le résultat au passif (compte 13)"** : Si l'hypothèse équilibre le bilan
+- **"Vérifier les écritures comptables"** : Si l'hypothèse ne résout pas le déséquilibre
+
+### Utilité
+- Comprendre l'origine d'un déséquilibre
+- Vérifier si le résultat a été correctement affecté
+- Identifier les erreurs de classification
+
+---
+
+## 8. Comptes avec Sens Anormal par Nature 🚨
+
+### Objectif
+Détecter les comptes ayant un solde contraire au sens normal attendu selon leur nature comptable spécifique (au-delà du simple contrôle par classe).
+
+### Différence avec le Contrôle par Classe
+- **Contrôle par classe** : Vérifie le sens selon la classe générale (1-7)
+- **Contrôle par nature** : Vérifie le sens selon la nature spécifique du compte (Capital social, Caisse, etc.)
+
+### Niveaux de Gravité
+
+#### 🔴 CRITIQUE - Déséquilibre majeur
+Exemples :
+- Capital social débiteur (101)
+- Caisse négative (54)
+- Banques créditrices (52, 53)
+
+**Action** : Correction immédiate requise
+
+#### 🟠 ÉLEVÉ - Anomalie comptable
+Exemples :
+- Immobilisations créditrices (21, 22, 23, 24)
+- Clients créditeurs (411)
+- État débiteur (44)
+- Réserves débitrices (11)
+
+**Action** : Vérification et correction prioritaire
+
+#### 🔵 MOYEN - À vérifier
+Exemples :
+- Report à nouveau débiteur (12)
+- Fournisseurs débiteurs (401)
+- Amortissements débiteurs (28)
+
+**Action** : Analyse et justification nécessaire
+
+#### ⚪ FAIBLE - Situation exceptionnelle possible
+Exemples :
+- Comptes de gestion avec sens inversé
+- Comptes de régularisation
+
+**Action** : Vérification de routine
+
+### Informations Affichées
+| Colonne | Description |
+|---------|-------------|
+| Gravité | Badge coloré (CRITIQUE, ÉLEVÉ, MOYEN, FAIBLE) |
+| N° Compte | Numéro du compte |
+| Nature | Nature comptable du compte |
+| Intitulé | Libellé du compte |
+| Sens Attendu | Sens normal selon la nature |
+| Sens Réel | Sens réel dans la balance (en couleur) |
+| Solde Net | Montant du solde |
+
+### Règles de Sens Normal
+
+Voir la documentation détaillée : `Doc_Etat_Fin/CONTROLE_SENS_ANORMAL_PAR_NATURE.md`
+
+### Exemples de Détection
+
+#### Exemple 1 : Capital Social Débiteur (CRITIQUE)
+```
+Compte : 101000 - Capital social
+Sens attendu : CRÉDIT
+Sens réel : DÉBIT
+Solde : 50 000 (débiteur)
+Impact : Le capital ne peut pas être débiteur
+```
+
+#### Exemple 2 : Caisse Négative (CRITIQUE)
+```
+Compte : 541000 - Caisse
+Sens attendu : DÉBIT
+Sens réel : CRÉDIT
+Solde : -5 000 (créditeur)
+Impact : La caisse ne peut pas être négative
+```
+
+#### Exemple 3 : Banque Créditrice (CRITIQUE)
+```
+Compte : 521100 - Banque SGCI
+Sens attendu : DÉBIT
+Sens réel : CRÉDIT
+Solde : -15 000 (créditeur)
+Impact : Découvert bancaire - À reclasser en dettes financières
+```
+
+### Actions Correctives
+
+#### Pour les Comptes CRITIQUES
+1. Vérifier les écritures comptables
+2. Corriger les erreurs de saisie
+3. Reclasser les comptes si nécessaire
+4. Justifier les situations exceptionnelles
+
+#### Pour les Comptes ÉLEVÉS
+1. Analyser les causes
+2. Vérifier la cohérence avec les pièces justificatives
+3. Documenter les situations particulières
+
+#### Pour les Comptes MOYENS
+1. Analyser le contexte
+2. Justifier les situations
+3. Documenter pour l'audit
+
+---
+
 ## Utilisation des États de Contrôle
 
 ### Workflow Recommandé
@@ -192,16 +336,21 @@ Ces comptes créent un déséquilibre car leur sens est contraire à celui atten
    - Vérifier le taux de couverture (objectif : ≥ 95%)
    - Contrôler l'équilibre du bilan
    - Vérifier la cohérence du résultat
+   - Examiner l'hypothèse d'affectation du résultat
+   - Analyser les comptes avec sens anormal par nature
 
 3. **Traitement des anomalies**
-   - Examiner les comptes non intégrés
-   - Analyser les comptes avec sens inversé
-   - Corriger les comptes en déséquilibre
+   - **Priorité 1** : Comptes CRITIQUES (sens anormal par nature)
+   - **Priorité 2** : Comptes en déséquilibre
+   - **Priorité 3** : Comptes non intégrés
+   - **Priorité 4** : Comptes avec sens inversé (classe)
+   - **Priorité 5** : Comptes ÉLEVÉS et MOYENS (sens anormal par nature)
 
 4. **Validation**
    - Tous les contrôles au vert
    - Taux de couverture satisfaisant
    - Équilibres respectés
+   - Aucun compte CRITIQUE détecté
 
 ### Seuils de Qualité
 
@@ -211,6 +360,8 @@ Ces comptes créent un déséquilibre car leur sens est contraire à celui atten
 | Équilibre bilan | < 0,01 | 0,01-0,1 | > 0,1 |
 | Cohérence résultat | < 0,01 | 0,01-0,1 | > 0,1 |
 | Comptes non intégrés | 0-5 | 6-20 | > 20 |
+| Comptes CRITIQUES | 0 | 0 | > 0 |
+| Comptes ÉLEVÉS | 0-2 | 3-10 | > 10 |
 
 ---
 
@@ -248,6 +399,37 @@ Ces comptes créent un déséquilibre car leur sens est contraire à celui atten
 **Solution** :
 - Vérifier les écritures comptables
 - Corriger la balance si erreur de saisie
+
+### Exemple 4 : Sens Anormal par Nature (CRITIQUE)
+
+**Problème** : Compte 521100 "Banque SGCI" avec solde créditeur de -15 000
+
+**Analyse** :
+- Nature : Banques (gravité CRITIQUE)
+- Sens attendu : DÉBIT
+- Sens réel : CRÉDIT
+- Impact : Découvert bancaire
+
+**Solution** :
+1. Vérifier s'il s'agit d'un découvert réel
+2. Si oui, reclasser en dettes financières (compte 56)
+3. Si non, corriger l'erreur de saisie
+
+### Exemple 5 : Hypothèse d'Affectation
+
+**Problème** : Bilan déséquilibré avec différence de 189 540 500
+
+**Analyse** :
+- Résultat Net : -189 540 500 (PERTE)
+- Actif : 181 162 530
+- Passif : 370 703 030
+- Différence avant : -189 540 500
+- Passif + Résultat : 181 162 530
+- Différence après : 0
+
+**Conclusion** : L'affectation du résultat au passif équilibrerait le bilan
+
+**Action** : Affecter le résultat au compte 13 (Report à nouveau ou Résultat de l'exercice)
 
 ---
 

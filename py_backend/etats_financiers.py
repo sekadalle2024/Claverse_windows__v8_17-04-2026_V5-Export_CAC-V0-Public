@@ -10,6 +10,9 @@ from typing import List, Dict, Any, Optional
 import logging
 import re
 
+# Import du module TFT
+from tableau_flux_tresorerie import calculer_tft
+
 # Configuration du logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("etats_financiers")
@@ -24,6 +27,8 @@ class ExcelUploadRequest(BaseModel):
     """Requête avec fichier Excel encodé en base64"""
     file_base64: str
     filename: str
+    file_n1_base64: Optional[str] = None  # Balance N-1 optionnelle
+    filename_n1: Optional[str] = None
 
 class EtatsFinanciersResponse(BaseModel):
     success: bool
@@ -325,6 +330,102 @@ def process_balance_to_etats_financiers(balance_df: pd.DataFrame, correspondance
         'pourcentage_actif': (montant_non_integre / total_actif * 100) if total_actif != 0 else 0
     }
     
+    # Contrôle spécifique : Comptes avec sens anormal par nature
+    # Définir les règles de sens normal par nature de compte
+    regles_sens_normal = {
+        # Classe 1 : Capitaux (normalement créditeurs)
+        '101': {'sens': 'credit', 'nature': 'Capital social', 'gravite': 'critique'},
+        '10': {'sens': 'credit', 'nature': 'Capital', 'gravite': 'critique'},
+        '11': {'sens': 'credit', 'nature': 'Réserves', 'gravite': 'elevee'},
+        '12': {'sens': 'credit', 'nature': 'Report à nouveau', 'gravite': 'moyenne'},
+        '13': {'sens': 'variable', 'nature': 'Résultat', 'gravite': 'faible'},
+        '14': {'sens': 'credit', 'nature': 'Subventions', 'gravite': 'elevee'},
+        '16': {'sens': 'credit', 'nature': 'Emprunts', 'gravite': 'elevee'},
+        
+        # Classe 2 : Immobilisations (normalement débitrices)
+        '21': {'sens': 'debit', 'nature': 'Immobilisations incorporelles', 'gravite': 'elevee'},
+        '22': {'sens': 'debit', 'nature': 'Terrains', 'gravite': 'elevee'},
+        '23': {'sens': 'debit', 'nature': 'Bâtiments', 'gravite': 'elevee'},
+        '24': {'sens': 'debit', 'nature': 'Matériel', 'gravite': 'elevee'},
+        '28': {'sens': 'credit', 'nature': 'Amortissements', 'gravite': 'moyenne'},
+        '29': {'sens': 'credit', 'nature': 'Provisions', 'gravite': 'moyenne'},
+        
+        # Classe 3 : Stocks (normalement débiteurs)
+        '31': {'sens': 'debit', 'nature': 'Marchandises', 'gravite': 'elevee'},
+        '32': {'sens': 'debit', 'nature': 'Matières premières', 'gravite': 'elevee'},
+        '33': {'sens': 'debit', 'nature': 'Autres approvisionnements', 'gravite': 'moyenne'},
+        
+        # Classe 4 : Tiers (sens variable selon le compte)
+        '401': {'sens': 'credit', 'nature': 'Fournisseurs', 'gravite': 'moyenne'},
+        '411': {'sens': 'debit', 'nature': 'Clients', 'gravite': 'moyenne'},
+        '421': {'sens': 'credit', 'nature': 'Personnel', 'gravite': 'moyenne'},
+        '43': {'sens': 'credit', 'nature': 'Organismes sociaux', 'gravite': 'elevee'},
+        '44': {'sens': 'credit', 'nature': 'État', 'gravite': 'elevee'},
+        
+        # Classe 5 : Trésorerie (normalement débiteurs sauf banques créditrices)
+        '52': {'sens': 'debit', 'nature': 'Banques', 'gravite': 'critique'},
+        '53': {'sens': 'debit', 'nature': 'Établissements financiers', 'gravite': 'critique'},
+        '54': {'sens': 'debit', 'nature': 'Caisse', 'gravite': 'critique'},
+        '57': {'sens': 'debit', 'nature': 'Régies d\'avances', 'gravite': 'elevee'},
+        
+        # Classe 6 : Charges (normalement débitrices)
+        '60': {'sens': 'debit', 'nature': 'Achats', 'gravite': 'moyenne'},
+        '61': {'sens': 'debit', 'nature': 'Transports', 'gravite': 'faible'},
+        '62': {'sens': 'debit', 'nature': 'Services extérieurs', 'gravite': 'faible'},
+        '63': {'sens': 'debit', 'nature': 'Autres services', 'gravite': 'faible'},
+        '64': {'sens': 'debit', 'nature': 'Impôts et taxes', 'gravite': 'moyenne'},
+        '66': {'sens': 'debit', 'nature': 'Charges de personnel', 'gravite': 'elevee'},
+        
+        # Classe 7 : Produits (normalement créditeurs)
+        '70': {'sens': 'credit', 'nature': 'Ventes', 'gravite': 'elevee'},
+        '71': {'sens': 'credit', 'nature': 'Subventions d\'exploitation', 'gravite': 'moyenne'},
+        '72': {'sens': 'credit', 'nature': 'Production immobilisée', 'gravite': 'faible'},
+        '75': {'sens': 'credit', 'nature': 'Autres produits', 'gravite': 'faible'},
+    }
+    
+    comptes_sens_anormal = []
+    
+    for idx, row in balance_df.iterrows():
+        numero = str(row.get(col_map['numero'], '')).strip()
+        if not numero or numero == 'nan' or not numero[0].isdigit():
+            continue
+        
+        intitule = str(row.get(col_map['intitule'], '')).strip() if col_map['intitule'] else ''
+        solde_debit = clean_number(row.get(col_map['solde_debit'], 0)) if col_map['solde_debit'] else 0
+        solde_credit = clean_number(row.get(col_map['solde_credit'], 0)) if col_map['solde_credit'] else 0
+        solde_net = solde_debit - solde_credit
+        
+        if abs(solde_net) < 0.01:
+            continue
+        
+        # Déterminer le sens réel
+        sens_reel = 'debit' if solde_net > 0 else 'credit'
+        
+        # Chercher la règle applicable (du plus spécifique au plus général)
+        regle = None
+        for longueur in [6, 5, 4, 3, 2, 1]:
+            if longueur <= len(numero):
+                racine = numero[:longueur]
+                if racine in regles_sens_normal:
+                    regle = regles_sens_normal[racine]
+                    break
+        
+        if regle and regle['sens'] != 'variable' and regle['sens'] != sens_reel:
+            comptes_sens_anormal.append({
+                'numero': numero,
+                'intitule': intitule,
+                'nature': regle['nature'],
+                'sens_attendu': regle['sens'],
+                'sens_reel': sens_reel,
+                'solde_net': solde_net,
+                'solde_debit': solde_debit,
+                'solde_credit': solde_credit,
+                'gravite': regle['gravite'],
+                'impact_potentiel': 'Déséquilibre majeur' if regle['gravite'] == 'critique' else 'Anomalie comptable'
+            })
+    
+    controles['comptes_sens_anormal_par_nature'] = comptes_sens_anormal
+    
     logger.info(f"✅ États financiers calculés:")
     logger.info(f"   - Total Actif: {format_number(total_actif)}")
     logger.info(f"   - Total Passif: {format_number(total_passif)}")
@@ -333,6 +434,7 @@ def process_balance_to_etats_financiers(balance_df: pd.DataFrame, correspondance
     logger.info(f"   - Résultat Net: {format_number(resultat_net_cr)}")
     logger.info(f"   - Comptes intégrés: {controles['statistiques']['comptes_integres']}/{controles['statistiques']['total_comptes_balance']}")
     logger.info(f"   - Taux de couverture: {controles['statistiques']['taux_couverture']:.1f}%")
+    logger.info(f"   - Comptes sens anormal: {len(comptes_sens_anormal)}")
     
     return {
         'bilan_actif': results['bilan_actif'],
@@ -555,13 +657,11 @@ def generate_etats_financiers_html(results: Dict[str, Any]) -> str:
     <div class="etats-fin-container">
         <div class="etats-fin-header">
             <h2>📊 États Financiers SYSCOHADA Révisé</h2>
-            <p>Bilan et Compte de Résultat</p>
+            <p>Bilan, Compte de Résultat et États de Contrôle</p>
         </div>
     """
     
-    # ÉTATS DE CONTRÔLE EN PREMIER
-    html += generate_controles_html(controles, totaux)
-    
+    # 1. BILAN
     # Bilan Actif
     html += generate_section_html(
         "bilan_actif",
@@ -578,6 +678,7 @@ def generate_etats_financiers_html(results: Dict[str, Any]) -> str:
         totaux['passif']
     )
     
+    # 2. COMPTE DE RÉSULTAT
     # Compte de Résultat - Charges
     html += generate_section_html(
         "charges",
@@ -594,7 +695,7 @@ def generate_etats_financiers_html(results: Dict[str, Any]) -> str:
         totaux['produits']
     )
     
-    # Résultat Net
+    # 3. RÉSULTAT NET
     resultat_class = "resultat" if totaux['resultat_net'] >= 0 else "resultat negatif"
     resultat_label = "BÉNÉFICE" if totaux['resultat_net'] >= 0 else "PERTE"
     html += f"""
@@ -602,6 +703,12 @@ def generate_etats_financiers_html(results: Dict[str, Any]) -> str:
             <span>💰 RÉSULTAT NET ({resultat_label})</span>
             <span>{format_number(abs(totaux['resultat_net']))}</span>
         </div>
+    """
+    
+    # 4. ÉTATS DE CONTRÔLE (À LA FIN)
+    html += generate_controles_html(controles, totaux)
+    
+    html += """
     </div>
     """
     
@@ -825,6 +932,158 @@ def generate_controles_html(controles: Dict, totaux: Dict) -> str:
                         </td>
                     </tr>
             """
+        html += """
+                </tbody>
+            </table>
+        </div>
+        """
+    
+    # 7. Hypothèse d'affectation du résultat
+    hyp_affect = controles.get('hypothese_affectation_resultat', {})
+    if hyp_affect:
+        equilibre_apres = hyp_affect.get('equilibre_apres_affectation', False)
+        badge_class = 'success' if equilibre_apres else 'warning'
+        item_class = 'ok' if equilibre_apres else 'warning'
+        type_resultat = hyp_affect.get('type_resultat', 'Nul')
+        
+        html += f"""
+        <div class="controle-item {item_class}">
+            <div class="controle-label">
+                💡 Hypothèse d'Affectation du Résultat
+                <span class="badge {badge_class}">{type_resultat}</span>
+            </div>
+            <div class="controle-value">
+                <strong>SITUATION ACTUELLE:</strong>
+                <br>Actif: {format_number(hyp_affect.get('actif', 0))}
+                <br>Passif: {format_number(hyp_affect.get('passif_avant_affectation', 0))}
+                <br>Différence: {format_number(hyp_affect.get('difference_avant', 0))}
+                <br>
+                <br><strong>HYPOTHÈSE (si résultat affecté au passif):</strong>
+                <br>Résultat Net: {format_number(hyp_affect.get('resultat_net', 0))}
+                <br>Passif + Résultat: {format_number(hyp_affect.get('passif_apres_affectation', 0))}
+                <br>Différence: {format_number(hyp_affect.get('difference_apres', 0))}
+                <br>Équilibre: {'OUI' if equilibre_apres else 'NON'}
+                <br>
+                <br><strong>RECOMMANDATION:</strong> {hyp_affect.get('recommandation', '')}
+            </div>
+        </div>
+        """
+    
+    # 8. Comptes avec sens anormal par nature
+    comptes_anormaux = controles.get('comptes_sens_anormal_par_nature', [])
+    if comptes_anormaux:
+        # Grouper par gravité
+        critiques = [c for c in comptes_anormaux if c['gravite'] == 'critique']
+        eleves = [c for c in comptes_anormaux if c['gravite'] == 'elevee']
+        moyens = [c for c in comptes_anormaux if c['gravite'] == 'moyenne']
+        faibles = [c for c in comptes_anormaux if c['gravite'] == 'faible']
+        
+        # Déterminer la classe CSS globale
+        if critiques:
+            item_class = 'error'
+            badge_class = 'error'
+        elif eleves:
+            item_class = 'warning'
+            badge_class = 'warning'
+        else:
+            item_class = 'warning'
+            badge_class = 'warning'
+        
+        html += f"""
+        <div class="controle-item {item_class}">
+            <div class="controle-label">
+                🚨 Comptes avec Sens Anormal par Nature
+                <span class="badge {badge_class}">{len(comptes_anormaux)} compte(s)</span>
+            </div>
+            <div class="controle-value">
+                Comptes ayant un solde contraire au sens normal de leur nature comptable
+                <br>
+        """
+        
+        if critiques:
+            html += f"""
+                <br><strong style="color: #dc2626;">⚠️ CRITIQUES ({len(critiques)}) - Déséquilibre majeur:</strong>
+            """
+        
+        if eleves:
+            html += f"""
+                <br><strong style="color: #f59e0b;">⚠️ ÉLEVÉS ({len(eleves)}) - Anomalie comptable:</strong>
+            """
+        
+        if moyens:
+            html += f"""
+                <br><strong style="color: #3b82f6;">ℹ️ MOYENS ({len(moyens)}) - À vérifier:</strong>
+            """
+        
+        html += """
+            </div>
+            <table class="compte-table">
+                <thead>
+                    <tr>
+                        <th>Gravité</th>
+                        <th>N° Compte</th>
+                        <th>Nature</th>
+                        <th>Intitulé</th>
+                        <th>Sens Attendu</th>
+                        <th>Sens Réel</th>
+                        <th>Solde Net</th>
+                    </tr>
+                </thead>
+                <tbody>
+        """
+        
+        # Afficher les comptes critiques en premier
+        for compte in critiques[:5]:
+            html += f"""
+                    <tr style="background: #fee2e2;">
+                        <td><span class="badge error">CRITIQUE</span></td>
+                        <td>{compte['numero']}</td>
+                        <td>{compte['nature']}</td>
+                        <td>{compte['intitule'][:30]}</td>
+                        <td>{compte['sens_attendu'].upper()}</td>
+                        <td style="color: #dc2626; font-weight: 600;">{compte['sens_reel'].upper()}</td>
+                        <td>{format_number(compte['solde_net'])}</td>
+                    </tr>
+            """
+        
+        # Puis les élevés
+        for compte in eleves[:5]:
+            html += f"""
+                    <tr style="background: #fef3c7;">
+                        <td><span class="badge warning">ÉLEVÉ</span></td>
+                        <td>{compte['numero']}</td>
+                        <td>{compte['nature']}</td>
+                        <td>{compte['intitule'][:30]}</td>
+                        <td>{compte['sens_attendu'].upper()}</td>
+                        <td style="color: #f59e0b; font-weight: 600;">{compte['sens_reel'].upper()}</td>
+                        <td>{format_number(compte['solde_net'])}</td>
+                    </tr>
+            """
+        
+        # Puis les moyens
+        for compte in moyens[:5]:
+            html += f"""
+                    <tr>
+                        <td><span class="badge" style="background: #dbeafe; color: #1e40af;">MOYEN</span></td>
+                        <td>{compte['numero']}</td>
+                        <td>{compte['nature']}</td>
+                        <td>{compte['intitule'][:30]}</td>
+                        <td>{compte['sens_attendu'].upper()}</td>
+                        <td style="color: #3b82f6; font-weight: 600;">{compte['sens_reel'].upper()}</td>
+                        <td>{format_number(compte['solde_net'])}</td>
+                    </tr>
+            """
+        
+        total_affiches = min(5, len(critiques)) + min(5, len(eleves)) + min(5, len(moyens))
+        if len(comptes_anormaux) > total_affiches:
+            html += f"""
+                    <tr>
+                        <td colspan="7" style="text-align: center; font-style: italic;">
+                            ... et {len(comptes_anormaux) - total_affiches} autre(s) compte(s)
+                        </td>
+                    </tr>
+            """
+        
         html += """
                 </tbody>
             </table>

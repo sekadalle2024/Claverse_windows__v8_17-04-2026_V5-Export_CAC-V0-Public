@@ -331,6 +331,31 @@ if controles['comptes_non_integres']:
     for i, c in enumerate(controles['comptes_non_integres'][:10], 1):
         print(f"    {i}. {c['numero']:10} {c['intitule'][:40]:40} {c['solde_net']:>15,.2f}")
 
+# Comptes avec sens anormal par nature
+comptes_anormaux = controles.get('comptes_sens_anormal_par_nature', [])
+if comptes_anormaux:
+    print(f"\nCOMPTES AVEC SENS ANORMAL PAR NATURE: {len(comptes_anormaux)}")
+    
+    # Grouper par gravité
+    critiques = [c for c in comptes_anormaux if c['gravite'] == 'critique']
+    eleves = [c for c in comptes_anormaux if c['gravite'] == 'elevee']
+    moyens = [c for c in comptes_anormaux if c['gravite'] == 'moyenne']
+    
+    if critiques:
+        print(f"\n  CRITIQUES ({len(critiques)}) - Desequilibre majeur:")
+        for i, c in enumerate(critiques[:5], 1):
+            print(f"    {i}. {c['numero']:10} {c['nature']:30} Attendu: {c['sens_attendu']:6} Reel: {c['sens_reel']:6} Solde: {c['solde_net']:>15,.2f}")
+    
+    if eleves:
+        print(f"\n  ELEVES ({len(eleves)}) - Anomalie comptable:")
+        for i, c in enumerate(eleves[:5], 1):
+            print(f"    {i}. {c['numero']:10} {c['nature']:30} Attendu: {c['sens_attendu']:6} Reel: {c['sens_reel']:6} Solde: {c['solde_net']:>15,.2f}")
+    
+    if moyens:
+        print(f"\n  MOYENS ({len(moyens)}) - A verifier:")
+        for i, c in enumerate(moyens[:5], 1):
+            print(f"    {i}. {c['numero']:10} {c['nature']:30} Attendu: {c['sens_attendu']:6} Reel: {c['sens_reel']:6} Solde: {c['solde_net']:>15,.2f}")
+
 print("\n" + "="*80)
 print("TEST TERMINE")
 print("="*80)
