@@ -610,8 +610,8 @@ def generate_accordion_html(results: Dict[str, Any]) -> str:
         border-radius: 12px 12px 0 0;
         text-align: center;
     }
-    .lead-header h2 { margin: 0 0 8px 0; font-size: 18px; }
-    .lead-header p { margin: 0; opacity: 0.9; font-size: 14px; }
+    .lead-header h2 { margin: 0 0 8px 0; font-size: 22px; }
+    .lead-header p { margin: 0; opacity: 0.9; font-size: 16px; }
 
     .lead-category {
         margin-bottom: 16px;
@@ -622,7 +622,7 @@ def generate_accordion_html(results: Dict[str, Any]) -> str:
     .category-header {
         padding: 14px 18px;
         font-weight: 700;
-        font-size: 15px;
+        font-size: 17px;
         color: white;
     }
     .category-header.bilan { background: linear-gradient(135deg, #2c3e50, #34495e); }
@@ -632,7 +632,7 @@ def generate_accordion_html(results: Dict[str, Any]) -> str:
     .subcategory-header {
         padding: 10px 16px;
         font-weight: 600;
-        font-size: 14px;
+        font-size: 16px;
         border-radius: 6px;
         margin-bottom: 8px;
     }
@@ -655,7 +655,7 @@ def generate_accordion_html(results: Dict[str, Any]) -> str:
         background: #f8f9fa;
         cursor: pointer;
         font-weight: 500;
-        font-size: 13px;
+        font-size: 15px;
         transition: background 0.2s;
     }
     .section-header:hover { background: #e9ecef; }
@@ -680,7 +680,7 @@ def generate_accordion_html(results: Dict[str, Any]) -> str:
         padding: 12px 16px;
         background: #f8f9fa;
         border-bottom: 1px solid #e0e0e0;
-        font-size: 12px;
+        font-size: 14px;
         flex-wrap: wrap;
     }
     .section-table-wrapper { overflow-x: auto; }
@@ -688,7 +688,7 @@ def generate_accordion_html(results: Dict[str, Any]) -> str:
     .lead-table {
         width: 100%;
         border-collapse: collapse;
-        font-size: 11px;
+        font-size: 13px;
     }
     .lead-table th {
         background: #343a40;
@@ -745,7 +745,7 @@ def generate_accordion_html(results: Dict[str, Any]) -> str:
     .lead-balance-table {
         width: 100%;
         border-collapse: collapse;
-        font-size: 12px;
+        font-size: 14px;
     }
     .lead-balance-table th {
         background: #343a40;
@@ -774,7 +774,7 @@ def generate_accordion_html(results: Dict[str, Any]) -> str:
         background: #e8f5e9;
         border-left: 4px solid #28a745;
         margin: 8px;
-        font-size: 13px;
+        font-size: 15px;
     }
     .summary-box.warning {
         background: #fff3cd;

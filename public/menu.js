@@ -119,7 +119,8 @@
             { text: "Calcul des écarts", action: () => this.executePandasAgent(), shortcut: "Ctrl+P" },
             { text: "Modélisation tables", action: () => this.executeModelisation() },
             { text: "Modélisation table n8n", action: () => this.executeModelisationN8n(), shortcut: "Ctrl+M" },
-            { text: "📊 Lead Balance", action: () => this.executeLeadBalance(), shortcut: "Ctrl+L" }
+            { text: "📊 Lead Balance", action: () => this.executeLeadBalance(), shortcut: "Ctrl+L" },
+            { text: "📥 Export Lead Balance", action: () => this.exportLeadBalanceToExcel(), shortcut: "Ctrl+Shift+L" }
           ]
         },
         {
@@ -350,6 +351,7 @@
         if (e.ctrlKey && e.key === "p" && this.targetTable) { e.preventDefault(); this.executePandasAgent(); }
         if (e.ctrlKey && e.key === "m" && this.targetTable) { e.preventDefault(); this.executeModelisationN8n(); }
         if (e.ctrlKey && e.key === "l" && this.targetTable) { e.preventDefault(); this.executeLeadBalance(); }
+        if (e.ctrlKey && e.shiftKey && e.key === "L" && this.targetTable) { e.preventDefault(); this.exportLeadBalanceToExcel(); }
         if (e.ctrlKey && e.key === "f" && this.targetTable) { e.preventDefault(); this.executeEtatsFinanciers(); }
         // Raccourcis arithmétiques Ctrl+1 à Ctrl+5
         if (e.ctrlKey && e.key === "1" && this.targetTable) { e.preventDefault(); this.executeValidation(); }
@@ -5899,6 +5901,211 @@
       this.targetTable.parentNode.insertBefore(container, this.targetTable.nextSibling);
 
       console.log("✅ [Lead Balance] Résultats insérés sous la table");
+    }
+
+    /**
+     * Exporte les résultats Lead Balance vers un fichier Excel multi-onglets.
+     * Chaque section SYSCOHADA (Actif Immobilisé, Actif Circulant, etc.) devient un onglet.
+     */
+    async exportLeadBalanceToExcel() {
+      try {
+        // Vérifier si des résultats Lead Balance existent
+        const leadContainer = document.querySelector('.lead-syscohada-container');
+        if (!leadContainer) {
+          this.showAlert("⚠️ Aucun résultat Lead Balance trouvé. Veuillez d'abord exécuter le calcul Lead Balance.");
+          return;
+        }
+
+        this.showQuickNotification("📥 Préparation de l'export Excel...");
+        console.log("📥 [Export Lead Balance] Début de l'export");
+
+        // Charger la bibliothèque XLSX si elle n'est pas déjà chargée
+        if (typeof XLSX === 'undefined') {
+          await this.loadXLSXLibrary();
+        }
+
+        // Créer un nouveau classeur Excel
+        const workbook = XLSX.utils.book_new();
+
+        // Extraire les noms des onglets depuis les résultats
+        const sheetNames = this.extractSheetNamesFromLeadBalance(leadContainer);
+        console.log("📥 [Export Lead Balance] Onglets détectés:", sheetNames);
+
+        // Parcourir toutes les sections SYSCOHADA
+        const sections = leadContainer.querySelectorAll('.lead-syscohada-section');
+        let exportedCount = 0;
+
+        sections.forEach((section) => {
+          const sectionId = section.getAttribute('data-section');
+          const sectionHeader = section.querySelector('.section-header span');
+          const sectionTable = section.querySelector('.lead-table');
+
+          if (!sectionTable) return;
+
+          // Extraire le nom de la section (sans l'icône et le nombre de comptes)
+          let sectionName = sectionHeader ? sectionHeader.textContent.trim() : sectionId;
+          // Nettoyer le nom: enlever l'icône et le texte entre parenthèses
+          sectionName = sectionName.replace(/^[^\w\s]+\s*/, '').replace(/\s*\(\d+\s+comptes?\)/, '').trim();
+          
+          // Limiter à 31 caractères (limite Excel)
+          if (sectionName.length > 31) {
+            sectionName = sectionName.substring(0, 28) + '...';
+          }
+
+          // Extraire les données du tableau
+          const tableData = this.extractTableDataFromElement(sectionTable, sheetNames);
+          
+          if (tableData && tableData.length > 0) {
+            // Créer la feuille Excel
+            const worksheet = XLSX.utils.aoa_to_sheet(tableData);
+            
+            // Définir la largeur des colonnes
+            worksheet['!cols'] = [
+              { wch: 10 },  // Compte
+              { wch: 35 },  // Intitulé
+              { wch: 15 },  // Solde N
+              { wch: 15 },  // Solde N-1
+              { wch: 15 },  // Écart
+              { wch: 10 }   // Var %
+            ];
+
+            // Ajouter la feuille au classeur
+            XLSX.utils.book_append_sheet(workbook, worksheet, sectionName);
+            exportedCount++;
+            console.log(`📥 [Export Lead Balance] Section exportée: ${sectionName}`);
+          }
+        });
+
+        if (exportedCount === 0) {
+          this.showAlert("⚠️ Aucune donnée à exporter. Vérifiez que les résultats Lead Balance sont affichés.");
+          return;
+        }
+
+        // Générer le nom du fichier avec la date
+        const now = new Date();
+        const dateStr = now.toISOString().split('T')[0].replace(/-/g, '');
+        const timeStr = now.toTimeString().split(' ')[0].replace(/:/g, '');
+        const filename = `Lead_Balance_${dateStr}_${timeStr}.xlsx`;
+
+        // Générer et télécharger le fichier Excel
+        XLSX.writeFile(workbook, filename);
+
+        this.showQuickNotification(`✅ Export réussi: ${exportedCount} sections exportées dans ${filename}`);
+        console.log(`✅ [Export Lead Balance] Fichier généré: ${filename}`);
+
+      } catch (error) {
+        console.error("❌ [Export Lead Balance] Erreur:", error);
+        this.showAlert(`❌ Erreur lors de l'export: ${error.message}`);
+      }
+    }
+
+    /**
+     * Extrait les noms des onglets (N et N-1) depuis le header Lead Balance
+     */
+    extractSheetNamesFromLeadBalance(container) {
+      const header = container.querySelector('.lead-header p');
+      if (header) {
+        const text = header.textContent;
+        const match = text.match(/(\S+)\s+vs\s+(\S+)/);
+        if (match) {
+          return { n: match[1], n_1: match[2] };
+        }
+      }
+      return { n: 'N', n_1: 'N-1' };
+    }
+
+    /**
+     * Extrait les données d'un tableau HTML pour l'export Excel
+     */
+    extractTableDataFromElement(table, sheetNames) {
+      const data = [];
+      
+      // En-têtes
+      const headers = [];
+      const headerCells = table.querySelectorAll('thead th');
+      headerCells.forEach(th => {
+        let headerText = th.textContent.trim();
+        // Remplacer les noms génériques par les noms réels des onglets
+        headerText = headerText.replace(/Solde\s+N(?!\-)/g, `Solde ${sheetNames.n}`);
+        headerText = headerText.replace(/Solde\s+N-1/g, `Solde ${sheetNames.n_1}`);
+        headers.push(headerText);
+      });
+      data.push(headers);
+
+      // Lignes de données (tbody)
+      const rows = table.querySelectorAll('tbody tr');
+      rows.forEach(tr => {
+        const row = [];
+        const cells = tr.querySelectorAll('td');
+        cells.forEach(td => {
+          let cellText = td.textContent.trim();
+          // Nettoyer les nombres formatés (enlever les espaces)
+          if (td.classList.contains('number')) {
+            cellText = cellText.replace(/\s/g, '').replace(',', '.');
+            // Convertir en nombre si possible
+            const num = parseFloat(cellText);
+            if (!isNaN(num)) {
+              row.push(num);
+            } else {
+              row.push(cellText);
+            }
+          } else {
+            row.push(cellText);
+          }
+        });
+        if (row.length > 0) {
+          data.push(row);
+        }
+      });
+
+      // Ligne de total (tfoot) - optionnel
+      const totalRow = table.querySelector('tfoot tr');
+      if (totalRow) {
+        const row = [];
+        const cells = totalRow.querySelectorAll('td');
+        cells.forEach(td => {
+          let cellText = td.textContent.trim();
+          if (td.classList.contains('number')) {
+            cellText = cellText.replace(/\s/g, '').replace(',', '.');
+            const num = parseFloat(cellText);
+            if (!isNaN(num)) {
+              row.push(num);
+            } else {
+              row.push(cellText);
+            }
+          } else {
+            row.push(cellText);
+          }
+        });
+        if (row.length > 0) {
+          data.push(row);
+        }
+      }
+
+      return data;
+    }
+
+    /**
+     * Charge la bibliothèque XLSX dynamiquement si elle n'est pas disponible
+     */
+    loadXLSXLibrary() {
+      return new Promise((resolve, reject) => {
+        if (typeof XLSX !== 'undefined') {
+          resolve();
+          return;
+        }
+
+        const script = document.createElement('script');
+        script.src = 'https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js';
+        script.onload = () => {
+          console.log("📥 [Export Lead Balance] Bibliothèque XLSX chargée");
+          resolve();
+        };
+        script.onerror = () => {
+          reject(new Error("Impossible de charger la bibliothèque XLSX"));
+        };
+        document.head.appendChild(script);
+      });
     }
 
     // === ÉTATS FINANCIERS SYSCOHADA ===

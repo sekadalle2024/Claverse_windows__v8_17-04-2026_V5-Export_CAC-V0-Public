@@ -39,6 +39,7 @@ export class ClaraApiService {
   // Sentinelles internes retournées par le router pour les cas sans appel HTTP
   private readonly SENTINEL_DATABASE = "__INTERNAL__DATABASE__";
   private readonly SENTINEL_NOTIFICATION = "__INTERNAL__NOTIFICATION__";
+  private readonly SENTINEL_LEAD_BALANCE = "__INTERNAL__LEAD_BALANCE__";
 
   /**
    * Router n8n – Switch-case JavaScript
@@ -211,8 +212,8 @@ export class ClaraApiService {
 
       // ── Case 21 : Lead_balance ───────────────────────────────────────────
       case "lead_balance":
-        console.log("🔀 Router → Case 21 : lead_balance");
-        return "https://j17rkv4c.rpcld.cc/webhook/lead_balance";
+        console.log("🔀 Router → Case 21 : lead_balance (traitement local avec upload fichier)");
+        return this.SENTINEL_LEAD_BALANCE;
 
       // ── Case 22 : Règles et méthodes comptables ──────────────────────────
       case "regles_comptables":
@@ -897,6 +898,33 @@ export class ClaraApiService {
           content,
           timestamp: new Date(),
           metadata: { model: "local" },
+        };
+      }
+
+      // ── Case 21 : Lead_balance – Upload fichier Excel et traitement ──────
+      if (resolvedEndpoint === this.SENTINEL_LEAD_BALANCE) {
+        console.log("📊 [Lead Balance] Démarrage du processus - Déclenchement automatique");
+        
+        // Créer une table unicolonne avec entête "Lead_balance"
+        // Le script LeadBalanceAutoTrigger.js détectera cette table automatiquement
+        // et ouvrira le dialogue de sélection de fichier
+        const initialContent =
+          "| Lead_balance |\n" +
+          "|-------------|\n" +
+          "| 📂 Sélectionnez votre fichier Excel... |";
+        
+        // Retourner la table initiale
+        // La logique d'upload sera gérée automatiquement par LeadBalanceAutoTrigger.js
+        return {
+          id: `${Date.now()}-lead-balance`,
+          role: "assistant",
+          content: initialContent,
+          timestamp: new Date(),
+          metadata: { 
+            model: "local",
+            type: "auto_trigger_upload",
+            trigger_type: "lead_balance"
+          },
         };
       }
 
