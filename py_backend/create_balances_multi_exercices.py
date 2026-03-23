@@ -18,45 +18,67 @@ balance_demo = pd.read_excel('P000 -BALANCE DEMO.xls')
 print(f"Balance demo chargee: {len(balance_demo)} lignes")
 print(f"Colonnes: {balance_demo.columns.tolist()}")
 
-# Créer 3 versions de la balance avec variations
-def create_balance_variation(base_df, year_offset, variation_pct=0.15):
-    """Crée une variation de la balance pour un exercice différent"""
+# Créer 3 versions de la balance avec variations cohérentes
+def create_balance_variation(base_df, year_offset, base_growth_rate=0.05):
+    """
+    Crée une variation cohérente de la balance pour un exercice différent.
+    Les variations sont basées sur un taux de croissance cohérent par compte.
+    """
     df = base_df.copy()
     
-    # Fonction pour convertir et appliquer variation
-    def apply_variation(val, pct):
+    # Générer un facteur de croissance aléatoire par compte (stable pour les 3 années)
+    account_growth_factors = {}
+    
+    # Fonction pour convertir et appliquer variation cohérente
+    def apply_coherent_variation(val, account_id, year_offset):
         try:
             # Convertir en float
             num = float(str(val).replace(' ', '').replace(',', '.'))
-            # Appliquer variation
-            varied = num * (1 + random.uniform(-pct, pct))
+            
+            # Générer un facteur de croissance unique par compte si pas encore fait
+            if account_id not in account_growth_factors:
+                # Taux de croissance entre -5% et +15% par an
+                account_growth_factors[account_id] = random.uniform(-0.05, 0.15)
+            
+            # Appliquer le taux de croissance composé pour les années précédentes
+            growth_factor = account_growth_factors[account_id]
+            # year_offset est négatif (ex: -1 pour N-1, -2 pour N-2)
+            # On applique le facteur de croissance en sens inverse
+            multiplier = (1 + growth_factor) ** (-year_offset)
+            varied = num * multiplier
+            
             # Retourner au format string avec espaces
             return f"{varied:,.2f}".replace(',', ' ')
         except:
             return val
     
-    # Appliquer des variations aléatoires sur les montants
+    # Appliquer des variations cohérentes sur les montants
     for col in df.columns:
         col_lower = str(col).lower()
         if 'solde' in col_lower or ('débit' in col_lower and 'ant' not in col_lower) or ('crédit' in col_lower and 'ant' not in col_lower):
-            print(f"  Variation sur colonne: {col}")
-            df[col] = df[col].apply(lambda x: apply_variation(x, variation_pct))
+            print(f"  Variation cohérente sur colonne: {col}")
+            # Créer un identifiant de compte basé sur l'index
+            df[col] = df.index.map(lambda idx: apply_coherent_variation(
+                df.iloc[idx][col], 
+                f"account_{idx}", 
+                year_offset
+            ))
     
     return df
 
 # Créer les 3 balances
 print("\n" + "="*80)
-print("CRÉATION DES BALANCES AVEC VARIATIONS")
+print("CRÉATION DES BALANCES AVEC VARIATIONS COHÉRENTES")
 print("="*80)
 
 print("\nBalance N (2024) - Données originales")
 balance_n = balance_demo.copy()
 
-print("\nBalance N-1 (2023) - Variation de -10% à +10%")
-balance_n1 = create_balance_variation(balance_demo, -1, 0.10)
+print("\nBalance N-1 (2023) - Variation cohérente (croissance par compte)")
+balance_n1 = create_balance_variation(balance_demo, -1)
 
-print("\nBalance N-2 (2022) - Variation de -20% à +20%")
-balance_n2 = create_balance_variation(balance_demo, -2, 0.20)
+print("\nBalance N-2 (2022) - Variation cohérente (croissance par compte)")
+balance_n2 = create_balance_variation(balance_demo, -2)
 
 # Créer le fichier Excel avec 3 onglets
 output_file = 'BALANCES_N_N1_N2.xlsx'
