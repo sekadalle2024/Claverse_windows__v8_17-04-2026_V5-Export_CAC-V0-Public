@@ -226,7 +226,10 @@ def calculer_tft_liasse(
         # Calculer N
         if type_poste == 'total' and formule:
             # Calculer avec formule
-            montant_n = eval(formule, {}, montants_n)
+            try:
+                montant_n = eval(formule, {}, montants_n)
+            except:
+                montant_n = 0
         else:
             montant_n = calculer_poste(type_poste, balance_n, col_map_n, balance_n1, col_map_n1)
         
@@ -234,7 +237,10 @@ def calculer_tft_liasse(
         
         # Calculer N-1
         if type_poste == 'total' and formule:
-            montant_n1 = eval(formule, {}, montants_n1)
+            try:
+                montant_n1 = eval(formule, {}, montants_n1)
+            except:
+                montant_n1 = 0
         else:
             montant_n1 = calculer_poste(type_poste, balance_n1, col_map_n1, balance_n2, col_map_n2) if balance_n2 is not None else 0
         

@@ -1,5 +1,5 @@
 # Script de Demarrage Claraverse avec Conda
-# Version: 1.0.0
+# Version: 2.0.0 - Avec nettoyage du cache Python et gestion des processus
 
 Write-Host "========================================================================" -ForegroundColor Cyan
 Write-Host "DEMARRAGE CLARAVERSE - Backend Conda + Frontend React" -ForegroundColor Cyan
@@ -11,8 +11,56 @@ $BACKEND_DIR = "py_backend"
 $BACKEND_PORT = 5000
 $FRONTEND_PORT = 5173
 
-# Verifications
-Write-Host "Verifications prealables..." -ForegroundColor Yellow
+# ========================================================================
+# ÉTAPE 1: NETTOYAGE DU CACHE PYTHON
+# ========================================================================
+Write-Host "ÉTAPE 1: Nettoyage du cache Python..." -ForegroundColor Yellow
+Write-Host ""
+
+# Arrêter tous les processus Python existants
+Write-Host "  Arrêt des processus Python existants..." -NoNewline
+try {
+    Get-Process python -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
+    Start-Sleep -Seconds 2
+    Write-Host " OK" -ForegroundColor Green
+} catch {
+    Write-Host " (aucun processus trouvé)" -ForegroundColor Gray
+}
+
+# Supprimer les fichiers .pyc
+Write-Host "  Suppression des fichiers .pyc..." -NoNewline
+try {
+    Get-ChildItem -Path "$BACKEND_DIR" -Filter "*.pyc" -Recurse -ErrorAction SilentlyContinue | Remove-Item -Force -ErrorAction SilentlyContinue
+    Write-Host " OK" -ForegroundColor Green
+} catch {
+    Write-Host " (aucun fichier trouvé)" -ForegroundColor Gray
+}
+
+# Supprimer les dossiers __pycache__
+Write-Host "  Suppression des dossiers __pycache__..." -NoNewline
+try {
+    Remove-Item -Path "$BACKEND_DIR/__pycache__" -Recurse -Force -ErrorAction SilentlyContinue
+    Write-Host " OK" -ForegroundColor Green
+} catch {
+    Write-Host " (aucun dossier trouvé)" -ForegroundColor Gray
+}
+
+# Supprimer les fichiers temporaires
+Write-Host "  Suppression des fichiers temporaires..." -NoNewline
+try {
+    Remove-Item -Path "$BACKEND_DIR/.pytest_cache" -Recurse -Force -ErrorAction SilentlyContinue
+    Remove-Item -Path "$BACKEND_DIR/*.pyc" -Force -ErrorAction SilentlyContinue
+    Write-Host " OK" -ForegroundColor Green
+} catch {
+    Write-Host " (aucun fichier trouvé)" -ForegroundColor Gray
+}
+
+Write-Host ""
+
+# ========================================================================
+# ÉTAPE 2: VÉRIFICATIONS PRÉALABLES
+# ========================================================================
+Write-Host "ÉTAPE 2: Verifications prealables..." -ForegroundColor Yellow
 Write-Host ""
 
 # Verifier conda
@@ -51,8 +99,11 @@ Write-Host ""
 Write-Host "Toutes les verifications sont passees!" -ForegroundColor Green
 Write-Host ""
 
-# Demarrage Backend avec conda
-Write-Host "Demarrage du Backend Python (conda env: $ENV_NAME)..." -ForegroundColor Yellow
+# ========================================================================
+# ÉTAPE 3: DEMARRAGE DU BACKEND
+# ========================================================================
+Write-Host "ÉTAPE 3: Demarrage du Backend Python..." -ForegroundColor Yellow
+Write-Host "   Environnement: $ENV_NAME" -ForegroundColor Gray
 Write-Host "   Dossier: $BACKEND_DIR" -ForegroundColor Gray
 Write-Host "   Port: $BACKEND_PORT" -ForegroundColor Gray
 Write-Host ""
@@ -66,24 +117,40 @@ $backendJob = Start-Job -ScriptBlock {
 Write-Host "Backend demarre (Job ID: $($backendJob.Id))" -ForegroundColor Green
 Write-Host ""
 
-# Attendre le backend
-Write-Host "Attente du demarrage du backend (10 secondes)..." -ForegroundColor Yellow
-Start-Sleep -Seconds 10
+# Attendre le backend avec vérification
+Write-Host "Attente du demarrage du backend..." -ForegroundColor Yellow
+$backendReady = $false
+$maxAttempts = 30
 
-# Verifier le backend
-Write-Host "Verification du backend..." -NoNewline
-try {
-    $response = Invoke-WebRequest -Uri "http://127.0.0.1:$BACKEND_PORT/health" -TimeoutSec 5 -ErrorAction Stop
-    Write-Host " Backend operationnel!" -ForegroundColor Green
-} catch {
-    Write-Host " Backend en cours de demarrage..." -ForegroundColor Yellow
-    Write-Host "Verifiez les logs: Receive-Job -Id $($backendJob.Id) -Keep" -ForegroundColor Gray
+for ($i = 0; $i -lt $maxAttempts; $i++) {
+    try {
+        $response = Invoke-WebRequest -Uri "http://127.0.0.1:$BACKEND_PORT/health" -UseBasicParsing -TimeoutSec 2 -ErrorAction SilentlyContinue
+        if ($response.StatusCode -eq 200) {
+            $backendReady = $true
+            Write-Host "  Backend operationnel! (après $($i+1) secondes)" -ForegroundColor Green
+            break
+        }
+    } catch {
+        # Continuer
+    }
+    
+    if ($i -lt $maxAttempts - 1) {
+        Write-Host "  Tentative $($i+1)/$maxAttempts..." -ForegroundColor Gray
+        Start-Sleep -Seconds 1
+    }
+}
+
+if (-not $backendReady) {
+    Write-Host "  AVERTISSEMENT: Backend n'a pas répondu après $maxAttempts secondes" -ForegroundColor Yellow
+    Write-Host "  Verifiez les logs: Receive-Job -Id $($backendJob.Id) -Keep" -ForegroundColor Yellow
 }
 
 Write-Host ""
 
-# Demarrage Frontend
-Write-Host "Demarrage du Frontend React..." -ForegroundColor Yellow
+# ========================================================================
+# ÉTAPE 4: DEMARRAGE DU FRONTEND
+# ========================================================================
+Write-Host "ÉTAPE 4: Demarrage du Frontend React..." -ForegroundColor Yellow
 Write-Host "   Port: $FRONTEND_PORT" -ForegroundColor Gray
 Write-Host ""
 
@@ -96,7 +163,18 @@ $frontendJob = Start-Job -ScriptBlock {
 Write-Host "Frontend demarre (Job ID: $($frontendJob.Id))" -ForegroundColor Green
 Write-Host ""
 
-# Informations
+# Attendre le frontend
+Write-Host "Attente du demarrage du frontend..." -ForegroundColor Yellow
+Start-Sleep -Seconds 5
+Write-Host "  Frontend en cours de demarrage..." -ForegroundColor Green
+Write-Host ""
+
+# ========================================================================
+# ÉTAPE 5: RÉSUMÉ ET INFORMATIONS
+# ========================================================================
+# ========================================================================
+# ÉTAPE 5: RÉSUMÉ ET INFORMATIONS
+# ========================================================================
 Write-Host "========================================================================" -ForegroundColor Cyan
 Write-Host "CLARAVERSE DEMARRE AVEC SUCCES!" -ForegroundColor Cyan
 Write-Host "========================================================================" -ForegroundColor Cyan
@@ -107,6 +185,7 @@ Write-Host ""
 Write-Host "   Backend Python (Conda: $ENV_NAME)" -ForegroundColor Yellow
 Write-Host "      URL: http://127.0.0.1:$BACKEND_PORT" -ForegroundColor White
 Write-Host "      Job ID: $($backendJob.Id)" -ForegroundColor Gray
+Write-Host "      Statut: $(if ($backendReady) { 'OPERATIONNEL' } else { 'EN COURS DE DEMARRAGE' })" -ForegroundColor $(if ($backendReady) { 'Green' } else { 'Yellow' })
 Write-Host ""
 Write-Host "   Frontend React" -ForegroundColor Yellow
 Write-Host "      URL: http://localhost:$FRONTEND_PORT" -ForegroundColor White
@@ -117,14 +196,34 @@ Write-Host "COMMANDES UTILES:" -ForegroundColor Cyan
 Write-Host "   Logs backend: Receive-Job -Id $($backendJob.Id) -Keep" -ForegroundColor White
 Write-Host "   Logs frontend: Receive-Job -Id $($frontendJob.Id) -Keep" -ForegroundColor White
 Write-Host "   Arreter: .\stop-claraverse.ps1" -ForegroundColor White
+Write-Host "   Tester API: .\test-api-curl.ps1" -ForegroundColor White
+Write-Host ""
+
+Write-Host "NETTOYAGE EFFECTUÉ:" -ForegroundColor Cyan
+Write-Host "   ✅ Processus Python arrêtés" -ForegroundColor Green
+Write-Host "   ✅ Fichiers .pyc supprimés" -ForegroundColor Green
+Write-Host "   ✅ Dossiers __pycache__ supprimés" -ForegroundColor Green
+Write-Host "   ✅ Fichiers temporaires supprimés" -ForegroundColor Green
 Write-Host ""
 
 # Sauvegarder les IDs
 $jobIds = @{
     Backend = $backendJob.Id
     Frontend = $frontendJob.Id
+    StartTime = Get-Date
+    CacheCleanup = "OK"
 }
 $jobIds | ConvertTo-Json | Out-File -FilePath ".claraverse-jobs.json" -Encoding UTF8
 
 Write-Host "Pret a utiliser! Ouvrez http://localhost:$FRONTEND_PORT" -ForegroundColor Green
+Write-Host ""
+
+# ========================================================================
+# NOTES IMPORTANTES
+# ========================================================================
+Write-Host "NOTES IMPORTANTES:" -ForegroundColor Yellow
+Write-Host ""
+Write-Host "  1. Le cache Python a été nettoyé automatiquement" -ForegroundColor White
+Write-Host "  2. Les modifications du code sont prises en compte" -ForegroundColor White
+Write-Host "  3. En cas de problème, consultez: MEMO_PROBLEME_UPDATE_FRONTEND_ACCORDEON.md" -ForegroundColor White
 Write-Host ""

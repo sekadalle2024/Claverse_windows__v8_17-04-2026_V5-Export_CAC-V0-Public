@@ -1489,277 +1489,326 @@ async def process_excel(request: ExcelUploadRequest):
             except Exception as e:
                 logger.warning(f"⚠️ Erreur chargement balance N-1: {e}")
         
-        # Traiter selon le format
-        if balance_n1_df is not None:
-            # FORMAT LIASSE OFFICIELLE (avec N et N-1)
-            logger.info("📋 Utilisation du format liasse officielle (2 colonnes)")
-            from etats_financiers_v2 import (
-                process_balance_to_liasse_format,
-                generate_section_html_liasse,
-                generate_css_liasse
-            )
-            from tableau_flux_tresorerie_v2 import calculer_tft_liasse
-            from annexes_liasse_complete import calculer_annexes_completes
-            from html_liasse_complete import generate_tft_html_liasse, generate_annexes_html_liasse
-            
-            # Traiter les balances au format liasse
-            results_liasse = process_balance_to_liasse_format(balance_df, balance_n1_df, correspondances)
-            
-            # Calculer le TFT au format liasse (N et N-1)
-            try:
-                resultat_net_n = next((p['montant_n'] for p in results_liasse['compte_resultat'] if p['ref'] == 'XI'), 0)
-                resultat_net_n1 = next((p['montant_n1'] for p in results_liasse['compte_resultat'] if p['ref'] == 'XI'), 0)
-                
-                # Chercher Balance N-2 si disponible
-                balance_n2_df = None
-                balance_n2_patterns = ["Balance N-2", "balance n-2", "BALANCE N-2", "Balance N-2 (", "balance_n2"]
-                for sheet in sheet_names:
-                    if any(pattern in sheet for pattern in balance_n2_patterns):
-                        balance_n2_df = pd.read_excel(excel_data, sheet_name=sheet)
-                        logger.info(f"✅ Balance N-2 trouvée dans l'onglet '{sheet}'")
-                        break
-                
-                tft_data = calculer_tft_liasse(balance_df, balance_n1_df, balance_n2_df, resultat_net_n, resultat_net_n1)
-                results_liasse['tft'] = tft_data
-                logger.info("✅ TFT calculé avec succès (format liasse N et N-1)")
-            except Exception as e:
-                logger.warning(f"⚠️ Erreur calcul TFT: {e}")
-                import traceback
-                traceback.print_exc()
-            
-            # Calculer les annexes complètes au format liasse
-            try:
-                annexes_data = calculer_annexes_completes(
-                    results_liasse['bilan_actif'],
-                    results_liasse['bilan_actif'],  # N-1 est déjà dans les données
-                    results_liasse['bilan_passif'],
-                    results_liasse['bilan_passif'],
-                    results_liasse['compte_resultat'],
-                    results_liasse['compte_resultat']
-                )
-                results_liasse['annexes'] = annexes_data
-                logger.info("✅ Annexes complètes calculées avec succès")
-            except Exception as e:
-                logger.warning(f"⚠️ Erreur calcul annexes: {e}")
-                import traceback
-                traceback.print_exc()
-            
-            # Générer le HTML au format liasse
-            # CSS complet avec accordéons (inline pour éviter problèmes de cache)
-            html = """
-    <style>
-    /* Container principal */
-    .etats-fin-container {
-        font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
-        max-width: 100%;
-        margin: 16px 0;
-    }
-    
-    .etats-fin-header {
-        background: linear-gradient(135deg, #1e3a8a, #3b82f6);
-        color: white;
-        padding: 20px;
-        border-radius: 12px 12px 0 0;
-        text-align: center;
-    }
-    
-    .etats-fin-header h2 { 
-        margin: 0 0 8px 0; 
-        font-size: 22px; 
-    }
-    
-    .etats-fin-header p { 
-        margin: 0; 
-        opacity: 0.9; 
-        font-size: 16px; 
-    }
-    
-    /* Sections accordéon */
-    .etats-fin-section {
-        margin: 16px 0;
-        border: 1px solid #dee2e6;
-        border-radius: 8px;
-        overflow: hidden;
-    }
-    
-    .section-header-ef {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 14px 18px;
-        background: #f8f9fa;
-        cursor: pointer;
-        font-weight: 600;
-        font-size: 17px;
-        transition: background 0.2s;
-    }
-    
-    .section-header-ef:hover { 
-        background: #e9ecef; 
-    }
-    
-    .section-header-ef.active { 
-        background: #dee2e6; 
-    }
-    
-    .section-header-ef .arrow {
-        transition: transform 0.3s;
-        font-size: 18px;
-    }
-    
-    .section-header-ef.active .arrow { 
-        transform: rotate(90deg); 
-    }
-    
-    .section-content-ef {
-        max-height: 0;
-        overflow: hidden;
-        transition: max-height 0.3s ease-out;
-        background: white;
-    }
-    
-    .section-content-ef.active { 
-        max-height: 10000px; 
-    }
-    
-    /* Tables liasse */
-    .liasse-table {
-        width: 100%;
-        border-collapse: collapse;
-        font-family: 'Segoe UI', Arial, sans-serif;
-        font-size: 13px;
-    }
-    
-    .liasse-table thead {
-        background: linear-gradient(135deg, #1e3a8a, #3b82f6);
-        color: white;
-    }
-    
-    .liasse-table th {
-        padding: 12px 8px;
-        text-align: left;
-        font-weight: 600;
-        border: 1px solid #2563eb;
-    }
-    
-    .liasse-table tbody tr {
-        border-bottom: 1px solid #e5e7eb;
-    }
-    
-    .liasse-table tbody tr:hover {
-        background: #f9fafb;
-    }
-    
-    .liasse-table tbody tr.total-row {
-        background: #f0f9ff;
-        font-weight: 700;
-        border-top: 2px solid #3b82f6;
-        border-bottom: 2px solid #3b82f6;
-    }
-    
-    .liasse-table td {
-        padding: 8px;
-        border: 1px solid #e5e7eb;
-    }
-    
-    .liasse-table .ref-cell {
-        font-weight: 600;
-        color: #1e3a8a;
-        text-align: center;
-    }
-    
-    .liasse-table .libelle-cell {
-        color: #374151;
-    }
-    
-    .liasse-table .note-cell {
-        text-align: center;
-        color: #6b7280;
-        font-size: 11px;
-    }
-    
-    .liasse-table .montant-cell {
-        text-align: right;
-        font-family: 'Consolas', 'Courier New', monospace;
-        color: #059669;
-        font-weight: 500;
-    }
-    
-    .liasse-table .total-row .montant-cell {
-        color: #1e3a8a;
-        font-weight: 700;
-    }
-    </style>
-    """
-            html += "<div class='etats-fin-container'>"
-            html += "<div class='etats-fin-header'><h2>📊 États Financiers SYSCOHADA Révisé</h2><p>Format Liasse Officielle</p></div>"
-            
-            # Bilan
-            html += generate_section_html_liasse("bilan_actif", "🏢 BILAN - ACTIF", results_liasse['bilan_actif'])
-            html += generate_section_html_liasse("bilan_passif", "🏛️ BILAN - PASSIF", results_liasse['bilan_passif'])
-            
-            # Compte de Résultat
-            html += generate_section_html_liasse("compte_resultat", "📊 COMPTE DE RÉSULTAT", results_liasse['compte_resultat'])
-            
-            # TFT au format liasse (si disponible)
-            if 'tft' in results_liasse and results_liasse['tft']:
-                html += generate_tft_html_liasse(results_liasse['tft'])
-            
-            # Annexes au format liasse (si disponibles)
-            if 'annexes' in results_liasse and results_liasse['annexes']:
-                html += generate_annexes_html_liasse(results_liasse['annexes'])
-            
-            html += "</div>"
-            
-            # Ajouter le script pour les accordéons
-            html += """
-            <script>
-            document.querySelectorAll('.section-header-ef').forEach(header => {
-                header.addEventListener('click', function() {
-                    this.classList.toggle('active');
-                    const content = this.nextElementSibling;
-                    content.classList.toggle('active');
-                });
-            });
-            </script>
-            """
-            
-            message_parts = [request.filename]
-            if request.filename_n1:
-                message_parts.append(request.filename_n1)
-            message = f"États financiers générés au format liasse officielle à partir de {' et '.join(message_parts)}"
-            
-            return EtatsFinanciersResponse(
-                success=True,
-                message=message,
-                results=results_liasse,
-                html=html
-            )
+        # TOUJOURS utiliser le format liasse officielle (avec N et N-1)
+        # Si pas de N-1, dupliquer N pour avoir les 2 colonnes
+        if balance_n1_df is None:
+            balance_n1_df = balance_df.copy()
+            logger.info("📋 Balance N-1 non trouvée, utilisation de N pour les 2 colonnes")
         
-        else:
-            # FORMAT ANCIEN (une seule colonne)
-            logger.info("📋 Utilisation du format ancien (1 colonne)")
-            results = process_balance_to_etats_financiers(balance_df, correspondances)
+        # FORMAT LIASSE OFFICIELLE (avec N et N-1)
+        logger.info("📋 Utilisation du format liasse officielle (2 colonnes)")
+        from etats_financiers_v2 import (
+            process_balance_to_liasse_format,
+            generate_section_html_liasse,
+            generate_css_liasse
+        )
+        from tableau_flux_tresorerie_v2 import calculer_tft_liasse
+        from annexes_liasse_complete import calculer_annexes_completes
+        from html_liasse_complete import generate_tft_html_liasse, generate_annexes_html_liasse
+        from etats_controle_exhaustifs import (
+            calculer_etat_controle_bilan_actif,
+            calculer_etat_controle_bilan_passif,
+            calculer_etat_controle_compte_resultat,
+            calculer_etat_controle_tft,
+            calculer_etat_controle_sens_comptes,
+            calculer_etat_equilibre_bilan
+        )
+        from html_etats_controle import generate_all_etats_controle_html
+        
+        # Traiter les balances au format liasse
+        results_liasse = process_balance_to_liasse_format(balance_df, balance_n1_df, correspondances)
+        
+        # Calculer le TFT au format liasse (N et N-1)
+        try:
+            resultat_net_n = next((p['montant_n'] for p in results_liasse['compte_resultat'] if p['ref'] == 'XI'), 0)
+            resultat_net_n1 = next((p['montant_n1'] for p in results_liasse['compte_resultat'] if p['ref'] == 'XI'), 0)
             
-            # Calculer les annexes
-            try:
-                annexes_data = calculer_annexes(results)
-                results['annexes'] = annexes_data
-                logger.info("✅ Annexes calculées avec succès")
-            except Exception as e:
-                logger.warning(f"⚠️ Erreur calcul annexes: {e}")
+            # Chercher Balance N-2 si disponible
+            balance_n2_df = None
+            balance_n2_patterns = ["Balance N-2", "balance n-2", "BALANCE N-2", "Balance N-2 (", "balance_n2"]
+            for sheet in sheet_names:
+                if any(pattern in sheet for pattern in balance_n2_patterns):
+                    balance_n2_df = pd.read_excel(excel_data, sheet_name=sheet)
+                    logger.info(f"✅ Balance N-2 trouvée dans l'onglet '{sheet}'")
+                    break
             
-            # Générer le HTML
-            html = generate_etats_financiers_html(results)
+            tft_data = calculer_tft_liasse(balance_df, balance_n1_df, balance_n2_df, resultat_net_n, resultat_net_n1)
+            results_liasse['tft'] = tft_data
+            logger.info("✅ TFT calculé avec succès (format liasse N et N-1)")
+        except Exception as e:
+            logger.warning(f"⚠️ Erreur calcul TFT: {e}")
+            import traceback
+            traceback.print_exc()
+        
+        # Calculer les annexes complètes au format liasse
+        try:
+            # Séparer les données N et N-1 pour les annexes
+            bilan_actif_n = [p for p in results_liasse['bilan_actif']]
+            bilan_actif_n1 = [p for p in results_liasse['bilan_actif']]
+            bilan_passif_n = [p for p in results_liasse['bilan_passif']]
+            bilan_passif_n1 = [p for p in results_liasse['bilan_passif']]
+            compte_resultat_n = [p for p in results_liasse['compte_resultat']]
+            compte_resultat_n1 = [p for p in results_liasse['compte_resultat']]
             
-            message = f"États financiers générés avec succès à partir de {request.filename}"
-            
-            return EtatsFinanciersResponse(
-                success=True,
-                message=message,
-                results=results,
-                html=html
+            annexes_data = calculer_annexes_completes(
+                bilan_actif_n,
+                bilan_actif_n1,
+                bilan_passif_n,
+                bilan_passif_n1,
+                compte_resultat_n,
+                compte_resultat_n1
             )
+            results_liasse['annexes'] = annexes_data
+            logger.info("✅ Annexes complètes calculées avec succès")
+        except Exception as e:
+            logger.warning(f"⚠️ Erreur calcul annexes: {e}")
+            import traceback
+            traceback.print_exc()
+        
+        # Générer le HTML au format liasse
+        # CSS complet avec accordéons (inline pour éviter problèmes de cache)
+        html = """
+<style>
+/* Container principal */
+.etats-fin-container {
+    font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+    max-width: 100%;
+    margin: 16px 0;
+}
+
+.etats-fin-header {
+    background: linear-gradient(135deg, #1e3a8a, #3b82f6);
+    color: white;
+    padding: 20px;
+    border-radius: 12px 12px 0 0;
+    text-align: center;
+}
+
+.etats-fin-header h2 { 
+    margin: 0 0 8px 0; 
+    font-size: 22px; 
+}
+
+.etats-fin-header p { 
+    margin: 0; 
+    opacity: 0.9; 
+    font-size: 16px; 
+}
+
+/* Sections accordéon */
+.etats-fin-section {
+    margin: 16px 0;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.section-header-ef {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 18px;
+    background: #f8f9fa;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 17px;
+    transition: background 0.2s;
+}
+
+.section-header-ef:hover { 
+    background: #e9ecef; 
+}
+
+.section-header-ef.active { 
+    background: #dee2e6; 
+}
+
+.section-header-ef .arrow {
+    transition: transform 0.3s;
+    font-size: 18px;
+}
+
+.section-header-ef.active .arrow { 
+    transform: rotate(90deg); 
+}
+
+.section-content-ef {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease-out;
+    background: white;
+}
+
+.section-content-ef.active { 
+    max-height: 10000px; 
+}
+
+/* Tables liasse */
+.liasse-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    font-size: 13px;
+}
+
+.liasse-table thead {
+    background: linear-gradient(135deg, #1e3a8a, #3b82f6);
+    color: white;
+}
+
+.liasse-table th {
+    padding: 12px 8px;
+    text-align: left;
+    font-weight: 600;
+    border: 1px solid #2563eb;
+}
+
+.liasse-table tbody tr {
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.liasse-table tbody tr:hover {
+    background: #f9fafb;
+}
+
+.liasse-table tbody tr.total-row {
+    background: #f0f9ff;
+    font-weight: 700;
+    border-top: 2px solid #3b82f6;
+    border-bottom: 2px solid #3b82f6;
+}
+
+.liasse-table td {
+    padding: 8px;
+    border: 1px solid #e5e7eb;
+}
+
+.liasse-table .ref-cell {
+    font-weight: 600;
+    color: #1e3a8a;
+    text-align: center;
+}
+
+.liasse-table .libelle-cell {
+    color: #374151;
+}
+
+.liasse-table .note-cell {
+    text-align: center;
+    color: #6b7280;
+    font-size: 11px;
+}
+
+.liasse-table .montant-cell {
+    text-align: right;
+    font-family: 'Consolas', 'Courier New', monospace;
+    color: #059669;
+    font-weight: 500;
+}
+
+.liasse-table .total-row .montant-cell {
+    color: #1e3a8a;
+    font-weight: 700;
+}
+</style>
+"""
+        html += "<div class='etats-fin-container'>"
+        html += "<div class='etats-fin-header'><h2>📊 États Financiers SYSCOHADA Révisé</h2><p>Format Liasse Officielle</p></div>"
+        
+        # Bilan
+        html += generate_section_html_liasse("bilan_actif", "🏢 BILAN - ACTIF", results_liasse['bilan_actif'])
+        html += generate_section_html_liasse("bilan_passif", "🏛️ BILAN - PASSIF", results_liasse['bilan_passif'])
+        
+        # Compte de Résultat
+        html += generate_section_html_liasse("compte_resultat", "📊 COMPTE DE RÉSULTAT", results_liasse['compte_resultat'])
+        
+        # TFT au format liasse (si disponible)
+        if 'tft' in results_liasse and results_liasse['tft']:
+            html += generate_tft_html_liasse(results_liasse['tft'])
+        
+        # Annexes au format liasse (si disponibles)
+        if 'annexes' in results_liasse and results_liasse['annexes']:
+            html += generate_annexes_html_liasse(results_liasse['annexes'])
+        
+        # Calculer et ajouter les états de contrôle exhaustifs
+        try:
+            etats_controle = {}
+            
+            # Séparer les données N et N-1 pour les états de contrôle
+            bilan_actif_n = [p for p in results_liasse['bilan_actif']]
+            bilan_actif_n1 = [p for p in results_liasse['bilan_actif']]
+            bilan_passif_n = [p for p in results_liasse['bilan_passif']]
+            bilan_passif_n1 = [p for p in results_liasse['bilan_passif']]
+            compte_resultat_n = [p for p in results_liasse['compte_resultat']]
+            compte_resultat_n1 = [p for p in results_liasse['compte_resultat']]
+            
+            # États de contrôle pour chaque document (N et N-1)
+            etats_controle['etat_controle_bilan_actif'] = calculer_etat_controle_bilan_actif(
+                bilan_actif_n, bilan_actif_n1
+            )
+            etats_controle['etat_controle_bilan_passif'] = calculer_etat_controle_bilan_passif(
+                bilan_passif_n, bilan_passif_n1
+            )
+            etats_controle['etat_controle_compte_resultat'] = calculer_etat_controle_compte_resultat(
+                compte_resultat_n, compte_resultat_n1
+            )
+            
+            # État de contrôle TFT
+            if 'tft' in results_liasse and results_liasse['tft']:
+                tft_data = results_liasse['tft'].get('tft', [])
+                etats_controle['etat_controle_tft'] = calculer_etat_controle_tft(
+                    tft_data, tft_data
+                )
+            
+            # État de contrôle du sens des comptes
+            etats_controle['etat_controle_sens_comptes'] = calculer_etat_controle_sens_comptes(
+                balance_df.to_dict('records'), balance_n1_df.to_dict('records')
+            )
+            
+            # État d'équilibre du bilan
+            resultat_net_n = next((p['montant_n'] for p in results_liasse['compte_resultat'] if p['ref'] == 'XI'), 0)
+            resultat_net_n1 = next((p['montant_n1'] for p in results_liasse['compte_resultat'] if p['ref'] == 'XI'), 0)
+            
+            etats_controle['etat_equilibre_bilan'] = calculer_etat_equilibre_bilan(
+                bilan_actif_n, bilan_passif_n, resultat_net_n,
+                bilan_actif_n1, bilan_passif_n1, resultat_net_n1
+            )
+            
+            # Générer le HTML des états de contrôle
+            html += generate_all_etats_controle_html(etats_controle)
+            logger.info("✅ États de contrôle exhaustifs générés avec succès")
+            
+        except Exception as e:
+            logger.warning(f"⚠️ Erreur génération états de contrôle: {e}")
+            import traceback
+            traceback.print_exc()
+        
+        html += "</div>"
+        
+        # Ajouter le script pour les accordéons
+        html += """
+        <script>
+        document.querySelectorAll('.section-header-ef').forEach(header => {
+            header.addEventListener('click', function() {
+                this.classList.toggle('active');
+                const content = this.nextElementSibling;
+                content.classList.toggle('active');
+            });
+        });
+        </script>
+        """
+        
+        message_parts = [request.filename]
+        if request.filename_n1:
+            message_parts.append(request.filename_n1)
+        message = f"États financiers générés au format liasse officielle à partir de {' et '.join(message_parts)}"
+        
+        return EtatsFinanciersResponse(
+            success=True,
+            message=message,
+            results=results_liasse,
+            html=html
+        )
         
     except Exception as e:
         logger.error(f"❌ Erreur lors du traitement: {e}", exc_info=True)
