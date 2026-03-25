@@ -1923,129 +1923,50 @@ Contenu de [Contexte de base]
         label: 'Synthèse de mission',
         etapes: [
           {
-            id: 'frap',
-            label: 'Frap',
-            icon: <AlertTriangle className="w-4 h-4" />,
-            modes: [
-              {
-                id: 'normal',
-                label: 'Normal',
-                command: `[Command] = /Frap
-[Cycle] = Tresorerie
-[Assertion] = validité, formalisation
-[Anomalie] = pertes des factures pour 888 0000 FCFA
-[Integration] = integration_min`
-              },
-              {
-                id: 'avance',
-                label: 'Avancé',
-                command: `[Command] = /Frap
-[Cycle] = Tresorerie
-[Assertion] = validité, formalisation
-[Anomalie] = pertes des factures pour 888 0000 FCFA
-[Integration] = integration_min
-[Variable 1] = Contenu de [Variable 1]
-[Variable 2] = Contenu de [Variable 2]`
-              }
-            ]
-          },
-          {
-            id: 'synthese-frap',
-            label: 'Synthèse des frap',
-            icon: <FileSearch className="w-4 h-4" />,
-            modes: [
-              {
-                id: 'normal',
-                label: 'Normal',
-                command: `[Command] = Table_Template
-[Node] = Frap`
-              },
-              {
-                id: 'avance',
-                label: 'Avancé',
-                command: `[Command] = /Table synthese
-[Command Manuel] = Étape mission
-[Étape précédente] = Frap
-[Étape mission] = Synthèse des Frap
-[Modèle] = 
-[Pièces jointes] = Frap de la mission
-[Variable 1] = Contenu de [Variable 1]
-[Variable 2] = Contenu de [Variable 2]`
-              }
-            ]
-          },
-          {
-            id: 'rapport-provisoire',
-            label: 'Rapport provisoire',
-            icon: <FileText className="w-4 h-4" />,
-            modes: [
-              {
-                id: 'normal',
-                label: 'Normal',
-                command: `[Command] = Table_Template
-[Node] = Synthèse`
-              },
-              {
-                id: 'avance',
-                label: 'Avancé',
-                command: `[Command] = /Table rapport_provisoire
-[Command Manuel] = Étape mission
-[Étape précédente] = Synthèse des Frap
-[Étape mission] = Rapport provisoire
-[Modèle] = 
-[Pièces jointes] = Synthèse des Frap
-[Variable 1] = Contenu de [Variable 1]
-[Variable 2] = Contenu de [Variable 2]`
-              }
-            ]
-          },
-          {
-            id: 'rapport-final',
-            label: 'Rapport final',
+            id: 'recos-revision-comptes',
+            label: 'Recos revision des comptes',
             icon: <FileCheck className="w-4 h-4" />,
             modes: [
               {
                 id: 'normal',
                 label: 'Normal',
-                command: `[Command] = Table_Template
-[Node] = Rapport provisoire`
-              },
-              {
-                id: 'avance',
-                label: 'Avancé',
-                command: `[Command] = /Table rapport_final
-[Command Manuel] = Étape mission
-[Étape précédente] = Rapport provisoire
-[Étape mission] = Rapport final
-[Modèle] = 
-[Pièces jointes] = Rapport provisoire
-[Variable 1] = Contenu de [Variable 1]
-[Variable 2] = Contenu de [Variable 2]`
+                command: `[Command] : Recos revision des comptes
+[Cycle] : trésorerie
+[test] : AA040
+[reference] : test sur la validation du compte caisse
+[Nature de test] = [Rapprochement]
+[Assertion] = validité
+[Anomalie] = inexistence de pièce justificatives de caisse de 600 0000 FCFA sur les petites depenses fournisseurs`
               }
             ]
           },
           {
-            id: 'suivi-recos',
-            label: 'Suivi des recos',
-            icon: <CheckSquare className="w-4 h-4" />,
+            id: 'recos-controle-interne-comptable',
+            label: 'Recos contrôle interne comptable',
+            icon: <Shield className="w-4 h-4" />,
             modes: [
               {
                 id: 'normal',
                 label: 'Normal',
-                command: `[Command] = Table_Template
-[Node] = Rapport final`
-              },
+                command: `[Command] : Recos contrôle interne comptable
+[Cycle] : trésorerie
+[test] : AA010
+[reference] : test sur la validation du compte caisse
+[Nature de test] = [Rapprochement]
+[Assertion] = validité
+[Anomalie] = inexistence de pièce justificatives de caisse de 600 0000 FCFA sur les petites depenses fournisseurs`
+              }
+            ]
+          },
+          {
+            id: 'rapport-synthese-cac',
+            label: 'Rapport de synthèse CAC',
+            icon: <FileText className="w-4 h-4" />,
+            modes: [
               {
-                id: 'avance',
-                label: 'Avancé',
-                command: `[Command] = /Table suivi_recos
-[Command Manuel] = Étape mission
-[Étape précédente] = Rapport final
-[Étape mission] = Suivi des recos
-[Modèle] = 
-[Pièces jointes] = Rapport final
-[Variable 1] = Contenu de [Variable 1]
-[Variable 2] = Contenu de [Variable 2]`
+                id: 'normal',
+                label: 'Normal',
+                command: `[Command] : Rapport de synthèse CAC`
               }
             ]
           }
