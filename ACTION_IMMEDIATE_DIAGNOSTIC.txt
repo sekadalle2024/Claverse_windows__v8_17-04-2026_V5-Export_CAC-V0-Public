@@ -1,0 +1,68 @@
+═══════════════════════════════════════════════════════════════
+  ⚡ ACTION IMMÉDIATE - DIAGNOSTIC TABLES
+═══════════════════════════════════════════════════════════════
+
+🎯 OBJECTIF: Identifier pourquoi les tables ne sont pas détectées
+
+═══════════════════════════════════════════════════════════════
+  🚀 3 ÉTAPES SIMPLES
+═══════════════════════════════════════════════════════════════
+
+1️⃣  Ctrl+F5
+    (rafraîchir la page)
+
+2️⃣  Attendre 1 minute après le chargement
+    (2 alertes vont s'afficher automatiquement)
+
+3️⃣  M'envoyer le contenu des alertes
+    (capture d'écran ou texte copié)
+
+═══════════════════════════════════════════════════════════════
+  📊 CE QUE VOUS ALLEZ VOIR
+═══════════════════════════════════════════════════════════════
+
+ALERTE 1:
+┌─────────────────────────────────────┐
+│ 📊 DIAGNOSTIC DES TABLES            │
+│                                     │
+│ ✅ Nombre total de tables: X        │
+│                                     │
+│ 🎯 Classes CSS des 3 premières:    │
+│ Table 1: ...                        │
+│ Table 2: ...                        │
+│ Table 3: ...                        │
+└─────────────────────────────────────┘
+
+ALERTE 2:
+┌─────────────────────────────────────┐
+│ 🔍 RÉSULTATS DES SÉLECTEURS         │
+│                                     │
+│ table → X élément(s)                │
+│ .claraverse-table → X élément(s)    │
+│ [data-claraverse-table] → X         │
+│ div[class*="table"] table → X       │
+│ div[class*="chat"] table → X        │
+└─────────────────────────────────────┘
+
+═══════════════════════════════════════════════════════════════
+  ℹ️ POURQUOI ?
+═══════════════════════════════════════════════════════════════
+
+Le système ne détecte pas vos tables pour générer le rapport
+consolidé CAC. Ce diagnostic va m'aider à identifier le bon
+sélecteur CSS pour corriger le problème.
+
+═══════════════════════════════════════════════════════════════
+  📖 DOCUMENTATION COMPLÈTE
+═══════════════════════════════════════════════════════════════
+
+→ 00_DIAGNOSTIC_TABLES_RAPPORT.txt (instructions détaillées)
+→ Doc export rapport/DIAGNOSTIC_DETECTION_TABLES.md (technique)
+
+═══════════════════════════════════════════════════════════════
+
+✅ Script d'alerte ajouté dans index.html
+✅ Documentation créée
+⏳ En attente de vos résultats
+
+═══════════════════════════════════════════════════════════════

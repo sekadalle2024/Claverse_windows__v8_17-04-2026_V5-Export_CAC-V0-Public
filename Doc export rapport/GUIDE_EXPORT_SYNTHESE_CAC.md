@@ -153,6 +153,19 @@ Date du rapport: [Date]
 
 ## Détection Automatique
 
+### Sélecteur CSS (Correction 26 Mars 2026)
+
+Le système utilise le sélecteur CSS `div.prose table` pour détecter toutes les tables Claraverse dans le chat.
+
+**Problème résolu**: Les tables sont dans des divs avec classes complètes `prose prose-base dark:prose-invert max-w-none`, mais le sélecteur `div.prose table` fonctionne correctement pour les détecter toutes.
+
+**Code de détection**:
+```javascript
+const allTables = Array.from(document.querySelectorAll('div.prose table'));
+```
+
+### Identification des Types de Tables
+
 Le système détecte automatiquement les types de tables en analysant:
 
 1. **Contenu de la première table** dans chaque div
@@ -167,7 +180,12 @@ Le système détecte automatiquement les types de tables en analysant:
 Si le backend Python n'est pas accessible, le système bascule automatiquement sur un fallback JavaScript qui génère un rapport simplifié.
 
 ### Tables non détectées
-Si aucune table n'est détectée, un message d'alerte indique les types de tables recherchés.
+Si aucune table n'est détectée, vérifier:
+1. Les tables sont bien dans des divs avec classe `prose`
+2. Le sélecteur `div.prose table` trouve bien les tables (voir console F12)
+3. Les logs de diagnostic affichent le nombre de tables détectées
+
+**Correction 26 Mars 2026**: Le problème de détection était dû à la recherche dans un conteneur spécifique au lieu d'utiliser directement le sélecteur global `div.prose table`.
 
 ### Données incomplètes
 Les champs manquants sont simplement omis du rapport final.

@@ -1,0 +1,61 @@
+========================================
+COMMENCER ICI - DIAGNOSTIC SÉLECTEURS
+========================================
+
+🎯 VOUS ÊTES ICI POUR:
+----------------------
+Corriger la détection des tables pour l'export Synthèse CAC
+
+⚡ 3 ACTIONS MAINTENANT
+-----------------------
+
+1. CTRL+F5
+   Rafraîchir le navigateur
+
+2. ATTENDRE 3 SECONDES
+   2 alertes vont s'afficher
+
+3. COPIER ET ENVOYER
+   Copier le contenu des alertes
+
+📚 DOCUMENTATION
+----------------
+
+Démarrage ultra-rapide:
+  ACTION_IMMEDIATE_DIAGNOSTIC_26_MARS_2026.txt
+
+Guide rapide:
+  QUICK_START_DIAGNOSTIC_SELECTEURS.txt
+
+Guide complet:
+  00_DIAGNOSTIC_SELECTEURS_CSS.txt
+
+Index complet:
+  INDEX_DIAGNOSTIC_SELECTEURS_26_MARS_2026.md
+
+Statut:
+  STATUT_FINAL_DIAGNOSTIC_26_MARS_2026.txt
+
+Liste des fichiers:
+  LISTE_FICHIERS_DIAGNOSTIC_26_MARS_2026.md
+
+🔧 SI VOUS VOULEZ CORRIGER MAINTENANT
+--------------------------------------
+
+Fichier: public/menu.js
+Ligne: ~7320
+
+Remplacer:
+  CHAT_TABLES: "table.min-w-full.border..."
+
+Par:
+  CHAT_TABLES: "table"
+
+Puis:
+1. Sauvegarder
+2. Ctrl+F5
+3. Tester
+
+========================================
+COMMENCEZ PAR: CTRL+F5
+========================================

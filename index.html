@@ -49,6 +49,75 @@
   <script src="/Flowise.js"></script>
   <script src="/Data.js"></script>
 
+  <!-- Diagnostic des tables Claraverse -->
+  <script src="/diagnostic-tables.js"></script>
+
+  <!-- Script d'alerte automatique pour diagnostic tables -->
+  <script>
+    // Attendre le chargement complet du DOM + 1 minute
+    window.addEventListener('DOMContentLoaded', () => {
+      console.log("🔍 [Diagnostic Auto] DOM chargé, attente de 1 minute...");
+      
+      setTimeout(() => {
+        console.log("🔍 [Diagnostic Auto] Démarrage du diagnostic des tables...");
+        
+        // Sélecteurs à tester
+        const selectors = [
+          'table',
+          '.claraverse-table',
+          '[data-claraverse-table]',
+          'div[class*="table"] table',
+          'div[class*="chat"] table'
+        ];
+        
+        let diagnosticInfo = "📊 DIAGNOSTIC DES TABLES\n\n";
+        
+        // Test 1: Compter toutes les tables
+        const allTables = document.querySelectorAll('table');
+        diagnosticInfo += `✅ Nombre total de tables: ${allTables.length}\n\n`;
+        
+        if (allTables.length > 0) {
+          diagnosticInfo += "🎯 Classes CSS des 3 premières tables:\n";
+          for (let i = 0; i < Math.min(3, allTables.length); i++) {
+            const table = allTables[i];
+            const classes = table.className || '(aucune classe)';
+            const parent = table.parentElement;
+            const parentClasses = parent ? parent.className || '(aucune classe)' : 'N/A';
+            diagnosticInfo += `\nTable ${i + 1}:\n`;
+            diagnosticInfo += `  - Classes: ${classes}\n`;
+            diagnosticInfo += `  - Parent: ${parent ? parent.tagName : 'N/A'}\n`;
+            diagnosticInfo += `  - Classes parent: ${parentClasses}\n`;
+          }
+        }
+        
+        // Afficher la première alerte
+        alert(diagnosticInfo);
+        
+        // Test 2: Tester différents sélecteurs
+        let selectorResults = "🔍 RÉSULTATS DES SÉLECTEURS\n\n";
+        
+        selectors.forEach(selector => {
+          try {
+            const elements = document.querySelectorAll(selector);
+            selectorResults += `${selector}\n`;
+            selectorResults += `  → ${elements.length} élément(s) trouvé(s)\n\n`;
+          } catch (error) {
+            selectorResults += `${selector}\n`;
+            selectorResults += `  → ERREUR: ${error.message}\n\n`;
+          }
+        });
+        
+        // Afficher la deuxième alerte
+        alert(selectorResults);
+        
+        console.log("✅ [Diagnostic Auto] Diagnostic terminé");
+        console.log(diagnosticInfo);
+        console.log(selectorResults);
+        
+      }, 60000); // 60 secondes (1 minute) après le chargement du DOM
+    });
+  </script>
+
   <!-- LocalStorage Cleanup Manager - DOIT être chargé EN PREMIER -->
   <script src="/localstorage-cleanup.js"></script>
 
@@ -58,7 +127,7 @@
   <!-- Scripts utilisant le système de persistance -->
   <script src="/menu.js"></script>
   <script src="/conso.js"></script>
-
+Ke 
   <!-- Lead SYSCOHADA - Sections comptables pour audit -->
   <script src="/lead-syscohada.js"></script>
 

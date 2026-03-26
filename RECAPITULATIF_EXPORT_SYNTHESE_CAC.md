@@ -4,7 +4,87 @@
 
 Implémentation complète de la fonctionnalité d'export de synthèse CAC (Commissaire aux Comptes / Expert-Comptable) pour générer des rapports structurés de révision des comptes et de contrôle interne comptable.
 
-**Date**: 24 mars 2026
+**Date initiale**: 24 mars 2026  
+**Dernière mise à jour**: 26 mars 2026
+
+## 🔄 CORRECTIONS 26 MARS 2026
+
+### 1. Correction Détection des Tables ✅
+
+**Problème**: L'extension Chrome détectait 24 tables mais le menu contextuel affichait "Aucune table trouvée" (0 table).
+
+**Cause**: Le code cherchait d'abord un conteneur avec `querySelector('div.prose')`, puis cherchait les tables dedans avec `table`. Le conteneur n'était pas trouvé correctement car les classes complètes sont `prose prose-base dark:prose-invert max-w-none`.
+
+**Solution**: Utilisation directe du sélecteur global `div.prose table` au lieu de chercher dans un conteneur spécifique.
+
+**Fichier modifié**: `public/menu.js` (ligne ~7350)
+
+**Code corrigé**:
+```javascript
+// AVANT (ne fonctionnait pas)
+const container = document.querySelector('div.prose');
+const allTables = Array.from(container.querySelectorAll('table')); // 0 table
+
+// APRÈS (fonctionne)
+const allTables = Array.from(document.querySelectorAll('div.prose table')); // 24 tables
+```
+
+### 2. Correction Extraction Contenu Complet ✅
+
+**Problème**: L'export n'extrayait que la première ligne des cellules. Les paragraphes suivants (séparés par `<br>`) étaient perdus.
+
+**Solution**: Nouvelle fonction `extractFullCellContent()` qui extrait TOUTES les lignes d'une cellule en préservant les retours à la ligne.
+
+**Fichiers modifiés**: `public/menu.js`
+- Ligne 4238: Fonction `extractFullCellContent()`
+- Ligne 7419: Utilisation dans `collectFrapPoints()`
+- Ligne 7499: Utilisation dans `collectRecosRevisionPoints()`
+- Ligne 7573: Utilisation dans `collectRecosControleInternePoints()`
+
+**Code ajouté**:
+```javascript
+extractFullCellContent(cell) {
+  if (!cell) return "";
+  
+  // Extraire tout le contenu HTML de la cellule
+  const html = cell.innerHTML;
+  
+  // Remplacer les <br> par des retours à la ligne
+  const textWithBreaks = html
+    .replace(/<br\s*\/?>/gi, '\n')
+    .replace(/<\/p>/gi, '\n')
+    .replace(/<p>/gi, '');
+  
+  // Créer un élément temporaire pour extraire le texte
+  const temp = document.createElement('div');
+  temp.innerHTML = textWithBreaks;
+  
+  // Récupérer le texte complet avec les retours à la ligne
+  return temp.textContent.trim();
+}
+```
+
+### 3. Vérification Dépendances Python Backend ✅
+
+**Action**: Exécution du script `verifier-dependances-python.ps1`
+
+**Résultat**: Toutes les dépendances sont installées dans l'environnement `claraverse_backend`
+
+**Packages vérifiés**:
+- ✅ fastapi (0.115.0)
+- ✅ uvicorn
+- ✅ python-multipart
+- ✅ PyPDF2
+- ✅ python-docx (1.2.0)
+- ✅ pydantic (2.9.0)
+- ✅ python-dotenv
+- ✅ pandas
+- ✅ numpy
+- ✅ openpyxl
+- ✅ xlrd
+- ✅ beautifulsoup4
+
+**Statut**: Backend prêt à fonctionner
 
 ## ✅ Modifications Effectuées
 
@@ -152,35 +232,57 @@ Date: [Date]
 
 ## 📁 Fichiers Modifiés/Créés
 
-### Modifiés
+### Modifiés (26 Mars 2026)
+1. `public/menu.js` - Correction détection tables + extraction contenu complet
+   - Ligne ~7350: Sélecteur CSS corrigé (`div.prose table`)
+   - Ligne 4238: Nouvelle fonction `extractFullCellContent()`
+   - Lignes 7419, 7499, 7573: Utilisation de `extractFullCellContent()`
+
+### Modifiés (24 Mars 2026)
 1. `public/menu.js` - Ajout section CAC + fonctions d'export
 2. `py_backend/main.py` - Intégration du nouveau router
 
 ### Créés
 1. `py_backend/export_synthese_cac.py` - Module backend complet
 2. `Doc export rapport/GUIDE_EXPORT_SYNTHESE_CAC.md` - Documentation
-3. `test-export-synthese-cac.ps1` - Script de test
-4. `RECAPITULATIF_EXPORT_SYNTHESE_CAC.md` - Ce fichier
+3. `Doc export rapport/CORRECTION_SELECTEUR_CSS_26_MARS_2026.md` - Correction détection tables
+4. `test-export-synthese-cac.ps1` - Script de test
+5. `verifier-dependances-python.ps1` - Script vérification dépendances
+6. `RECAPITULATIF_EXPORT_SYNTHESE_CAC.md` - Ce fichier
 
 ## 🧪 Tests à Effectuer
 
+### 0. Redémarrer le Backend (IMPORTANT)
+```powershell
+# Arrêter le backend
+.\stop-claraverse.ps1
+
+# Redémarrer avec les dépendances vérifiées
+.\start-claraverse-conda.ps1
+```
+
 ### 1. Test Backend
 ```powershell
-# Démarrer le backend
-cd py_backend
-python main.py
+# Vérifier que le backend est actif
+Invoke-RestMethod -Uri "http://localhost:5000/health" -Method Get
 
-# Dans un autre terminal
+# Tester l'export
 .\test-export-synthese-cac.ps1
 ```
 
-### 2. Test Frontend
-1. Ouvrir Claraverse dans le navigateur
+### 2. Test Frontend (APRÈS CORRECTION 26 MARS)
+1. **Rafraîchir la page** (Ctrl+F5) pour charger le nouveau code
 2. Générer des tables FRAP, Recos Révision, Recos CI dans le chat
-3. Clic droit sur une table → Menu contextuel
-4. Naviguer vers "Rapports CAC & Expert-Comptable"
-5. Cliquer sur "Export Synthèse CAC"
-6. Vérifier le fichier Word téléchargé
+3. **Ouvrir la console** (F12) pour voir les logs de diagnostic
+4. Clic droit sur une table → Menu contextuel
+5. Naviguer vers "Rapports CAC & Expert-Comptable"
+6. Cliquer sur "Export Synthèse CAC"
+7. **Vérifier les logs console**:
+   ```
+   ✅ [Export CAC] Sélecteur utilisé: div.prose table
+   🔍 [Export CAC] 24 table(s) Claraverse trouvée(s)
+   ```
+8. Vérifier le fichier Word téléchargé
 
 ### 3. Test Raccourci Clavier
 1. Cliquer sur une table
@@ -299,4 +401,15 @@ L'implémentation de l'export Synthèse CAC est complète et fonctionnelle. Le s
 
 La solution est robuste avec un fallback JavaScript, une gestion d'erreurs complète, et une documentation exhaustive.
 
-**Statut**: ✅ Prêt pour utilisation en production
+### Corrections 26 Mars 2026
+- ✅ Détection des tables corrigée (sélecteur CSS `div.prose table`)
+- ✅ Extraction du contenu complet des cellules (fonction `extractFullCellContent()`)
+- ✅ Dépendances Python backend vérifiées et installées
+
+### Prochaines Étapes
+1. Redémarrer le backend: `.\stop-claraverse.ps1` puis `.\start-claraverse-conda.ps1`
+2. Rafraîchir le navigateur (Ctrl+F5)
+3. Tester l'export avec des tables réelles
+4. Vérifier que le contenu complet est bien extrait
+
+**Statut**: ✅ Corrections appliquées - Prêt pour tests

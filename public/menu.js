@@ -4281,7 +4281,16 @@
         const rowData = [];
 
         for (let i = 0; i < maxUsefulCols && i < cells.length; i++) {
-          rowData.push(cells[i].textContent?.trim() || '');
+          // Extraire le contenu complet en préservant les retours à la ligne
+          let cellContent = cells[i].textContent || '';
+          
+          // Préserver les retours à la ligne multiples
+          cellContent = cellContent.replace(/\n\s*\n/g, '\n\n');
+          
+          // Nettoyer les espaces en début/fin mais préserver la structure
+          cellContent = cellContent.trim();
+          
+          rowData.push(cellContent);
         }
 
         if (rowData.length > 0) {
@@ -4290,6 +4299,23 @@
       });
 
       return tableData;
+    }
+    /**
+     * Extraire le contenu complet d'une cellule de table
+     * Gère les tables avec 1 ou 2 colonnes (label + contenu)
+     * Préserve les retours à la ligne et le formatage
+     */
+    extractFullCellContent(tableData) {
+      if (!tableData || tableData.length === 0) return '';
+
+      // Si la table a 2 colonnes (label + contenu), prendre la 2ème colonne
+      if (tableData[0].length >= 2) {
+        // Extraire toutes les lignes de la 2ème colonne et les joindre
+        return tableData.map(row => row[1] || '').filter(text => text.trim() !== '').join('\n\n');
+      }
+
+      // Si la table a 1 colonne, prendre tout le contenu
+      return tableData.map(row => row[0] || '').filter(text => text.trim() !== '').join('\n\n');
     }
 
     /**
@@ -7309,39 +7335,45 @@
       try {
         this.showQuickNotification("📊 Export Synthèse CAC en cours...");
 
-        // Utiliser les mêmes sélecteurs que Flowise.js pour détecter les tables Claraverse
+        // DIAGNOSTIC: Tester différents sélecteurs
+        console.log("🔍 [Export CAC] DIAGNOSTIC - Test des sélecteurs:");
+        console.log("  - document.querySelectorAll('table'):", document.querySelectorAll('table').length);
+        console.log("  - document.querySelectorAll('div.prose table'):", document.querySelectorAll('div.prose table').length);
+        console.log("  - document.querySelectorAll('div[class*=\"prose\"] table'):", document.querySelectorAll('div[class*="prose"] table').length);
+        console.log("  - document.querySelectorAll('main table'):", document.querySelectorAll('main table').length);
+        console.log("  - document.querySelectorAll('[role=\"main\"] table'):", document.querySelectorAll('[role="main"] table').length);
+
+        // Utiliser un sélecteur CSS simple et universel pour détecter toutes les tables
         const CLARAVERSE_SELECTORS = {
-          CHAT_TABLES: "table.min-w-full.border.border-gray-200.dark\\:border-gray-700.rounded-lg",
+          CHAT_TABLES: "table",  // Sélecteur universel - détecte toutes les tables
           PARENT_DIV: "div.prose.prose-base.dark\\:prose-invert.max-w-none"
         };
 
-        // Rechercher le conteneur principal (prose div)
-        let chatContainer = document.querySelector(CLARAVERSE_SELECTORS.PARENT_DIV);
+        // CORRECTION FINALE: Utiliser directement le sélecteur global 'div.prose table'
+        // Les logs montrent que ce sélecteur trouve bien les 24 tables
+        // Le problème était qu'on cherchait d'abord un conteneur puis les tables dedans
+        // Mais querySelector('div.prose') ne trouve pas le bon conteneur
+        // car les classes complètes sont: "prose prose-base dark:prose-invert max-w-none"
         
-        if (!chatContainer) {
-          console.warn("⚠️ Conteneur prose non trouvé, essai avec main");
-          chatContainer = document.querySelector('main');
-        }
+        const allTables = Array.from(document.querySelectorAll('div.prose table'));
         
-        if (!chatContainer) {
-          console.warn("⚠️ Main non trouvé, essai avec [role='main']");
-          chatContainer = document.querySelector('[role="main"]');
-        }
-        
-        if (!chatContainer) {
-          console.warn("⚠️ Aucun conteneur trouvé, utilisation de document.body");
-          chatContainer = document.body;
-        }
-        
-        // Utiliser le sélecteur spécifique Claraverse pour les tables
-        const allTables = Array.from(chatContainer.querySelectorAll(CLARAVERSE_SELECTORS.CHAT_TABLES));
-
-        console.log(`🔍 [Export CAC] Conteneur trouvé: ${chatContainer.tagName}${chatContainer.className ? '.' + chatContainer.className.split(' ')[0] : ''}`);
-        console.log(`🔍 [Export CAC] Sélecteur tables: ${CLARAVERSE_SELECTORS.CHAT_TABLES}`);
+        console.log("✅ [Export CAC] Sélecteur utilisé: div.prose table");
         console.log(`🔍 [Export CAC] ${allTables.length} table(s) Claraverse trouvée(s)`);
+        
+        // DIAGNOSTIC: Afficher les 3 premières tables trouvées
+        if (allTables.length > 0) {
+          console.log("🔍 [Export CAC] Premières tables détectées:");
+          allTables.slice(0, 3).forEach((table, i) => {
+            console.log(`  Table ${i + 1}:`, {
+              classes: table.className,
+              rows: table.querySelectorAll('tr').length,
+              parent: table.parentElement.tagName + (table.parentElement.className ? '.' + table.parentElement.className.split(' ')[0] : '')
+            });
+          });
+        }
 
         if (allTables.length === 0) {
-          this.showAlert("⚠️ Aucune table Claraverse trouvée dans le chat.\n\nAssurez-vous que des tables FRAP, Recos Révision ou Recos CI sont présentes.\n\nLes tables doivent avoir les classes CSS Claraverse.");
+          this.showAlert("⚠️ Aucune table Claraverse trouvée dans le chat.\n\nAssurez-vous que des tables FRAP, Recos Révision ou Recos CI sont présentes.\n\nLes tables doivent avoir les classes CSS Claraverse.\n\nVérifiez la console (F12) pour plus de détails.");
           return;
         }
 
@@ -7369,8 +7401,8 @@
         };
 
         try {
-          // Appeler le backend Python V2 (version fonctionnelle)
-          const response = await fetch('http://localhost:5000/export-synthese-cac-v2', {
+          // Appeler le backend Python FINAL (version avec template + contenu complet)
+          const response = await fetch('http://localhost:5000/export-synthese-cac-final', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(requestData)
@@ -7418,19 +7450,12 @@
      */
     collectFrapPoints(tables) {
       const frapPoints = [];
+      const processedIndices = new Set();
 
-      for (const table of tables) {
-        // Chercher la div parente contenant la table
-        const parentDiv = table.closest('div[class*="prose"]');
-        if (!parentDiv) continue;
+      for (let i = 0; i < tables.length; i++) {
+        if (processedIndices.has(i)) continue;
 
-        // Extraire toutes les tables dans cette div
-        const tablesInDiv = Array.from(parentDiv.querySelectorAll('table'));
-        
-        // Vérifier si la première table contient "Frap" dans l'en-tête ou les données
-        if (tablesInDiv.length === 0) continue;
-        
-        const firstTable = tablesInDiv[0];
+        const firstTable = tables[i];
         const firstTableData = this.extractTableDataOptimized(firstTable);
         
         // Vérifier si c'est une table FRAP
@@ -7440,7 +7465,15 @@
 
         if (!isFrap) continue;
 
-        console.log(`✅ [FRAP] Table FRAP détectée avec ${tablesInDiv.length} sous-tables`);
+        // Collecter les 6 tables consécutives (ou moins si fin du tableau)
+        const groupSize = Math.min(6, tables.length - i);
+        const tableGroup = [];
+        for (let j = 0; j < groupSize; j++) {
+          tableGroup.push(tables[i + j]);
+          processedIndices.add(i + j);
+        }
+
+        console.log(`✅ [FRAP] Table FRAP détectée avec ${tableGroup.length} sous-tables`);
 
         // Extraire les données de toutes les tables de ce point FRAP
         const frapData = {
@@ -7452,7 +7485,7 @@
           recommandation: ''
         };
 
-        tablesInDiv.forEach((subTable, index) => {
+        tableGroup.forEach((subTable, index) => {
           const data = this.extractTableDataOptimized(subTable);
           
           if (index === 0) {
@@ -7468,20 +7501,20 @@
               }
             });
           } else if (index === 1 && data.length > 0) {
-            // Table 2: Intitulé
-            frapData.intitule = data[0][0] || data[0][1] || '';
+            // Table 2: Intitulé - Extraire de toutes les cellules disponibles
+            frapData.intitule = this.extractFullCellContent(data);
           } else if (index === 2 && data.length > 0) {
-            // Table 3: Observation
-            frapData.observation = data[0][0] || data[0][1] || '';
+            // Table 3: Observation - Extraire le contenu complet
+            frapData.observation = this.extractFullCellContent(data);
           } else if (index === 3 && data.length > 0) {
-            // Table 4: Constat
-            frapData.constat = data[0][0] || data[0][1] || '';
+            // Table 4: Constat - Extraire le contenu complet
+            frapData.constat = this.extractFullCellContent(data);
           } else if (index === 4 && data.length > 0) {
-            // Table 5: Risque
-            frapData.risque = data[0][0] || data[0][1] || '';
+            // Table 5: Risque - Extraire le contenu complet
+            frapData.risque = this.extractFullCellContent(data);
           } else if (index === 5 && data.length > 0) {
-            // Table 6: Recommandation
-            frapData.recommandation = data[0][0] || data[0][1] || '';
+            // Table 6: Recommandation - Extraire le contenu complet
+            frapData.recommandation = this.extractFullCellContent(data);
           }
         });
 
@@ -7498,29 +7531,34 @@
      */
     collectRecosRevisionPoints(tables) {
       const recosPoints = [];
+      const processedIndices = new Set();
 
-      for (const table of tables) {
-        const parentDiv = table.closest('div[class*="prose"]');
-        if (!parentDiv) continue;
+      for (let i = 0; i < tables.length; i++) {
+        if (processedIndices.has(i)) continue;
 
-        const tablesInDiv = Array.from(parentDiv.querySelectorAll('table'));
-        if (tablesInDiv.length === 0) continue;
-        
-        const firstTable = tablesInDiv[0];
+        const firstTable = tables[i];
         const firstTableData = this.extractTableDataOptimized(firstTable);
         
         // Vérifier si c'est une table Recos révision des comptes
         const isRecosRevision = firstTableData.some(row => 
           row.some(cell => {
             const cellLower = (cell || '').toLowerCase();
-            return cellLower.includes('recos') && cellLower.includes('revision') || 
-                   cellLower.includes('recommendations') && cellLower.includes('comptable');
+            return (cellLower.includes('recos') && cellLower.includes('revision')) || 
+                   (cellLower.includes('recommendations') && cellLower.includes('comptable') && !cellLower.includes('contrôle') && !cellLower.includes('controle') && !cellLower.includes('interne'));
           })
         );
 
         if (!isRecosRevision) continue;
 
-        console.log(`✅ [Recos Révision] Table détectée avec ${tablesInDiv.length} sous-tables`);
+        // Collecter les 6 tables consécutives
+        const groupSize = Math.min(6, tables.length - i);
+        const tableGroup = [];
+        for (let j = 0; j < groupSize; j++) {
+          tableGroup.push(tables[i + j]);
+          processedIndices.add(i + j);
+        }
+
+        console.log(`✅ [Recos Révision] Table détectée avec ${tableGroup.length} sous-tables`);
 
         const recosData = {
           metadata: {},
@@ -7531,7 +7569,7 @@
           regularisation: ''
         };
 
-        tablesInDiv.forEach((subTable, index) => {
+        tableGroup.forEach((subTable, index) => {
           const data = this.extractTableDataOptimized(subTable);
           
           if (index === 0) {
@@ -7547,15 +7585,20 @@
               }
             });
           } else if (index === 1 && data.length > 0) {
-            recosData.intitule = data[0][0] || data[0][1] || '';
+            // Table 2: Intitulé - Extraire le contenu complet
+            recosData.intitule = this.extractFullCellContent(data);
           } else if (index === 2 && data.length > 0) {
-            recosData.description = data[0][0] || data[0][1] || '';
+            // Table 3: Description - Extraire le contenu complet
+            recosData.description = this.extractFullCellContent(data);
           } else if (index === 3 && data.length > 0) {
-            recosData.observation = data[0][0] || data[0][1] || '';
+            // Table 4: Observation - Extraire le contenu complet
+            recosData.observation = this.extractFullCellContent(data);
           } else if (index === 4 && data.length > 0) {
-            recosData.ajustement = data[0][0] || data[0][1] || '';
+            // Table 5: Ajustement - Extraire le contenu complet
+            recosData.ajustement = this.extractFullCellContent(data);
           } else if (index === 5 && data.length > 0) {
-            recosData.regularisation = data[0][0] || data[0][1] || '';
+            // Table 6: Régularisation - Extraire le contenu complet
+            recosData.regularisation = this.extractFullCellContent(data);
           }
         });
 
@@ -7572,24 +7615,13 @@
      */
     collectRecosControleInternePoints(tables) {
       const recosPoints = [];
+      const processedIndices = new Set();
 
-      console.log(`🔍 [Recos CI] Analyse de ${tables.length} table(s)`);
+      for (let i = 0; i < tables.length; i++) {
+        if (processedIndices.has(i)) continue;
 
-      for (const table of tables) {
-        const parentDiv = table.closest('div[class*="prose"]');
-        if (!parentDiv) continue;
-
-        const tablesInDiv = Array.from(parentDiv.querySelectorAll('table'));
-        if (tablesInDiv.length === 0) continue;
-        
-        const firstTable = tablesInDiv[0];
+        const firstTable = tables[i];
         const firstTableData = this.extractTableDataOptimized(firstTable);
-        
-        // Debug: afficher le contenu de la première table
-        const firstCellContent = firstTableData.length > 0 && firstTableData[0].length > 0 
-          ? firstTableData[0][0] 
-          : '';
-        console.log(`🔍 [Recos CI] Première cellule: "${firstCellContent}"`);
         
         // Vérifier si c'est une table Recos contrôle interne comptable
         // Doit contenir "recos" ET "controle" ET "interne" ET "comptable" (tous ensemble)
@@ -7601,20 +7633,21 @@
             const hasInterne = cellLower.includes('interne');
             const hasComptable = cellLower.includes('comptable');
             
-            if (hasRecos || hasControle || hasInterne || hasComptable) {
-              console.log(`🔍 [Recos CI] Cellule: "${cell}" → recos:${hasRecos}, controle:${hasControle}, interne:${hasInterne}, comptable:${hasComptable}`);
-            }
-            
             return hasRecos && hasControle && hasInterne && hasComptable;
           })
         );
 
-        if (!isRecosCI) {
-          console.log(`❌ [Recos CI] Table non reconnue comme Recos CI`);
-          continue;
+        if (!isRecosCI) continue;
+
+        // Collecter les 6 tables consécutives
+        const groupSize = Math.min(6, tables.length - i);
+        const tableGroup = [];
+        for (let j = 0; j < groupSize; j++) {
+          tableGroup.push(tables[i + j]);
+          processedIndices.add(i + j);
         }
 
-        console.log(`✅ [Recos CI] Table détectée avec ${tablesInDiv.length} sous-tables`);
+        console.log(`✅ [Recos CI] Table détectée avec ${tableGroup.length} sous-tables`);
 
         const recosData = {
           metadata: {},
@@ -7625,7 +7658,7 @@
           recommandation: ''
         };
 
-        tablesInDiv.forEach((subTable, index) => {
+        tableGroup.forEach((subTable, index) => {
           const data = this.extractTableDataOptimized(subTable);
           
           if (index === 0) {
@@ -7641,15 +7674,20 @@
               }
             });
           } else if (index === 1 && data.length > 0) {
-            recosData.intitule = data[0][0] || data[0][1] || '';
+            // Table 2: Intitulé - Extraire le contenu complet
+            recosData.intitule = this.extractFullCellContent(data);
           } else if (index === 2 && data.length > 0) {
-            recosData.observation = data[0][0] || data[0][1] || '';
+            // Table 3: Observation - Extraire le contenu complet
+            recosData.observation = this.extractFullCellContent(data);
           } else if (index === 3 && data.length > 0) {
-            recosData.constat = data[0][0] || data[0][1] || '';
+            // Table 4: Constat - Extraire le contenu complet
+            recosData.constat = this.extractFullCellContent(data);
           } else if (index === 4 && data.length > 0) {
-            recosData.risque = data[0][0] || data[0][1] || '';
+            // Table 5: Risque - Extraire le contenu complet
+            recosData.risque = this.extractFullCellContent(data);
           } else if (index === 5 && data.length > 0) {
-            recosData.recommandation = data[0][0] || data[0][1] || '';
+            // Table 6: Recommandation - Extraire le contenu complet
+            recosData.recommandation = this.extractFullCellContent(data);
           }
         });
 

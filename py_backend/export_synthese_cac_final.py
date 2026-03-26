@@ -21,8 +21,8 @@ from pathlib import Path
 logger = logging.getLogger(__name__)
 router = APIRouter()
 
-# Chemin vers le template
-TEMPLATE_PATH = Path(__file__).parent.parent / "Doc export rapport" / "template final de [Export Synthese CAC].doc"
+# Chemin vers le template - Utiliser un document vide si template non disponible
+TEMPLATE_PATH = None  # Pas de template, génération programmatique
 
 
 # === MODÈLES PYDANTIC ===
@@ -200,22 +200,62 @@ def create_synthese_cac_from_template_final(request: SyntheseCAC_Request) -> Byt
     VERSION FINALE avec insertion correcte de tous les contenus
     """
     
-    # Vérifier que le template existe
-    if not TEMPLATE_PATH.exists():
-        logger.error(f"❌ Template non trouvé: {TEMPLATE_PATH}")
-        raise HTTPException(status_code=500, detail=f"Template non trouvé: {TEMPLATE_PATH}")
-    
-    # Charger le template
-    try:
-        doc = Document(str(TEMPLATE_PATH))
-        logger.info(f"✅ Template chargé: {TEMPLATE_PATH}")
-        logger.info(f"   Nombre de paragraphes dans le template: {len(doc.paragraphs)}")
-    except Exception as e:
-        logger.error(f"❌ Erreur chargement template: {e}")
-        raise HTTPException(status_code=500, detail=f"Erreur chargement template: {e}")
+    # Créer un nouveau document (pas de template)
+    if TEMPLATE_PATH is None:
+        doc = Document()
+        logger.info("✅ Nouveau document créé (sans template)")
+        
+        # Ajouter un titre principal
+        doc.add_heading("SYNTHÈSE CAC - RAPPORT D'AUDIT", level=0)
+        doc.add_paragraph(f"Date du rapport: {request.date_rapport}")
+        doc.add_paragraph("")  # Ligne vide
+        
+    else:
+        # Vérifier que le template existe
+        if not TEMPLATE_PATH.exists():
+            logger.error(f"❌ Template non trouvé: {TEMPLATE_PATH}")
+            raise HTTPException(status_code=500, detail=f"Template non trouvé: {TEMPLATE_PATH}")
+        
+        # Charger le template
+        try:
+            doc = Document(str(TEMPLATE_PATH))
+            logger.info(f"✅ Template chargé: {TEMPLATE_PATH}")
+            logger.info(f"   Nombre de paragraphes dans le template: {len(doc.paragraphs)}")
+        except Exception as e:
+            logger.error(f"❌ Erreur chargement template: {e}")
+            raise HTTPException(status_code=500, detail=f"Erreur chargement template: {e}")
     
     # === SECTION 2: OBSERVATIONS D'AUDIT (Recos Révision) ===
-    obs_index, obs_para = find_marker_paragraph(doc, "2. OBSERVATIONS D'AUDIT")
+    if TEMPLATE_PATH is None:
+        # Mode sans template: ajouter directement
+        if len(request.recos_revision_points) > 0:
+            doc.add_heading("2. OBSERVATIONS D'AUDIT", level=1)
+            doc.add_paragraph("")
+            
+            # Sommaire
+            doc.add_heading("Sommaire des observations", level=2)
+            for i, point in enumerate(request.recos_revision_points, 1):
+                doc.add_paragraph(f"{i}. {point.intitule}", style='List Number')
+            doc.add_paragraph("")
+            
+            # Détails
+            for i, point in enumerate(request.recos_revision_points, 1):
+                doc.add_heading(f"2.{i}. {point.intitule}", level=2)
+                
+                if point.description:
+                    add_section_with_label(doc, "Description", point.description)
+                if point.observation:
+                    add_section_with_label(doc, "Observation", point.observation)
+                if point.ajustement:
+                    add_section_with_label(doc, "Ajustement proposé", point.ajustement)
+                if point.regularisation:
+                    add_section_with_label(doc, "Régularisation", point.regularisation)
+                
+                doc.add_paragraph("")  # Ligne vide entre les points
+        
+        obs_index = None
+    else:
+        obs_index, obs_para = find_marker_paragraph(doc, "2. OBSERVATIONS D'AUDIT")
     
     if obs_index is not None and len(request.recos_revision_points) > 0:
         logger.info(f"📝 Insertion de {len(request.recos_revision_points)} points de révision")
@@ -264,8 +304,6 @@ def create_synthese_cac_from_template_final(request: SyntheseCAC_Request) -> Byt
                               italic=True, indent=0.25)
     
     # === SECTION 3: POINTS DE CONTRÔLE INTERNE (FRAP + Recos CI) ===
-    ci_index, ci_para = find_marker_paragraph(doc, "3. POINTS DE CONTRÔLE INTERNE")
-    
     # Combiner FRAP et Recos Contrôle Interne
     all_ci_points = []
     
@@ -290,6 +328,38 @@ def create_synthese_cac_from_template_final(request: SyntheseCAC_Request) -> Byt
             'risque': reco.risque,
             'recommandation': reco.recommandation
         })
+    
+    if TEMPLATE_PATH is None:
+        # Mode sans template: ajouter directement
+        if len(all_ci_points) > 0:
+            doc.add_heading("3. POINTS DE CONTRÔLE INTERNE", level=1)
+            doc.add_paragraph("")
+            
+            # Sommaire
+            doc.add_heading("Sommaire des points de contrôle interne", level=2)
+            for i, point in enumerate(all_ci_points, 1):
+                doc.add_paragraph(f"{i}. {point['intitule']}", style='List Number')
+            doc.add_paragraph("")
+            
+            # Détails
+            for i, point in enumerate(all_ci_points, 1):
+                doc.add_heading(f"3.{i}. {point['intitule']}", level=2)
+                doc.add_paragraph(f"Type: {point['type']}", style='Intense Quote')
+                
+                if point['observation']:
+                    add_section_with_label(doc, "Observation", point['observation'])
+                if point['constat']:
+                    add_section_with_label(doc, "Constat", point['constat'])
+                if point['risque']:
+                    add_section_with_label(doc, "Risque", point['risque'])
+                if point['recommandation']:
+                    add_section_with_label(doc, "Recommandation", point['recommandation'])
+                
+                doc.add_paragraph("")  # Ligne vide entre les points
+        
+        ci_index = None
+    else:
+        ci_index, ci_para = find_marker_paragraph(doc, "3. POINTS DE CONTRÔLE INTERNE")
     
     if ci_index is not None and len(all_ci_points) > 0:
         logger.info(f"📝 Insertion de {len(all_ci_points)} points de contrôle interne")
