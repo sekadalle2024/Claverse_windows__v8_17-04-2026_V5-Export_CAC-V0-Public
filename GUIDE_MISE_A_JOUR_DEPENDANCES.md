@@ -1,11 +1,11 @@
 # Guide de Mise à Jour des Dépendances - ClaraVerse
 
-## État Actuel
+## État Actuel - 05 Avril 2026
 - ✅ Node.js v22.22.0 installé
 - ✅ npm v10.9.4 installé
-- ✅ Python 3.14.3 installé
-- ❌ Miniconda non installé
-- ⏳ Installation npm en cours
+- ✅ Python 3.13.11 installé
+- ⏳ Miniconda à installer (recommandé)
+- ✅ Dépendances npm installées
 
 ## 1. Frontend - Mise à jour des dépendances npm
 
