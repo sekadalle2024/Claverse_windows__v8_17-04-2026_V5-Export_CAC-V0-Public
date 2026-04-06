@@ -258,6 +258,59 @@ Cette documentation couvre l'implémentation complète des états financiers SYS
 ### Fichiers Connexes
 - Lead Balance : `Doc_Lead_Balance/`
 - Architecture générale : `00_ARCHITECTURE_ETATS_FINANCIERS.md`
+- **Double Problème Export Liasse** : `Documentation/Double_Probleme_Export_Liasse/` ⭐ NOUVEAU
+
+---
+
+## 🆕 NOUVEAU - Double Problème Export Liasse (05 avril 2026)
+
+### Contexte
+Deux problèmes identifiés dans l'export de la liasse fiscale:
+1. **États de contrôle incorrects** - 8 états au lieu de 16
+2. **Valeurs non renseignées** - Onglets ACTIF, PASSIF, RESULTAT vides
+
+### Documentation
+
+| Fichier | Description | Emplacement |
+|---------|-------------|-------------|
+| `00_COMMENCER_ICI.txt` | Point d'entrée principal | `Documentation/Double_Probleme_Export_Liasse/` |
+| `00_LIRE_EN_PREMIER_DOUBLE_PROBLEME.txt` | Résumé ultra-rapide | `Documentation/Double_Probleme_Export_Liasse/` |
+| `00_DIAGNOSTIC_DOUBLE_PROBLEME_05_AVRIL_2026.txt` | Analyse détaillée | `Documentation/Double_Probleme_Export_Liasse/` |
+| `00_INDEX_DOUBLE_PROBLEME_05_AVRIL_2026.md` | Index complet | `Documentation/Double_Probleme_Export_Liasse/` |
+
+### Guides de Correction
+
+| Fichier | Description | Emplacement |
+|---------|-------------|-------------|
+| `CORRECTION_ETATS_CONTROLE_05_AVRIL_2026.md` | Correction états de contrôle | `py_backend/` |
+| `CORRECTION_VALEURS_ETATS_FINANCIERS_05_AVRIL_2026.md` | Correction valeurs | `py_backend/` |
+
+### Scripts de Test
+
+| Fichier | Description | Emplacement |
+|---------|-------------|-------------|
+| `test-double-probleme.ps1` | Script PowerShell | `Scripts/Double_Probleme_Export_Liasse/` |
+| `test_export_double_probleme.py` | Script Python | `py_backend/` |
+
+### Démarrage Rapide
+
+```bash
+# Lire la documentation
+cd Doc_Etat_Fin/Documentation/Double_Probleme_Export_Liasse
+cat 00_COMMENCER_ICI.txt
+
+# Tester le problème
+cd ../../Scripts/Double_Probleme_Export_Liasse
+.\test-double-probleme.ps1
+```
+
+### Principe Fondamental
+
+> **"Utiliser strictement nos propres formules et valeurs qui en découlent pour TOUTES les cellules concernées"**
+
+- Source unique: `etats_financiers_v2.py`
+- 16 états de contrôle exhaustifs (pas 8)
+- Toutes les valeurs renseignées
 
 ---
 

@@ -2,6 +2,10 @@
 """
 Module pour générer l'onglet "Contrôle de cohérence" dans la liasse officielle
 Contient les 16 états de contrôle organisés par sections
+CORRECTIONS 05 Avril 2026:
+  - Bug 1: Variation N/N-1 corrigé (même liste passée deux fois → variation = 0)
+  - Bug 2: Format TFT corrigé (dict converti en liste de postes)
+  - Bug 3: Balance manquante gérée gracieusement
 """
 
 from openpyxl import Workbook
@@ -158,7 +162,7 @@ def ajouter_onglet_controle_coherence(wb: Workbook, etats_controle: List[Dict[st
                     
                     # EXERCICE N
                     cell = ws.cell(row=row, column=3)
-                    montant_n = poste.get('montant_n', 0)
+                    montant_n = poste.get('montant_n', 0) or 0
                     cell.value = format_montant_excel(montant_n)
                     cell.font = style_montant
                     cell.alignment = Alignment(horizontal='right', vertical='center')
@@ -166,7 +170,7 @@ def ajouter_onglet_controle_coherence(wb: Workbook, etats_controle: List[Dict[st
                     
                     # EXERCICE N-1
                     cell = ws.cell(row=row, column=4)
-                    montant_n1 = poste.get('montant_n1', 0)
+                    montant_n1 = poste.get('montant_n1', 0) or 0
                     cell.value = format_montant_excel(montant_n1)
                     cell.font = style_montant
                     cell.alignment = Alignment(horizontal='right', vertical='center')
@@ -194,101 +198,182 @@ def ajouter_onglet_controle_coherence(wb: Workbook, etats_controle: List[Dict[st
 
 def generer_etats_controle_pour_export(results: Dict[str, Any]) -> List[Dict[str, Any]]:
     """
-    Génère les 16 états de contrôle à partir des résultats des états financiers
+    Génère les 16 états de contrôle à partir des résultats des états financiers.
+    
+    CORRECTIONS 05 Avril 2026:
+    - Bug 1: Variations N/N-1 corrigées (les 3 états de variation retournaient 0)
+    - Bug 2: TFT dict converti en liste de postes pour compatibilité
+    - Bug 3: Balance manquante gérée gracieusement
     
     Args:
-        results: Résultats des états financiers (bilan_actif, bilan_passif, compte_resultat, tft)
+        results: Résultats des états financiers
     
     Returns:
-        Liste des 16 états de contrôle
+        Liste des 16 états de contrôle au format Excel
     """
     from etats_controle_exhaustifs import (
         calculer_etat_controle_bilan_actif_n,
         calculer_etat_controle_bilan_actif_n1,
-        calculer_etat_controle_bilan_actif_variation,
         calculer_etat_controle_bilan_passif_n,
         calculer_etat_controle_bilan_passif_n1,
-        calculer_etat_controle_bilan_passif_variation,
         calculer_etat_controle_compte_resultat_n,
         calculer_etat_controle_compte_resultat_n1,
-        calculer_etat_controle_compte_resultat_variation,
         calculer_etat_controle_tft_n,
         calculer_etat_controle_tft_n1,
-        calculer_etat_controle_tft_variation,
         calculer_etat_controle_sens_comptes_n,
         calculer_etat_controle_sens_comptes_n1,
         calculer_etat_equilibre_bilan_n,
         calculer_etat_equilibre_bilan_n1
     )
     
-    # Extraire les données
-    bilan_actif = results.get('bilan_actif', [])
-    bilan_passif = results.get('bilan_passif', [])
-    compte_resultat = results.get('compte_resultat', [])
-    tft = results.get('tft', {})
+    logger.info("📊 Génération des 16 états de contrôle exhaustifs (version corrigée)...")
     
-    # Extraire le résultat net
-    resultat_net_n = 0
-    resultat_net_n1 = 0
-    if compte_resultat:
-        # Le résultat net est le dernier poste (XI)
-        dernier_poste = compte_resultat[-1]
-        resultat_net_n = dernier_poste.get('montant_n', 0)
-        resultat_net_n1 = dernier_poste.get('montant_n1', 0)
-    
-    # Balances (si disponibles)
-    balance_n = results.get('balance_n', [])
-    balance_n1 = results.get('balance_n1', [])
-    
-    # Générer les 16 états
-    etats_controle = []
-    
-    # Section 1 : Bilan Actif
-    etats_controle.append(calculer_etat_controle_bilan_actif_n(bilan_actif))
-    etats_controle.append(calculer_etat_controle_bilan_actif_n1(bilan_actif))
-    etats_controle.append(calculer_etat_controle_bilan_actif_variation(bilan_actif, bilan_actif))
-    
-    # Section 2 : Bilan Passif
-    etats_controle.append(calculer_etat_controle_bilan_passif_n(bilan_passif))
-    etats_controle.append(calculer_etat_controle_bilan_passif_n1(bilan_passif))
-    etats_controle.append(calculer_etat_controle_bilan_passif_variation(bilan_passif, bilan_passif))
-    
-    # Section 3 : Compte de Résultat
-    etats_controle.append(calculer_etat_controle_compte_resultat_n(compte_resultat))
-    etats_controle.append(calculer_etat_controle_compte_resultat_n1(compte_resultat))
-    etats_controle.append(calculer_etat_controle_compte_resultat_variation(compte_resultat, compte_resultat))
-    
-    # Section 4 : TFT
-    tft_list = []  # Convertir le dict TFT en liste si nécessaire
-    if tft:
-        # Créer une liste de postes à partir du dict TFT
-        for key, value in tft.items():
-            if key.startswith('Z') or key.startswith('F'):
-                tft_list.append({'ref': key, 'montant_n': value, 'montant_n1': 0})
-    
-    etats_controle.append(calculer_etat_controle_tft_n(tft_list))
-    etats_controle.append(calculer_etat_controle_tft_n1(tft_list))
-    etats_controle.append(calculer_etat_controle_tft_variation(tft_list, tft_list))
-    
-    # Section 5 : Sens des Comptes
-    if balance_n:
-        etats_controle.append(calculer_etat_controle_sens_comptes_n(balance_n))
-    else:
-        etats_controle.append({
-            'titre': '13. Etat de contrôle Sens des Comptes (Exercice N)',
-            'postes': [{'ref': 'SA', 'libelle': 'Données non disponibles', 'montant_n': 0, 'montant_n1': 0}]
-        })
-    
-    if balance_n1:
-        etats_controle.append(calculer_etat_controle_sens_comptes_n1(balance_n1))
-    else:
-        etats_controle.append({
-            'titre': '14. Etat de contrôle Sens des Comptes (Exercice N-1)',
-            'postes': [{'ref': 'SJ', 'libelle': 'Données non disponibles', 'montant_n': 0, 'montant_n1': 0}]
-        })
-    
-    # Section 6 : Équilibre Bilan
-    etats_controle.append(calculer_etat_equilibre_bilan_n(bilan_actif, bilan_passif, resultat_net_n))
-    etats_controle.append(calculer_etat_equilibre_bilan_n1(bilan_actif, bilan_passif, resultat_net_n1))
-    
-    return etats_controle
+    try:
+        # --- Extraire et normaliser les données ---
+        bilan_actif = results.get('bilan_actif', [])
+        bilan_passif = results.get('bilan_passif', [])
+        compte_resultat = results.get('compte_resultat', [])
+        balance_n_raw = results.get('balance_n', [])
+        balance_n1_raw = results.get('balance_n1', [])
+        tft_raw = results.get('tft', results.get('tableau_flux_tresorerie', {}))
+        
+        # Convertir en liste si dict
+        if isinstance(bilan_actif, dict):
+            bilan_actif = list(bilan_actif.values())
+        if isinstance(bilan_passif, dict):
+            bilan_passif = list(bilan_passif.values())
+        if isinstance(compte_resultat, dict):
+            compte_resultat = list(compte_resultat.values())
+        
+        # --- FIX BUG 3: Balances peuvent être absentes ---
+        balance_n_liste = balance_n_raw if isinstance(balance_n_raw, list) else []
+        balance_n1_liste = balance_n1_raw if isinstance(balance_n1_raw, list) else []
+        
+        # --- FIX BUG 2: Convertir le dict TFT en liste de postes ---
+        # Le TFT est un dict {ZA_tresorerie_ouverture: val, ZB_flux_op: val, ...}
+        # Les fonctions de contrôle TFT attendent une liste [{ref, montant_n, montant_n1}]
+        tft_postes = []
+        if isinstance(tft_raw, dict):
+            cle_vers_ref = {
+                'ZA_tresorerie_ouverture': 'ZA',
+                'ZB_flux_operationnels': 'ZB',
+                'ZC_flux_investissement': 'ZC',
+                'ZD_flux_capitaux_propres': 'ZD',
+                'ZE_flux_capitaux_etrangers': 'ZE',
+                'ZF_flux_financement': 'ZF',
+                'ZG_variation_tresorerie': 'ZG',
+                'ZH_tresorerie_cloture': 'ZH',
+                'FA_cafg': 'FA',
+                'FB_variation_actif_hao': 'FB',
+                'FC_variation_stocks': 'FC',
+                'FD_variation_creances': 'FD',
+                'FE_variation_dettes': 'FE',
+            }
+            for cle, ref in cle_vers_ref.items():
+                if cle in tft_raw:
+                    tft_postes.append({
+                        'ref': ref,
+                        'montant_n': float(tft_raw.get(cle, 0) or 0),
+                        'montant_n1': 0
+                    })
+        elif isinstance(tft_raw, list):
+            tft_postes = tft_raw
+        
+        # --- Résultat net depuis le compte de résultat ---
+        resultat_net_n = 0
+        resultat_net_n1 = 0
+        for p in compte_resultat:
+            if p.get('ref') == 'XI':
+                resultat_net_n = float(p.get('montant_n', 0) or 0)
+                resultat_net_n1 = float(p.get('montant_n1', 0) or 0)
+                break
+        if resultat_net_n == 0 and compte_resultat:
+            resultat_net_n = float(compte_resultat[-1].get('montant_n', 0) or 0)
+            resultat_net_n1 = float(compte_resultat[-1].get('montant_n1', 0) or 0)
+        
+        # --- Générer état 1 à 14 et 15, 16 via les fonctions existantes ---
+        etats_controle = [
+            calculer_etat_controle_bilan_actif_n(bilan_actif),                         # 1
+            calculer_etat_controle_bilan_actif_n1(bilan_actif),                        # 2
+            None,  # 3 - variation, calculé en dessous
+            calculer_etat_controle_bilan_passif_n(bilan_passif),                       # 4
+            calculer_etat_controle_bilan_passif_n1(bilan_passif),                      # 5
+            None,  # 6 - variation, calculé en dessous
+            calculer_etat_controle_compte_resultat_n(compte_resultat),                  # 7
+            calculer_etat_controle_compte_resultat_n1(compte_resultat),                 # 8
+            None,  # 9 - variation, calculé en dessous
+            calculer_etat_controle_tft_n(tft_postes),                                  # 10
+            calculer_etat_controle_tft_n1(tft_postes),                                 # 11
+            None,  # 12 - variation TFT, calculé en dessous
+            calculer_etat_controle_sens_comptes_n(balance_n_liste),                    # 13
+            calculer_etat_controle_sens_comptes_n1(balance_n1_liste),                  # 14
+            calculer_etat_equilibre_bilan_n(bilan_actif, bilan_passif, resultat_net_n),  # 15
+            calculer_etat_equilibre_bilan_n1(bilan_actif, bilan_passif, resultat_net_n1) # 16
+        ]
+        
+        # --- FIX BUG 1: Calculer correctement les 3 états de variation ---
+        # Les fonctions originales passaient le même objet pour N et N-1
+        # → variation toujours 0. On calcule directement depuis montant_n et montant_n1.
+        
+        total_actif_n = sum(float(p.get('montant_n', 0) or 0) for p in bilan_actif)
+        total_actif_n1 = sum(float(p.get('montant_n1', 0) or 0) for p in bilan_actif)
+        total_passif_n = sum(float(p.get('montant_n', 0) or 0) for p in bilan_passif)
+        total_passif_n1 = sum(float(p.get('montant_n1', 0) or 0) for p in bilan_passif)
+        
+        # 3. Variation Bilan Actif (CORRIGÉ)
+        etats_controle[2] = {
+            'titre': '3. Variation Bilan Actif (N vs N-1)',
+            'postes': [
+                {'ref': 'CE', 'libelle': 'Total Actif Exercice N', 'montant_n': total_actif_n, 'montant_n1': 0},
+                {'ref': 'CF', 'libelle': 'Total Actif Exercice N-1', 'montant_n': 0, 'montant_n1': total_actif_n1},
+                {'ref': 'CG', 'libelle': 'Variation Actif (N - N-1)', 'montant_n': total_actif_n - total_actif_n1, 'montant_n1': 0},
+            ]
+        }
+        
+        # 6. Variation Bilan Passif (CORRIGÉ)
+        etats_controle[5] = {
+            'titre': '6. Variation Bilan Passif (N vs N-1)',
+            'postes': [
+                {'ref': 'PE', 'libelle': 'Total Passif Exercice N', 'montant_n': total_passif_n, 'montant_n1': 0},
+                {'ref': 'PF', 'libelle': 'Total Passif Exercice N-1', 'montant_n': 0, 'montant_n1': total_passif_n1},
+                {'ref': 'PG', 'libelle': 'Variation Passif (N - N-1)', 'montant_n': total_passif_n - total_passif_n1, 'montant_n1': 0},
+            ]
+        }
+        
+        # 9. Variation Compte de Résultat (CORRIGÉ)
+        etats_controle[8] = {
+            'titre': '9. Variation Compte de Résultat (N vs N-1)',
+            'postes': [
+                {'ref': 'RE', 'libelle': 'Résultat Net Exercice N', 'montant_n': resultat_net_n, 'montant_n1': 0},
+                {'ref': 'RF', 'libelle': 'Résultat Net Exercice N-1', 'montant_n': 0, 'montant_n1': resultat_net_n1},
+                {'ref': 'RG', 'libelle': 'Variation Résultat (N - N-1)', 'montant_n': resultat_net_n - resultat_net_n1, 'montant_n1': 0},
+            ]
+        }
+        
+        # 12. Variation TFT (CORRIGÉ)
+        tft_cloture_n = next((float(p.get('montant_n', 0) or 0) for p in tft_postes if p.get('ref') == 'ZH'), 0)
+        tft_variation_n = next((float(p.get('montant_n', 0) or 0) for p in tft_postes if p.get('ref') == 'ZG'), 0)
+        # Pour N-1: dans le format dict, on n'a pas de N-1 direct - on utilise ZA (trésorerie ouverture de N)
+        tft_ouverture_n = next((float(p.get('montant_n', 0) or 0) for p in tft_postes if p.get('ref') == 'ZA'), 0)
+        
+        etats_controle[11] = {
+            'titre': '12. Variation Tableau des Flux de Trésorerie (N vs N-1)',
+            'postes': [
+                {'ref': 'TG', 'libelle': 'Trésorerie clôture N (ZH)', 'montant_n': tft_cloture_n, 'montant_n1': 0},
+                {'ref': 'TH', 'libelle': 'Trésorerie ouverture N (=clôture N-1) (ZA)', 'montant_n': 0, 'montant_n1': tft_ouverture_n},
+                {'ref': 'TI', 'libelle': 'Variation trésorerie nette (ZG)', 'montant_n': tft_variation_n, 'montant_n1': 0},
+            ]
+        }
+        
+        logger.info(f"   ✅ {len(etats_controle)} états de contrôle générés pour Excel (corrigés)")
+        
+        return etats_controle
+        
+    except Exception as e:
+        logger.error(f"   ❌ Erreur génération états de contrôle: {e}", exc_info=True)
+        etats_controle = [
+            {'titre': f'{i}. État de Contrôle', 'postes': [
+                {'ref': '-', 'libelle': f'Erreur: {str(e)}', 'montant_n': 0, 'montant_n1': 0}
+            ]} for i in range(1, 17)
+        ]
+        return etats_controle
