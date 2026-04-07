@@ -1550,15 +1550,6 @@ async def process_excel(request: ExcelUploadRequest):
         # Traiter les balances au format liasse avec N-2
         results_liasse = process_balance_to_liasse_format(balance_df, balance_n1_df, balance_n2_df, correspondances)
         
-        # CORRECTION PROBLÈME 1: Ajouter les balances à results_liasse pour l'export
-        # Les balances sont nécessaires pour calculer BRUT et AMORTISSEMENT dans export_liasse.py
-        logger.info("📊 Ajout des balances à results_liasse pour l'export...")
-        results_liasse['balance_n_df'] = balance_df
-        results_liasse['balance_n1_df'] = balance_n1_df
-        if balance_n2_df is not None:
-            results_liasse['balance_n2_df'] = balance_n2_df
-        logger.info(f"✅ Balances ajoutées: N={len(balance_df)} lignes, N-1={len(balance_n1_df) if balance_n1_df is not None else 0} lignes")
-        
         # Calculer le TFT au format liasse (N et N-1)
         try:
             logger.info("🔄 Calcul du TFT...")
@@ -1678,6 +1669,139 @@ async def process_excel(request: ExcelUploadRequest):
     max-height: 10000px; 
 }
 
+/* Styles pour les 16 états de contrôle exhaustifs */
+.section {
+    margin-bottom: 40px;
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.section:hover {
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    transform: translateY(-2px);
+}
+
+.section-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 20px;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 1.3em;
+    font-weight: bold;
+}
+
+.section-header:hover {
+    background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+}
+
+.section-header .arrow {
+    transition: transform 0.3s ease;
+    font-size: 1.5em;
+}
+
+.section.active .arrow {
+    transform: rotate(90deg);
+}
+
+.section-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+}
+
+.section.active .section-content {
+    max-height: 2000px;
+}
+
+.section-body {
+    padding: 30px;
+}
+
+/* Boîtes colorées pour les états de contrôle */
+.success-box {
+    background: #d4edda;
+    border-left: 4px solid #28a745;
+    padding: 20px;
+    margin: 20px 0;
+    border-radius: 5px;
+}
+
+.warning-box {
+    background: #fff3cd;
+    border-left: 4px solid #ffc107;
+    padding: 20px;
+    margin: 20px 0;
+    border-radius: 5px;
+}
+
+.danger-box {
+    background: #f8d7da;
+    border-left: 4px solid #dc3545;
+    padding: 20px;
+    margin: 20px 0;
+    border-radius: 5px;
+}
+
+.info-box {
+    background: #d1ecf1;
+    border-left: 4px solid #17a2b8;
+    padding: 20px;
+    margin: 20px 0;
+    border-radius: 5px;
+}
+
+/* Badges pour les états de contrôle */
+.badge {
+    display: inline-block;
+    padding: 5px 12px;
+    border-radius: 12px;
+    font-size: 0.85em;
+    font-weight: 600;
+    text-transform: uppercase;
+    background: #6c757d;
+    color: white;
+}
+
+.badge-success {
+    background: #28a745;
+    color: white;
+}
+
+.badge-warning {
+    background: #ffc107;
+    color: #212529;
+}
+
+.badge-danger {
+    background: #dc3545;
+    color: white;
+}
+
+.badge-info {
+    background: #17a2b8;
+    color: white;
+}
+
+.badge-critical {
+    background: #dc3545;
+    color: white;
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+}
+
+.section-content-ef.active { 
+    max-height: 10000px; 
+}
+
 /* Tables liasse */
 .liasse-table {
     width: 100%;
@@ -1744,182 +1868,6 @@ async def process_excel(request: ExcelUploadRequest):
 .liasse-table .total-row .montant-cell {
     color: #1e3a8a;
     font-weight: 700;
-}
-
-/* ========================================
-   STYLES POUR LES 16 ÉTATS DE CONTRÔLE
-   ======================================== */
-
-/* Sections accordéon des états de contrôle */
-.section {
-    margin-bottom: 40px;
-    border: 2px solid #e0e0e0;
-    border-radius: 10px;
-    overflow: hidden;
-    transition: all 0.3s ease;
-}
-
-.section:hover {
-    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-    transform: translateY(-2px);
-}
-
-.section-header {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    padding: 20px;
-    cursor: pointer;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 1.3em;
-    font-weight: bold;
-}
-
-.section-header:hover {
-    background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
-}
-
-.section-header .arrow {
-    transition: transform 0.3s ease;
-    font-size: 1.5em;
-}
-
-.section.active .arrow {
-    transform: rotate(90deg);
-}
-
-.section-content {
-    max-height: 0;
-    overflow: hidden;
-    transition: max-height 0.3s ease;
-}
-
-.section.active .section-content {
-    max-height: 5000px;
-}
-
-.section-body {
-    padding: 30px;
-}
-
-/* Boîtes colorées pour les états de contrôle */
-.success-box {
-    background: #e8f5e9;
-    border-left: 4px solid #4caf50;
-    padding: 20px;
-    margin: 20px 0;
-    border-radius: 5px;
-}
-
-.warning-box {
-    background: #fff3e0;
-    border-left: 4px solid #ff9800;
-    padding: 20px;
-    margin: 20px 0;
-    border-radius: 5px;
-}
-
-.danger-box {
-    background: #ffebee;
-    border-left: 4px solid #f44336;
-    padding: 20px;
-    margin: 20px 0;
-    border-radius: 5px;
-}
-
-.info-box {
-    background: #e3f2fd;
-    border-left: 4px solid #2196f3;
-    padding: 20px;
-    margin: 20px 0;
-    border-radius: 5px;
-}
-
-/* Badges pour les états de contrôle */
-.badge {
-    display: inline-block;
-    padding: 5px 12px;
-    border-radius: 12px;
-    font-size: 0.85em;
-    font-weight: bold;
-    background: #9e9e9e;
-    color: white;
-}
-
-.badge-success {
-    background: #4caf50;
-}
-
-.badge-warning {
-    background: #ff9800;
-}
-
-.badge-danger {
-    background: #f44336;
-}
-
-.badge-info {
-    background: #2196f3;
-}
-
-.badge-critical {
-    background: #d32f2f;
-    animation: pulse 1.5s infinite;
-}
-
-@keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.7; }
-}
-
-/* Tables dans les états de contrôle */
-.section table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 20px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-}
-
-.section thead {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-}
-
-.section th {
-    padding: 15px;
-    text-align: left;
-    font-weight: 600;
-    text-transform: uppercase;
-    font-size: 0.9em;
-    letter-spacing: 0.5px;
-}
-
-.section td {
-    padding: 12px 15px;
-    border-bottom: 1px solid #e0e0e0;
-}
-
-.section tbody tr:hover {
-    background-color: #f5f5f5;
-}
-
-.section .total-row {
-    background-color: #f0f0f0;
-    font-weight: bold;
-    border-top: 2px solid #667eea;
-}
-
-.section .ref-cell {
-    font-weight: bold;
-    color: #667eea;
-    width: 80px;
-}
-
-.section .montant-cell {
-    text-align: right;
-    font-family: 'Courier New', monospace;
-    font-weight: 500;
 }
 </style>
 """
@@ -2086,7 +2034,7 @@ async def process_excel(request: ExcelUploadRequest):
             html_etats = generate_all_16_etats_controle_html(controles_n, controles_n1, totaux_n, totaux_n1)
             logger.info(f"  HTML généré: {len(html_etats)} caractères")
             
-            # IMPORTANT: Ajouter les 16 états AVANT la fermeture de la div principale
+            # IMPORTANT: Ajouter les états de contrôle AVANT la fermeture de la div principale
             # pour qu'ils soient intégrés dans le menu accordéon
             html += html_etats
             logger.info("✅ États de contrôle exhaustifs générés avec succès (16 états)")
@@ -2096,13 +2044,13 @@ async def process_excel(request: ExcelUploadRequest):
             import traceback
             traceback.print_exc()
         
-        # Fermer la div principale APRÈS l'ajout des 16 états
+        # Fermer la div principale APRÈS l'ajout des états de contrôle
         html += "</div>"
         
         # Ajouter le script pour les accordéons
         html += """
         <script>
-        // Accordéons pour les états financiers principaux
+        // Gestion des accordéons pour les sections principales (Bilan, CR, TFT, Annexes)
         document.querySelectorAll('.section-header-ef').forEach(header => {
             header.addEventListener('click', function() {
                 this.classList.toggle('active');
@@ -2111,13 +2059,13 @@ async def process_excel(request: ExcelUploadRequest):
             });
         });
         
-        // Accordéons pour les 16 états de contrôle exhaustifs
+        // Gestion des accordéons pour les 16 états de contrôle exhaustifs
         function toggleSection(header) {
             const section = header.parentElement;
             section.classList.toggle('active');
         }
         
-        // Initialiser les accordéons des états de contrôle
+        // Ajouter les event listeners pour les états de contrôle
         document.querySelectorAll('.section-header').forEach(header => {
             header.addEventListener('click', function() {
                 toggleSection(this);

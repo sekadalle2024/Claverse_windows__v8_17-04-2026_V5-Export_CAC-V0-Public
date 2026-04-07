@@ -1,31 +1,14 @@
-# Index Complet - États Financiers SYSCOHADA V2.2
+# Index Complet - États Financiers SYSCOHADA V2.0
 
-**Version**: 2.2  
-**Date**: 05 avril 2026  
+**Version**: 2.0  
+**Date**: 22 mars 2026  
 **Statut**: ✅ Production
 
 ---
 
 ## 🎯 Vue d'Ensemble
 
-Module complet pour la génération d'états financiers conformes au référentiel SYSCOHADA Révisé, avec support du **format liasse officielle** et **onglet Contrôle de cohérence**.
-
-### ⭐ Nouveautés Version 2.2 (05 Avril 2026)
-
-**Onglet "Contrôle de cohérence" dans l'export Excel**
-- Ajout automatique d'un onglet "Contrôle de cohérence" dans la liasse exportée
-- 16 états de contrôle organisés en 6 sections
-- Format Excel professionnel avec styles
-- Cohérence totale avec le menu accordéon frontend
-- Premier onglet du fichier Excel pour accès rapide
-
-### ⭐ Nouveautés Version 2.1 (05 Avril 2026)
-
-**Export Liasse Officielle Révisée**
-- Utilisation du fichier template `Liasse_officielle_revise.xlsx`
-- 84 onglets complets (BILAN, ACTIF, PASSIF, RESULTAT, TFT, 39 NOTES)
-- Conformité totale SYSCOHADA Révisé
-- Fallback vers anciens templates conservé
+Module complet pour la génération d'états financiers conformes au référentiel SYSCOHADA Révisé, avec support du **format liasse officielle**.
 
 ### ⭐ Nouveautés Version 2.0
 
@@ -106,14 +89,12 @@ Avec Balance N et Balance N-1 → Format liasse automatique
 | Fichier | Description | Lignes | Statut |
 |---------|-------------|--------|--------|
 | `etats_financiers.py` | Module principal | 1500+ | ✅ Prod |
-| `etats_financiers_v2.py` | Format liasse officielle | 300 | ⭐ V2.0 |
-| `generer_etats_liasse.py` | Script autonome | 250 | ⭐ V2.0 |
+| `etats_financiers_v2.py` | Format liasse officielle | 300 | ⭐ Nouveau |
+| `generer_etats_liasse.py` | Script autonome | 250 | ⭐ Nouveau |
 | `tableau_flux_tresorerie.py` | TFT méthode indirecte | 450 | ✅ Prod |
 | `annexes_liasse.py` | Annexes (13 notes) | 150 | ✅ Prod |
 | `annexes_html.py` | Génération HTML annexes | 100 | ✅ Prod |
 | `export_liasse.py` | Export Excel | 400 | ✅ Prod |
-| `generer_onglet_controle_coherence.py` | Onglet contrôle cohérence | 300 | ⭐ V2.2 |
-| `etats_controle_exhaustifs.py` | 16 états de contrôle | 400 | ✅ Prod |
 
 ### Fichiers de Configuration
 
@@ -121,7 +102,6 @@ Avec Balance N et Balance N-1 → Format liasse automatique
 |---------|-------------|--------|--------|
 | `correspondances_syscohada.json` | Mapping comptes → postes | 200 | ✅ Prod |
 | `structure_liasse_complete.json` | Structure complète CR | 150 | ⭐ Nouveau |
-| `Liasse_officielle_revise.xlsx` | Template export (84 onglets) | - | ⭐ V2.1 |
 
 ### Scripts de Test
 
@@ -194,39 +174,11 @@ results = process_balance_to_liasse_format(balance_n, balance_n1, correspondance
 
 **Fichier**: `export_liasse.py`
 
-**Template utilisé**: `Liasse_officielle_revise.xlsx` (84 onglets)
-
 **Fonctionnalités**:
-- Export vers liasse officielle SYSCOHADA Révisé
+- Export vers liasse officielle vierge (LIASSE.xlsx)
 - 85+ mappings postes → cellules Excel
 - Préservation du template
 - Raccourci clavier: Ctrl+Shift+O
-- Fallback vers anciens templates (LIASSE.xlsx, Liasse officielle.xlsm)
-- **NOUVEAU V2.2** : Onglet "Contrôle de cohérence" automatique
-
-**Onglet "Contrôle de cohérence"** (V2.2):
-- Premier onglet du fichier Excel
-- 16 états de contrôle organisés en 6 sections
-- Format professionnel avec styles Excel
-- Cohérence totale avec le menu accordéon frontend
-- Colonnes : REF | LIBELLÉ | EXERCICE N | EXERCICE N-1
-
-**Sections de l'onglet**:
-1. Contrôles Bilan Actif (3 états)
-2. Contrôles Bilan Passif (3 états)
-3. Contrôles Compte de Résultat (3 états)
-4. Contrôles TFT (3 états)
-5. Contrôles Sens des Comptes (2 états)
-6. Contrôles Équilibre Bilan (2 états)
-
-**Onglets du template**:
-- BILAN, ACTIF, PASSIF (états de synthèse)
-- RESULTAT (compte de résultat)
-- TFT (tableau des flux de trésorerie)
-- NOTE 1 à NOTE 39 (notes annexes détaillées)
-- Fiches R1, R2, R3, R4 (fiches complémentaires)
-- Compléments DGI-INS
-- Suppléments (SUPPL1 à SUPPL7)
 
 ### 5. Contrôles Exhaustifs
 
@@ -329,7 +281,7 @@ ClaraVerse/
 
 - Python 3.11+
 - Conda (environnement `claraverse_backend`)
-- Pandas, FastAPI, Uvicorn, openpyxl
+- Pandas, FastAPI, Uvicorn
 
 ### Installation
 
@@ -349,7 +301,6 @@ Aucune configuration spécifique requise. Le système utilise:
 - `correspondances_syscohada.json` pour le mapping
 - `structure_liasse_complete.json` pour la structure CR
 - `BALANCES_N_N1_N2.xlsx` comme fichier test
-- `Liasse_officielle_revise.xlsx` comme template d'export (84 onglets)
 
 ---
 
@@ -452,18 +403,7 @@ Le module États Financiers SYSCOHADA V2.0 est **complet, testé et opérationne
 
 ---
 
-**Version** : 2.2  
-**Date** : 05 avril 2026  
-**Auteur** : ClaraVerse Team  
-**Statut** : ✅ Production
-
-**Changelog V2.2**:
-- ✅ Onglet "Contrôle de cohérence" ajouté à l'export Excel
-- ✅ 16 états de contrôle organisés en 6 sections
-- ✅ Format Excel professionnel avec styles
-- ✅ Cohérence totale avec le menu accordéon frontend
-
-**Changelog V2.1**:
-- ✅ Export liasse utilise `Liasse_officielle_revise.xlsx` (84 onglets)
-- ✅ Fallback vers anciens templates conservé
-- ✅ Documentation mise à jour
+**Version**: 2.0  
+**Date**: 22 mars 2026  
+**Auteur**: ClaraVerse Team  
+**Statut**: ✅ Production

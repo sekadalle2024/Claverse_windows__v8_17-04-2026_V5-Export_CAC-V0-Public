@@ -1,68 +1,36 @@
-═══════════════════════════════════════════════════════════════
-  ⚡ ACTION IMMÉDIATE - DIAGNOSTIC TABLES
-═══════════════════════════════════════════════════════════════
+================================================================================
+🚨 ACTION IMMÉDIATE - DIAGNOSTIC DE L'ERREUR
+================================================================================
 
-🎯 OBJECTIF: Identifier pourquoi les tables ne sont pas détectées
+SITUATION:
+----------
+✅ Backend redémarré et accessible
+❌ Erreur "failed to fetch" persiste
+⏳ Besoin des logs d'erreur pour diagnostiquer
 
-═══════════════════════════════════════════════════════════════
-  🚀 3 ÉTAPES SIMPLES
-═══════════════════════════════════════════════════════════════
+================================================================================
+EXÉCUTER MAINTENANT:
+================================================================================
 
-1️⃣  Ctrl+F5
-    (rafraîchir la page)
+.\test-import-balance-simple.ps1
 
-2️⃣  Attendre 1 minute après le chargement
-    (2 alertes vont s'afficher automatiquement)
+Ce script va:
+1. Vérifier le backend
+2. Vous demander d'importer une balance
+3. Afficher les logs d'erreur
 
-3️⃣  M'envoyer le contenu des alertes
-    (capture d'écran ou texte copié)
+================================================================================
+ENSUITE:
+================================================================================
 
-═══════════════════════════════════════════════════════════════
-  📊 CE QUE VOUS ALLEZ VOIR
-═══════════════════════════════════════════════════════════════
+Fournir le message d'erreur complet qui s'affiche dans les logs.
 
-ALERTE 1:
-┌─────────────────────────────────────┐
-│ 📊 DIAGNOSTIC DES TABLES            │
-│                                     │
-│ ✅ Nombre total de tables: X        │
-│                                     │
-│ 🎯 Classes CSS des 3 premières:    │
-│ Table 1: ...                        │
-│ Table 2: ...                        │
-│ Table 3: ...                        │
-└─────────────────────────────────────┘
+================================================================================
+FICHIERS DE RÉFÉRENCE:
+================================================================================
 
-ALERTE 2:
-┌─────────────────────────────────────┐
-│ 🔍 RÉSULTATS DES SÉLECTEURS         │
-│                                     │
-│ table → X élément(s)                │
-│ .claraverse-table → X élément(s)    │
-│ [data-claraverse-table] → X         │
-│ div[class*="table"] table → X       │
-│ div[class*="chat"] table → X        │
-└─────────────────────────────────────┘
+- 00_SITUATION_ACTUELLE_FINALE_06_AVRIL_2026.txt (détails complets)
+- 00_ETAPE_SUIVANTE_DIAGNOSTIC_06_AVRIL_2026.txt (méthodes alternatives)
+- GUIDE_DEPANNAGE_RAPIDE_FAILED_TO_FETCH.txt (guide de dépannage)
 
-═══════════════════════════════════════════════════════════════
-  ℹ️ POURQUOI ?
-═══════════════════════════════════════════════════════════════
-
-Le système ne détecte pas vos tables pour générer le rapport
-consolidé CAC. Ce diagnostic va m'aider à identifier le bon
-sélecteur CSS pour corriger le problème.
-
-═══════════════════════════════════════════════════════════════
-  📖 DOCUMENTATION COMPLÈTE
-═══════════════════════════════════════════════════════════════
-
-→ 00_DIAGNOSTIC_TABLES_RAPPORT.txt (instructions détaillées)
-→ Doc export rapport/DIAGNOSTIC_DETECTION_TABLES.md (technique)
-
-═══════════════════════════════════════════════════════════════
-
-✅ Script d'alerte ajouté dans index.html
-✅ Documentation créée
-⏳ En attente de vos résultats
-
-═══════════════════════════════════════════════════════════════
+================================================================================
