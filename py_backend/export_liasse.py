@@ -172,10 +172,10 @@ def injecter_donnees_dans_onglet(ws, type_onglet: str, data: list):
             elif type_onglet == 'TFT':
                 net_n = nettoyer_montant(poste.get('montant_n', 0))
                 net_n1 = nettoyer_montant(poste.get('montant_n1', 0))
-                # TFT : souvent N=F(6), N1=G(7) ou N=I(9), N1=J(10)/K(11)
+                # TFT : souvent N=I(9), N1=J(10)
                 try:
                     ecrire_valeur_si_trouve(ws, ligne, 9, net_n) # I
-                    ecrire_valeur_si_trouve(ws, ligne, 11, net_n1) # K
+                    ecrire_valeur_si_trouve(ws, ligne, 10, net_n1) # J
                 except:
                     pass
                     
