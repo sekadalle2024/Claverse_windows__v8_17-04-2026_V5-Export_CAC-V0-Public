@@ -4293,20 +4293,6 @@ Contenu de [Contexte de base]
 [Variable 2] = Contenu de [Variable 2]
 [Guide des commandes] : Activate
 [Router] = Document`
-              },
-              {
-                id: 'database',
-                label: 'Mode Database',
-                command: `[Command] = Cartographie des risques
-[Processus] = inventaire de caisse
-[Risques critiques] = fraude
-[Objectif] = couvrir la fraude
-[Variable 1] = Contenu de [Variable 1]
-[Variable 2] = Contenu de [Variable 2]
-[Guide des commandes] : Activate
-[Router] = Database
-[User_id] = ohada
-[Database] = workspace_02`
               }            ]
           },
           {
@@ -4383,23 +4369,6 @@ Contenu de [Contexte de base]
 [Nb de lignes] = 50`
               },
               {
-                id: 'database',
-                label: 'Mode Database',
-                command: `[Command] = Etape de mission
-[Processus] = rapprochements bancaires
-[Etape précédente] = Cartographie des risques
-[Etape de mission] = Matrice de surveillance permanente
-[Modele] = Point de controle, risque, controle de premier niveau, controle de second niveau, document
-[Directives] = 
-[Variable 1] = Contenu de [Variable 1]
-[Variable 2] = Contenu de [Variable 2]
-[Guide des commandes] : Activate
-[Router] = Database
-[User_id] = ohada
-[Database] = workspace_02
-[Nb de lignes] = 50`
-              },
-              {
                 id: 'document',
                 label: 'Mode Document',
                 command: `[Command] = Etape de mission
@@ -4412,23 +4381,6 @@ Contenu de [Contexte de base]
 [Variable 2] = Contenu de [Variable 2]
 [Guide des commandes] : Activate
 [Router] = Document
-[Nb de lignes] = 50`
-              },
-              {
-                id: 'database',
-                label: 'Mode Database',
-                command: `[Command] = Etape de mission
-[Processus] = rapprochements bancaires
-[Etape précédente] = Cartographie des risques
-[Etape de mission] = Matrice de surveillance permanente
-[Modele] = Point de controle, risque, controle de premier niveau, controle de second niveau, document
-[Directives] = 
-[Variable 1] = Contenu de [Variable 1]
-[Variable 2] = Contenu de [Variable 2]
-[Guide des commandes] : Activate
-[Router] = Database
-[User_id] = ohada
-[Database] = workspace_02
 [Nb de lignes] = 50`
               }            ]
           }
@@ -4505,22 +4457,6 @@ Contenu de [Contexte de base]
 [Guide des commandes] : Activate
 [Router] = Document
 [Nb de lignes] = 15`
-              },
-              {
-                id: 'database',
-                label: 'Mode Database',
-                command: `[Command] = Couverture
-[Processus] = Sécurité trésorerie
-[Contrôle] = Verifier l exhaustivite des inventaires de caisse
-[Instruction] = Template
-[Modele de test] = no, compte, site, libelle, solde BG, Solde Pv inventaire
-[Variable 1] = Contenu de [Variable 1]
-[Variable 2] = Contenu de [Variable 2]
-[Guide des commandes] : Activate
-[Router] = Database
-[User_id] = ohada
-[Database] = workspace_02
-[Nb de lignes] = 15`
               }            ]
           }
         ]
@@ -4591,21 +4527,6 @@ Contenu de [Contexte de base]
 [Variable 2] = Contenu de [Variable 2]
 [Guide des commandes] : Activate
 [Router] = Document`
-              },
-              {
-                id: 'database',
-                label: 'Mode Database',
-                command: `[Command] = /Frap
-[Processus] = Elaboration des rapprochement bancaires
-[Assertion] = validité, formalisation
-[Anomalie] = les rapprochements bancaire ne sont pas verifié par le DAF
-[Constat] = inexistence de rapprochement bancaires signés pour les mois de juin a decembre 2025
-[Variable 1] = Contenu de [Variable 1]
-[Variable 2] = Contenu de [Variable 2]
-[Guide des commandes] : Activate
-[Router] = Database
-[User_id] = ohada
-[Database] = workspace_02`
               }
             ]
           },
@@ -4672,22 +4593,6 @@ Contenu de [Contexte de base]
 [Variable 2] = Contenu de [Variable 2]
 [Guide des commandes] : Activate
 [Router] = Document`
-              },
-              {
-                id: 'database',
-                label: 'Mode Database',
-                command: `[Command] = /Table synthese
-[Command Manuel] = Étape mission
-[Étape précédente] = Frap
-[Étape mission] = Synthèse des Frap
-[Modèle] = 
-[Pièces jointes] = Frap de la mission
-[Variable 1] = Contenu de [Variable 1]
-[Variable 2] = Contenu de [Variable 2]
-[Guide des commandes] : Activate
-[Router] = Database
-[User_id] = ohada
-[Database] = workspace_02`
               }            ]
           },
           {
@@ -4753,22 +4658,6 @@ Contenu de [Contexte de base]
 [Variable 2] = Contenu de [Variable 2]
 [Guide des commandes] : Activate
 [Router] = Document`
-              },
-              {
-                id: 'database',
-                label: 'Mode Database',
-                command: `[Command] = /Table rapport_provisoire
-[Command Manuel] = Étape mission
-[Étape précédente] = Synthèse des Frap
-[Étape mission] = Rapport provisoire
-[Modèle] = 
-[Pièces jointes] = Synthèse des Frap
-[Variable 1] = Contenu de [Variable 1]
-[Variable 2] = Contenu de [Variable 2]
-[Guide des commandes] : Activate
-[Router] = Database
-[User_id] = ohada
-[Database] = workspace_02`
               }            ]
           },
           {
@@ -4823,19 +4712,6 @@ Contenu de [Contexte de base]
 [Variable 2] = Contenu de [Variable 2]
 [Guide des commandes] : Activate
 [Router] = Document`
-              },
-              {
-                id: 'database',
-                label: 'Mode Database',
-                command: `[Command] = Réunion de clôture
-[Processus] = 
-[Objectif] = 
-[Variable 1] = Contenu de [Variable 1]
-[Variable 2] = Contenu de [Variable 2]
-[Guide des commandes] : Activate
-[Router] = Database
-[User_id] = ohada
-[Database] = workspace_02`
               }            ]
           },
           {
@@ -4901,22 +4777,6 @@ Contenu de [Contexte de base]
 [Variable 2] = Contenu de [Variable 2]
 [Guide des commandes] : Activate
 [Router] = Document`
-              },
-              {
-                id: 'database',
-                label: 'Mode Database',
-                command: `[Command] = /Table rapport_final
-[Command Manuel] = Étape mission
-[Étape précédente] = Rapport provisoire
-[Étape mission] = Rapport final
-[Modèle] = 
-[Pièces jointes] = Rapport provisoire
-[Variable 1] = Contenu de [Variable 1]
-[Variable 2] = Contenu de [Variable 2]
-[Guide des commandes] : Activate
-[Router] = Database
-[User_id] = ohada
-[Database] = workspace_02`
               }            ]
           },
           {
@@ -4982,22 +4842,6 @@ Contenu de [Contexte de base]
 [Variable 2] = Contenu de [Variable 2]
 [Guide des commandes] : Activate
 [Router] = Document`
-              },
-              {
-                id: 'database',
-                label: 'Mode Database',
-                command: `[Command] = /Table suivi_recos
-[Command Manuel] = Étape mission
-[Étape précédente] = Rapport final
-[Étape mission] = Suivi des recos
-[Modèle] = 
-[Pièces jointes] = Rapport final
-[Variable 1] = Contenu de [Variable 1]
-[Variable 2] = Contenu de [Variable 2]
-[Guide des commandes] : Activate
-[Router] = Database
-[User_id] = ohada
-[Database] = workspace_02`
               }            ]
           }
         ]
