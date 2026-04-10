@@ -5381,6 +5381,318 @@ Contenu de [Contexte de base]
     icon: <BookOpen className="w-4 h-4" />,
     phases: [
       {
+        id: 'template',
+        label: 'Template',
+        etapes: [
+          {
+
+            id: 'template-unicolonne',
+
+            label: 'Template table unicolonne et ligne',
+
+            icon: <FileText className="w-4 h-4" />,
+
+            modes: [
+
+              {
+
+                id: 'normal',
+
+                label: 'Normal',
+
+                command: `[Command] : Template_table_unicolonne`
+
+              },
+
+              {
+
+                id: 'guide-commandes',
+
+                label: 'Guide des commandes',
+
+                command: `[Command] : Template_table_unicolonne
+[Guide des commandes] : Activate`
+
+              }
+
+            ]
+
+          },
+          {
+
+            id: 'template-simple',
+
+            label: 'Template table simple',
+
+            icon: <FileText className="w-4 h-4" />,
+
+            modes: [
+
+              {
+
+                id: 'normal',
+
+                label: 'Normal',
+
+                command: `[Command] : Template_table_simple`
+
+              },
+
+              {
+
+                id: 'guide-commandes',
+
+                label: 'Guide des commandes',
+
+                command: `[Command] : Template_table_simple
+[Guide des commandes] : Activate`
+
+              }
+
+            ]
+
+          },
+          {
+
+            id: 'template-etape-mission',
+
+            label: 'Template table etape de mission',
+
+            icon: <FileText className="w-4 h-4" />,
+
+            modes: [
+
+              {
+
+                id: 'normal',
+
+                label: 'Normal',
+
+                command: `[Command] : Template_table_etape_de_mission`
+
+              },
+
+              {
+
+                id: 'guide-commandes',
+
+                label: 'Guide des commandes',
+
+                command: `[Command] : Template_table_etape_de_mission
+[Guide des commandes] : Activate`
+
+              }
+
+            ]
+
+          },
+          {
+
+            id: 'template-feuille-couverture',
+
+            label: 'Template table feuille couverture et test audit',
+
+            icon: <FileText className="w-4 h-4" />,
+
+            modes: [
+
+              {
+
+                id: 'normal',
+
+                label: 'Normal',
+
+                command: `[Command] : Template_table_feuille_couverture_test_audit`
+
+              },
+
+              {
+
+                id: 'guide-commandes',
+
+                label: 'Guide des commandes',
+
+                command: `[Command] : Template_table_feuille_couverture_test_audit
+[Guide des commandes] : Activate`
+
+              }
+
+            ]
+
+          },
+          {
+
+            id: 'template-frap',
+
+            label: 'Template table Frap',
+
+            icon: <FileText className="w-4 h-4" />,
+
+            modes: [
+
+              {
+
+                id: 'normal',
+
+                label: 'Normal',
+
+                command: `[Command] : Template_table_frap`
+
+              },
+
+              {
+
+                id: 'guide-commandes',
+
+                label: 'Guide des commandes',
+
+                command: `[Command] : Template_table_frap
+[Guide des commandes] : Activate`
+
+              }
+
+            ]
+
+          },
+          {
+
+            id: 'template-syntheses-frap',
+
+            label: 'Template table synthèses des frap',
+
+            icon: <FileText className="w-4 h-4" />,
+
+            modes: [
+
+              {
+
+                id: 'normal',
+
+                label: 'Normal',
+
+                command: `[Command] : Template_table_synthèses_frap`
+
+              },
+
+              {
+
+                id: 'guide-commandes',
+
+                label: 'Guide des commandes',
+
+                command: `[Command] : Template_table_synthèses_frap
+[Guide des commandes] : Activate`
+
+              }
+
+            ]
+
+          },
+          {
+
+            id: 'template-rapport-provisoire',
+
+            label: 'Template table rapport provisoire',
+
+            icon: <FileText className="w-4 h-4" />,
+
+            modes: [
+
+              {
+
+                id: 'normal',
+
+                label: 'Normal',
+
+                command: `[Command] : Template_table_rapport_provisoire`
+
+              },
+
+              {
+
+                id: 'guide-commandes',
+
+                label: 'Guide des commandes',
+
+                command: `[Command] : Template_table_rapport_provisoire
+[Guide des commandes] : Activate`
+
+              }
+
+            ]
+
+          },
+          {
+
+            id: 'template-rapport-final',
+
+            label: 'Template table rapport final',
+
+            icon: <FileText className="w-4 h-4" />,
+
+            modes: [
+
+              {
+
+                id: 'normal',
+
+                label: 'Normal',
+
+                command: `[Command] : Template_table_rapport_final`
+
+              },
+
+              {
+
+                id: 'guide-commandes',
+
+                label: 'Guide des commandes',
+
+                command: `[Command] : Template_table_rapport_final
+[Guide des commandes] : Activate`
+
+              }
+
+            ]
+
+          },
+          {
+
+            id: 'template-suivi-recos',
+
+            label: 'Template table suivi des recos',
+
+            icon: <FileText className="w-4 h-4" />,
+
+            modes: [
+
+              {
+
+                id: 'normal',
+
+                label: 'Normal',
+
+                command: `[Command] : Template_table_suivi_recos`
+
+              },
+
+              {
+
+                id: 'guide-commandes',
+
+                label: 'Guide des commandes',
+
+                command: `[Command] : Template_table_suivi_recos
+[Guide des commandes] : Activate`
+
+              }
+
+            ]
+
+          }
+        ]
+      },
+      {
         id: 'guides',
         label: 'Guides',
         etapes: [
