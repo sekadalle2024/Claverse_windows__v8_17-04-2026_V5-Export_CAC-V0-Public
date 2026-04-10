@@ -54,7 +54,7 @@ interface ModeItem {
 interface EtapeItem {
   id: string;
   label: string;
-  icon: React.ReactNode;
+  icon?: React.ReactNode;
   command?: string;
   modes?: ModeItem[];
   norme?: string; // Norme d'audit associée
@@ -80,6 +80,7 @@ interface PhaseItem {
   label: string;
   etapes?: EtapeItem[];
   cycles?: CycleComptable[];
+  modes?: ModeItem[];
 }
 interface LogicielItem {
   id: string;
@@ -5368,6 +5369,76 @@ Contenu de [Contexte de base]
 [Section] = Section D - Risques de fraude
 [Objectifs] = Reconnaître les opportunités de coordination avec les enquêteurs
 [Points] = Examen des évaluations de risques réalisées par les enquêteurs`
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    id: 'e-syscohada-revise',
+    label: 'E-Syscohada révisé',
+    icon: <BookOpen className="w-4 h-4" />,
+    phases: [
+      {
+        id: 'liasses-fiscales',
+        label: 'Liasses fiscales',
+        etapes: [
+          {
+            id: 'etats-financiers-liasse-normale',
+            label: 'Etats financiers - Liasse normale',
+            icon: <FileText className="w-4 h-4" />,
+            modes: [
+              {
+                id: 'normal',
+                label: 'Mode normal',
+                command: `[Command] = Etat fin
+[Integration] = Base`
+              },
+              {
+                id: 'avance',
+                label: 'Mode avancé',
+                command: `[Command] = Etat fin
+[Integration] = Affectation du resultat`
+              }
+            ]
+          },
+          {
+            id: 'etats-financiers-liasse-systeme-minimal',
+            label: 'Etats financiers - Liasse système minimal',
+            icon: <FileText className="w-4 h-4" />,
+            modes: [
+              {
+                id: 'normal',
+                label: 'Mode normal',
+                command: `[Command] = Liasse système minimal
+[Integration] = Base`
+              },
+              {
+                id: 'avance',
+                label: 'Mode avancé',
+                command: `[Command] = Liasse système minimal
+[Integration] = Affectation du resultat`
+              }
+            ]
+          },
+          {
+            id: 'etats-financiers-liasse-association',
+            label: 'Etats financiers - Liasse association',
+            icon: <FileText className="w-4 h-4" />,
+            modes: [
+              {
+                id: 'normal',
+                label: 'Mode normal',
+                command: `[Command] = Liasse association
+[Integration] = Base`
+              },
+              {
+                id: 'avance',
+                label: 'Mode avancé',
+                command: `[Command] = Liasse association
+[Integration] = Affectation du resultat`
               }
             ]
           }
