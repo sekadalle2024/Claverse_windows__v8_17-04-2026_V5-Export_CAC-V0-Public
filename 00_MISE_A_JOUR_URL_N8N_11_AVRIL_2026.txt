@@ -1,0 +1,96 @@
+═══════════════════════════════════════════════════════════════════════════
+  MISE À JOUR DES URLs N8N - 11 AVRIL 2026
+═══════════════════════════════════════════════════════════════════════════
+
+✅ MISSION ACCOMPLIE
+
+Toutes les URLs de l'ancienne application n8n ont été remplacées par les 
+nouvelles URLs dans le fichier claraApiService.ts.
+
+───────────────────────────────────────────────────────────────────────────
+📋 CHANGEMENT EFFECTUÉ
+───────────────────────────────────────────────────────────────────────────
+
+Ancienne URL de base : https://t22wtwxl.rpcld.app
+Nouvelle URL de base  : https://hkj0631c.rpcl.app
+
+───────────────────────────────────────────────────────────────────────────
+📁 FICHIER MODIFIÉ
+───────────────────────────────────────────────────────────────────────────
+
+src/services/claraApiService.ts
+
+───────────────────────────────────────────────────────────────────────────
+🔄 ENDPOINTS MIS À JOUR (Cases 1-43)
+───────────────────────────────────────────────────────────────────────────
+
+✓ Case 1  : Default endpoint (template)
+✓ Case 2  : Design (integration_windows)
+✓ Case 3  : n8n_doc
+✓ Case 4  : Htlm_processor
+✓ Case 5  : Database (lien dans table locale)
+✓ Case 6  : Algorithme
+✓ Case 7  : Visualisation
+✓ Case 9  : Document (integration_document)
+✓ Case 10 : Database endpoint (integration_database)
+✓ Case 11 : CIA Cours (cia_cours_gemini)
+✓ Case 12 : CIA QCM (qcm_cia_gemini)
+✓ Case 13 : CIA Synthèse (synthese_cia_gemini)
+✓ Case 16 : Implementation_modelisation
+✓ Case 17 : Implementation_programme_controle
+✓ Case 18 : Implementation_cartographie
+✓ Case 19 : Programme_controle_comptes
+✓ Case 20 : Revue_manager
+✓ Case 22 : Règles_comptables
+✓ Case 23 : Recos_revision
+✓ Case 25 : Recos_controle_interne
+✓ Case 26 : Recos_revision_comptes
+✓ Case 27 : Rapport_synthese_cac
+✓ Case 28 : Methodo_audit
+✓ Case 29 : Guide_des_commandes
+✓ Case 30 : Guide_intelligent
+✓ Case 31 : Guide_menu_contextuel
+✓ Case 32 : Guide_produit
+✓ Case 33 : Methodo_revision
+✓ Case 34 : Heatmap_risque
+
+───────────────────────────────────────────────────────────────────────────
+📊 STATISTIQUES
+───────────────────────────────────────────────────────────────────────────
+
+Total d'URLs remplacées : 30 endpoints
+Fichiers modifiés       : 1 fichier
+Temps d'exécution       : < 1 minute
+
+───────────────────────────────────────────────────────────────────────────
+✅ VÉRIFICATION
+───────────────────────────────────────────────────────────────────────────
+
+✓ Aucune occurrence de l'ancienne URL (t22wtwxl.rpcld.app) trouvée
+✓ Toutes les nouvelles URLs (hkj0631c.rpcl.app) sont en place
+✓ Structure du code préservée
+✓ Syntaxe TypeScript valide
+
+───────────────────────────────────────────────────────────────────────────
+🚀 PROCHAINES ÉTAPES
+───────────────────────────────────────────────────────────────────────────
+
+1. Tester la connexion aux nouveaux endpoints n8n
+2. Vérifier que tous les workflows fonctionnent correctement
+3. Redémarrer l'application frontend si nécessaire
+4. Commit et push des modifications sur GitHub
+
+───────────────────────────────────────────────────────────────────────────
+💡 NOTES IMPORTANTES
+───────────────────────────────────────────────────────────────────────────
+
+• Les cases 8, 21, 24 et 35-43 utilisent des sentinelles internes 
+  (pas d'appel HTTP direct) et n'ont donc pas d'URL à modifier
+
+• Le changement d'URL n'affecte que le backend n8n, la logique 
+  applicative reste identique
+
+• Assurez-vous que les nouveaux workflows n8n sont bien configurés 
+  et actifs sur https://hkj0631c.rpcl.app
+
+═══════════════════════════════════════════════════════════════════════════

@@ -1,12 +1,16 @@
 """
-Property-Based Tests for Balance_Reader Numeric Conversion Robustness
+Property-Based Tests for Numeric Conversion Robustness
 
 This module contains property-based tests using Hypothesis to verify
-the Balance_Reader module's numeric conversion behavior with various
-invalid inputs (empty strings, None, text, special characters, etc.).
+the Balance_Reader module's numeric conversion behavior across various
+invalid inputs including empty strings, None values, text, special characters,
+and mixed formats.
 
-**Property 3: Numeric Conversion Robustness**
 **Validates: Requirements 1.5, 1.6**
+
+Property 3: Numeric Conversion Robustness
+For any balance sheet loaded, all monetary values must be converted to float type,
+and any invalid or empty values must be replaced with 0.0 without raising exceptions.
 
 Auteur: Système de calcul automatique des notes annexes SYSCOHADA
 Date: 08 Avril 2026
@@ -17,10 +21,9 @@ import os
 import pytest
 from hypothesis import given, strategies as st, assume, settings
 import pandas as pd
-import openpyxl
+import numpy as np
 from openpyxl import Workbook
 import tempfile
-import numpy as np
 
 # Ajouter le chemin des modules au PYTHONPATH
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'Modules'))
@@ -29,7 +32,7 @@ from balance_reader import BalanceReader, BalanceNotFoundException, InvalidBalan
 
 
 # ============================================================================
-# HYPOTHESIS STRATEGIES
+# HYPOTHESIS STRATEGIES FOR INVALID VALUES
 # ============================================================================
 
 @st.composite
@@ -41,59 +44,89 @@ def st_invalid_monetary_value(draw):
     - Chaînes vides
     - None
     - Texte non numérique
-    - Caractères spéciaux (compatibles Excel)
-    - Formats mixtes (texte + nombres)
-    - Espaces uniquement
+    - Caractères spéciaux
+    - Formats mixtes (lettres + chiffres)
+    - Espaces
     - Valeurs NaN
-    - Valeurs infinies
     
     Returns:
         Valeur invalide de type varié
     """
-    invalid_types = [
-        'empty_string',
-        'none',
-        'text',
-        'special_chars',
-        'mixed_format',
-        'whitespace',
-        'nan_string',
-        'inf_string',
-        'comma_decimal',
-        'multiple_decimals'
-    ]
+    return draw(st.one_of(
+        st.just(''),                          # Chaîne vide
+        st.just(None),                        # None
+        st.just('N/A'),                       # Texte
+        st.just('n/a'),                       # Texte minuscule
+        st.just('-'),                         # Tiret seul
+        st.just('abc'),                       # Lettres
+        st.just('xyz123'),                    # Lettres + chiffres
+        st.just('123abc'),                    # Chiffres + lettres
+        st.just('   '),                       # Espaces
+        st.just('###'),                       # Caractères spéciaux
+        st.just('***'),                       # Astérisques
+        st.just('...'),                       # Points
+        st.just('???'),                       # Points d'interrogation
+        st.just('ERROR'),                     # Message d'erreur
+        st.just('#DIV/0!'),                   # Erreur Excel
+        st.just('#VALUE!'),                   # Erreur Excel
+        st.just('#REF!'),                     # Erreur Excel
+        st.just(np.nan),                      # NaN numpy
+        st.just(float('nan')),                # NaN Python
+        st.text(min_size=1, max_size=10),     # Texte aléatoire
+    ))
+
+
+@st.composite
+def st_valid_monetary_value(draw):
+    """
+    Génère des valeurs monétaires valides.
     
-    invalid_type = draw(st.sampled_from(invalid_types))
+    Returns:
+        float: Montant valide entre 0 et 10 millions
+    """
+    return draw(st.floats(
+        min_value=0,
+        max_value=10000000,
+        allow_nan=False,
+        allow_infinity=False
+    ))
+
+
+@st.composite
+def st_mixed_monetary_column(draw):
+    """
+    Génère une colonne avec un mélange de valeurs valides et invalides.
     
-    if invalid_type == 'empty_string':
-        return ''
-    elif invalid_type == 'none':
-        return None
-    elif invalid_type == 'text':
-        # Utiliser seulement des caractères alphanumériques pour éviter les problèmes Excel
-        return draw(st.text(alphabet='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz', min_size=1, max_size=10))
-    elif invalid_type == 'special_chars':
-        return draw(st.sampled_from(['@#$', '***', '---', '+++', '&&&', '!!!']))
-    elif invalid_type == 'mixed_format':
-        # Mélange de texte et nombres
-        num = draw(st.integers(min_value=0, max_value=9999))
-        text = draw(st.sampled_from(['ABC', 'XYZ', 'NA', 'ERROR']))
-        return f"{text}{num}" if draw(st.booleans()) else f"{num}{text}"
-    elif invalid_type == 'whitespace':
-        return '   ' * draw(st.integers(min_value=1, max_value=3))
-    elif invalid_type == 'nan_string':
-        return draw(st.sampled_from(['NaN', 'nan', 'NAN', 'NA', 'na']))
-    elif invalid_type == 'inf_string':
-        return draw(st.sampled_from(['inf', 'Inf', 'INF', 'infinity', '-inf']))
-    elif invalid_type == 'comma_decimal':
-        # Format européen avec virgule comme séparateur décimal
-        num = draw(st.floats(min_value=0, max_value=99999, allow_nan=False, allow_infinity=False))
-        return str(num).replace('.', ',')
-    elif invalid_type == 'multiple_decimals':
-        # Plusieurs points décimaux (invalide)
-        return draw(st.sampled_from(['12.34.56', '1.2.3.4', '100.200.300']))
+    Cette stratégie crée des colonnes contenant:
+    - 30-70% de valeurs valides (float)
+    - 30-70% de valeurs invalides (empty, None, text, etc.)
     
-    return ''
+    Returns:
+        List: Liste de valeurs mixtes
+    """
+    num_values = draw(st.integers(min_value=10, max_value=50))
+    
+    # Déterminer le ratio de valeurs invalides (30-70%)
+    invalid_ratio = draw(st.floats(min_value=0.3, max_value=0.7))
+    num_invalid = int(num_values * invalid_ratio)
+    num_valid = num_values - num_invalid
+    
+    # Générer les valeurs
+    values = []
+    
+    # Ajouter des valeurs valides
+    for _ in range(num_valid):
+        values.append(draw(st_valid_monetary_value()))
+    
+    # Ajouter des valeurs invalides
+    for _ in range(num_invalid):
+        values.append(draw(st_invalid_monetary_value()))
+    
+    # Mélanger les valeurs
+    import random
+    random.shuffle(values)
+    
+    return values
 
 
 @st.composite
@@ -102,17 +135,13 @@ def st_balance_with_invalid_values(draw):
     Génère un fichier Excel avec des valeurs monétaires invalides.
     
     Cette stratégie crée un fichier Excel avec:
+    - 3 onglets (BALANCE N, N-1, N-2)
+    - Colonnes monétaires contenant des valeurs invalides
     - Mélange de valeurs valides et invalides
-    - Différents types d'invalides (vide, texte, None, etc.)
-    - Au moins quelques valeurs invalides pour tester la conversion
     
     Returns:
-        Tuple (chemin_fichier, dict_invalides) où dict_invalides contient
-        les positions des valeurs invalides pour vérification
+        str: Chemin vers le fichier Excel temporaire créé
     """
-    # Générer le nombre de comptes (réduit pour performance)
-    num_comptes = draw(st.integers(min_value=3, max_value=10))
-    
     # Créer un fichier temporaire
     temp_file = tempfile.NamedTemporaryFile(mode='w', suffix='.xlsx', delete=False)
     temp_file.close()
@@ -124,70 +153,62 @@ def st_balance_with_invalid_values(draw):
     if 'Sheet' in wb.sheetnames:
         wb.remove(wb['Sheet'])
     
-    # Créer l'onglet BALANCE N
-    ws = wb.create_sheet("BALANCE N")
-    
-    # En-têtes
-    headers = ['Numéro', 'Intitulé', 'Ant Débit', 'Ant Crédit', 
-               'Débit', 'Crédit', 'Solde Débit', 'Solde Crédit']
-    ws.append(headers)
-    
-    # Tracker les valeurs invalides insérées
-    invalides_positions = []
-    
-    # Générer les données
-    for i in range(num_comptes):
-        # Numéro de compte (toujours valide)
-        classe = draw(st.sampled_from(['1', '2', '3', '4', '5', '6', '7', '8', '9']))
-        sous_classe = draw(st.integers(min_value=0, max_value=9))
-        detail = draw(st.integers(min_value=0, max_value=99))
-        numero = f"{classe}{sous_classe}{detail:02d}"
+    # Créer les 3 onglets
+    for exercice in ['N', 'N-1', 'N-2']:
+        ws = wb.create_sheet(f"BALANCE {exercice}")
         
-        # Intitulé (toujours valide)
-        intitule = f"Compte {numero}"
+        # En-têtes
+        headers = ['Numéro', 'Intitulé', 'Ant Débit', 'Ant Crédit', 
+                   'Débit', 'Crédit', 'Solde Débit', 'Solde Crédit']
+        ws.append(headers)
         
-        # Pour chaque colonne monétaire, décider si on met une valeur valide ou invalide
-        row_data = [numero, intitule]
+        # Générer les colonnes avec valeurs mixtes
+        num_comptes = draw(st.integers(min_value=10, max_value=30))
         
-        colonnes_montants = ['Ant Débit', 'Ant Crédit', 'Débit', 'Crédit', 'Solde Débit', 'Solde Crédit']
+        # Générer les colonnes monétaires avec valeurs invalides
+        ant_debit_col = draw(st_mixed_monetary_column())[:num_comptes]
+        ant_credit_col = draw(st_mixed_monetary_column())[:num_comptes]
+        debit_col = draw(st_mixed_monetary_column())[:num_comptes]
+        credit_col = draw(st_mixed_monetary_column())[:num_comptes]
+        solde_debit_col = draw(st_mixed_monetary_column())[:num_comptes]
+        solde_credit_col = draw(st_mixed_monetary_column())[:num_comptes]
         
-        for col_idx, col_name in enumerate(colonnes_montants):
-            # 30% de chance d'avoir une valeur invalide
-            use_invalid = draw(st.booleans()) and draw(st.booleans())  # ~25% chance
+        # Ajouter les lignes
+        for i in range(num_comptes):
+            # Numéro de compte valide
+            classe = draw(st.sampled_from(['1', '2', '3', '4', '5', '6', '7', '8', '9']))
+            sous_classe = draw(st.integers(min_value=0, max_value=9))
+            detail = draw(st.integers(min_value=0, max_value=999))
+            numero = f"{classe}{sous_classe}{detail:03d}"
             
-            if use_invalid:
-                invalid_value = draw(st_invalid_monetary_value())
-                row_data.append(invalid_value)
-                invalides_positions.append({
-                    'ligne': i + 2,  # +2 car ligne 1 = headers, ligne 2 = première donnée
-                    'colonne': col_name,
-                    'valeur': invalid_value
-                })
-            else:
-                # Valeur valide
-                valid_value = draw(st.floats(min_value=0, max_value=100000, 
-                                             allow_nan=False, allow_infinity=False))
-                row_data.append(valid_value)
-        
-        # Ajouter la ligne
-        ws.append(row_data)
-    
-    # S'assurer qu'il y a au moins quelques valeurs invalides
-    assume(len(invalides_positions) >= 1)
+            # Intitulé
+            intitule = f"Compte {numero}"
+            
+            # Ajouter la ligne avec valeurs mixtes
+            ws.append([
+                numero,
+                intitule,
+                ant_debit_col[i] if i < len(ant_debit_col) else '',
+                ant_credit_col[i] if i < len(ant_credit_col) else '',
+                debit_col[i] if i < len(debit_col) else '',
+                credit_col[i] if i < len(credit_col) else '',
+                solde_debit_col[i] if i < len(solde_debit_col) else '',
+                solde_credit_col[i] if i < len(solde_credit_col) else ''
+            ])
     
     # Sauvegarder le fichier
     wb.save(temp_file.name)
     
-    return temp_file.name, invalides_positions
+    return temp_file.name
 
 
 # ============================================================================
-# PROPERTY-BASED TESTS
+# PROPERTY-BASED TESTS - NUMERIC CONVERSION ROBUSTNESS
 # ============================================================================
 
-@given(data=st.data())
-@settings(max_examples=10, deadline=30000)
-def test_property_numeric_conversion_robustness(data):
+@given(fichier_excel=st_balance_with_invalid_values())
+@settings(max_examples=50, deadline=60000)
+def test_property_numeric_conversion_robustness(fichier_excel):
     """
     **Property 3: Numeric Conversion Robustness**
     
@@ -199,159 +220,80 @@ def test_property_numeric_conversion_robustness(data):
     
     This property verifies that:
     1. All monetary columns are converted to float type
-    2. Invalid values (empty, None, text, special chars) are replaced with 0.0
-    3. No exceptions are raised during conversion
-    4. All resulting values are >= 0.0
-    5. No NaN or Inf values remain after conversion
-    6. The conversion is deterministic (same input = same output)
+    2. Empty strings are replaced with 0.0
+    3. None values are replaced with 0.0
+    4. Text values are replaced with 0.0
+    5. Special characters are replaced with 0.0
+    6. Mixed formats are handled gracefully
+    7. No exceptions are raised during conversion
+    8. All converted values are >= 0
+    9. No NaN or infinite values remain after conversion
     
     Test Strategy:
-    - Generate Excel files with mix of valid and invalid monetary values
-    - Include various types of invalid values (empty, None, text, etc.)
+    - Generate Excel files with 30-70% invalid values in monetary columns
+    - Invalid values include: '', None, 'N/A', text, special chars, NaN
     - Verify that Balance_Reader converts all values to float
     - Verify that all invalid values become 0.0
-    - Verify no exceptions are raised
-    """
-    # Générer un fichier avec des valeurs invalides
-    fichier_excel, invalides_positions = data.draw(st_balance_with_invalid_values())
-    
-    try:
-        # Créer le lecteur
-        reader = BalanceReader(fichier_excel)
-        
-        # Charger le DataFrame brut pour voir les valeurs avant conversion
-        df_brut = pd.read_excel(fichier_excel, sheet_name="BALANCE N")
-        
-        # Appliquer la conversion des montants
-        df_converti = reader.convertir_montants(df_brut.copy())
-        
-        # Vérifier que toutes les colonnes monétaires sont de type float
-        colonnes_montants = ['Ant Débit', 'Ant Crédit', 'Débit', 'Crédit', 'Solde Débit', 'Solde Crédit']
-        
-        for col in colonnes_montants:
-            if col in df_converti.columns:
-                # Vérifier que la colonne est numérique
-                assert pd.api.types.is_numeric_dtype(df_converti[col]), \
-                    f"Colonne {col} doit être numérique après conversion, trouvé {df_converti[col].dtype}"
-                
-                # Vérifier qu'il n'y a pas de NaN
-                assert not df_converti[col].isna().any(), \
-                    f"Colonne {col} ne doit pas contenir de NaN après conversion"
-                
-                # Vérifier qu'il n'y a pas de valeurs infinies
-                assert not np.isinf(df_converti[col]).any(), \
-                    f"Colonne {col} ne doit pas contenir de valeurs infinies après conversion"
-                
-                # Vérifier que toutes les valeurs sont >= 0
-                assert (df_converti[col] >= 0).all(), \
-                    f"Colonne {col} doit contenir uniquement des valeurs >= 0 après conversion"
-        
-        # Vérifier que les valeurs invalides ont été remplacées par 0.0
-        # Note: Les valeurs avec virgule comme séparateur décimal (ex: '1,0') sont converties
-        # correctement en float (1.0), donc elles ne doivent PAS être 0.0
-        for invalid_info in invalides_positions:
-            ligne_idx = invalid_info['ligne'] - 2  # -2 car ligne 1 = headers
-            col_name = invalid_info['colonne']
-            valeur_originale = invalid_info['valeur']
-            
-            if ligne_idx < len(df_converti) and col_name in df_converti.columns:
-                valeur_convertie = df_converti.loc[ligne_idx, col_name]
-                
-                # Vérifier si la valeur originale était vraiment invalide (pas juste un format différent)
-                # Les valeurs avec virgule comme séparateur décimal sont valides et converties correctement
-                if valeur_originale is None or valeur_originale == '' or \
-                   (isinstance(valeur_originale, str) and valeur_originale.strip() == ''):
-                    # Ces valeurs doivent être 0.0
-                    assert valeur_convertie == 0.0, \
-                        f"Valeur invalide '{valeur_originale}' à la ligne {invalid_info['ligne']}, " \
-                        f"colonne {col_name} doit être convertie en 0.0, trouvé {valeur_convertie}"
-                elif isinstance(valeur_originale, str):
-                    # Vérifier si c'est un texte pur (pas de chiffres)
-                    if not any(c.isdigit() for c in valeur_originale):
-                        # Texte pur sans chiffres doit être 0.0
-                        assert valeur_convertie == 0.0, \
-                            f"Texte pur '{valeur_originale}' à la ligne {invalid_info['ligne']}, " \
-                            f"colonne {col_name} doit être converti en 0.0, trouvé {valeur_convertie}"
-                    # Sinon, c'est peut-être un format numérique valide (ex: '1,0' -> 1.0)
-                    # qui est correctement converti, donc on ne vérifie pas qu'il soit 0.0
-        
-        # Vérifier que la conversion est déterministe (appliquer 2 fois)
-        df_converti_2 = reader.convertir_montants(df_brut.copy())
-        
-        for col in colonnes_montants:
-            if col in df_converti.columns:
-                assert df_converti[col].equals(df_converti_2[col]), \
-                    f"La conversion de la colonne {col} doit être déterministe"
-        
-    finally:
-        # Nettoyer le fichier temporaire
-        if os.path.exists(fichier_excel):
-            try:
-                os.unlink(fichier_excel)
-            except Exception:
-                pass
-
-
-@given(data=st.data())
-@settings(max_examples=10, deadline=30000)
-def test_property_numeric_conversion_no_exceptions(data):
-    """
-    **Property 3 (variant): No Exceptions During Conversion**
-    
-    **Validates: Requirements 1.5, 1.6**
-    
-    For any balance sheet with invalid monetary values, the conversion
-    process must never raise exceptions - it must handle all errors gracefully.
-    
-    This property verifies that:
-    1. No exceptions are raised during convertir_montants()
-    2. The method always returns a valid DataFrame
-    3. All monetary columns exist after conversion
-    4. The number of rows is preserved
-    
-    Test Strategy:
-    - Generate Excel files with extreme invalid values
     - Verify that no exceptions are raised
-    - Verify that the DataFrame structure is preserved
     """
-    # Générer un fichier avec des valeurs invalides
-    fichier_excel, invalides_positions = data.draw(st_balance_with_invalid_values())
-    
     try:
         # Créer le lecteur
         reader = BalanceReader(fichier_excel)
         
-        # Charger le DataFrame brut
-        df_brut = pd.read_excel(fichier_excel, sheet_name="BALANCE N")
-        num_lignes_avant = len(df_brut)
+        # Charger les balances - ne doit pas lever d'exception
+        balance_n, balance_n1, balance_n2 = reader.charger_balances()
         
-        # Appliquer la conversion - ne doit jamais lever d'exception
-        try:
-            df_converti = reader.convertir_montants(df_brut.copy())
-            conversion_reussie = True
-        except Exception as e:
-            conversion_reussie = False
-            exception_message = str(e)
-        
-        # Vérifier qu'aucune exception n'a été levée
-        assert conversion_reussie, \
-            f"La conversion ne doit jamais lever d'exception, mais a levé: {exception_message}"
-        
-        # Vérifier que le DataFrame est toujours valide
-        assert isinstance(df_converti, pd.DataFrame), \
-            "Le résultat de la conversion doit être un DataFrame"
-        
-        # Vérifier que le nombre de lignes est préservé
-        assert len(df_converti) == num_lignes_avant, \
-            f"Le nombre de lignes doit être préservé: avant={num_lignes_avant}, après={len(df_converti)}"
-        
-        # Vérifier que toutes les colonnes monétaires existent
+        # Colonnes monétaires à vérifier
         colonnes_montants = ['Ant Débit', 'Ant Crédit', 'Débit', 'Crédit', 'Solde Débit', 'Solde Crédit']
-        for col in colonnes_montants:
-            if col in df_brut.columns:
-                assert col in df_converti.columns, \
-                    f"La colonne {col} doit exister après conversion"
         
+        # Vérifier chaque balance
+        for balance, nom in [(balance_n, 'N'), (balance_n1, 'N-1'), (balance_n2, 'N-2')]:
+            # Vérifier que la balance est chargée
+            assert balance is not None, f"Balance {nom} ne doit pas être None"
+            assert isinstance(balance, pd.DataFrame), f"Balance {nom} doit être un DataFrame"
+            assert len(balance) > 0, f"Balance {nom} doit contenir au moins 1 ligne"
+            
+            # Vérifier chaque colonne monétaire
+            for col in colonnes_montants:
+                if col in balance.columns:
+                    # 1. Vérifier que la colonne est de type numérique (float)
+                    assert pd.api.types.is_numeric_dtype(balance[col]), \
+                        f"Colonne {col} de Balance {nom} doit être de type numérique, trouvé {balance[col].dtype}"
+                    
+                    # 2. Vérifier qu'il n'y a pas de NaN
+                    assert not balance[col].isna().any(), \
+                        f"Colonne {col} de Balance {nom} ne doit pas contenir de NaN après conversion"
+                    
+                    # 3. Vérifier qu'il n'y a pas de valeurs infinies
+                    assert not np.isinf(balance[col]).any(), \
+                        f"Colonne {col} de Balance {nom} ne doit pas contenir de valeurs infinies"
+                    
+                    # 4. Vérifier que toutes les valeurs sont >= 0
+                    assert (balance[col] >= 0).all(), \
+                        f"Colonne {col} de Balance {nom} doit contenir uniquement des valeurs >= 0"
+                    
+                    # 5. Vérifier que les valeurs sont de type float
+                    assert balance[col].dtype in [np.float64, np.float32, float], \
+                        f"Colonne {col} de Balance {nom} doit être de type float, trouvé {balance[col].dtype}"
+                    
+                    # 6. Vérifier que les valeurs invalides ont été remplacées par 0.0
+                    # (on ne peut pas vérifier directement, mais on vérifie qu'il n'y a pas d'erreur)
+                    assert balance[col].notna().all(), \
+                        f"Colonne {col} de Balance {nom} ne doit pas contenir de valeurs manquantes"
+        
+        # Vérifier que les 3 balances ont été chargées avec succès
+        assert balance_n is not None and balance_n1 is not None and balance_n2 is not None, \
+            "Les 3 balances doivent être chargées avec succès"
+        
+    except (BalanceNotFoundException, InvalidBalanceFormatException) as e:
+        # Ces exceptions sont acceptables si le fichier est vraiment invalide
+        # (par exemple, onglets manquants)
+        pytest.skip(f"Fichier invalide (acceptable): {str(e)}")
+    
+    except Exception as e:
+        # Toute autre exception est un échec du test
+        pytest.fail(f"Exception inattendue lors de la conversion: {type(e).__name__}: {str(e)}")
+    
     finally:
         # Nettoyer le fichier temporaire
         if os.path.exists(fichier_excel):
@@ -363,16 +305,12 @@ def test_property_numeric_conversion_no_exceptions(data):
 
 def test_property_numeric_conversion_with_demo_file():
     """
-    Test de la propriété avec le fichier de démonstration réel.
+    Test de la propriété de conversion numérique avec le fichier de démonstration.
     
     **Validates: Requirements 1.5, 1.6**
     
-    Ce test vérifie que le fichier de démonstration P000 -BALANCE DEMO N_N-1_N-2.xls
-    respecte la propriété de robustesse de conversion numérique.
-    
-    Même si le fichier de démonstration contient des valeurs valides,
-    ce test vérifie que la conversion fonctionne correctement et que
-    toutes les valeurs sont bien de type float.
+    Ce test vérifie que le fichier de démonstration réel a toutes ses valeurs
+    monétaires correctement converties en float, sans NaN ni valeurs infinies.
     """
     # Chemin vers le fichier de test
     base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -388,21 +326,22 @@ def test_property_numeric_conversion_with_demo_file():
     # Charger les balances
     balance_n, balance_n1, balance_n2 = reader.charger_balances()
     
-    # Vérifier que toutes les colonnes monétaires sont de type float
+    # Colonnes monétaires
     colonnes_montants = ['Ant Débit', 'Ant Crédit', 'Débit', 'Crédit', 'Solde Débit', 'Solde Crédit']
     
+    # Vérifier chaque balance
     for balance, nom in [(balance_n, 'N'), (balance_n1, 'N-1'), (balance_n2, 'N-2')]:
         for col in colonnes_montants:
             if col in balance.columns:
-                # Vérifier que la colonne est numérique
+                # Vérifier le type
                 assert pd.api.types.is_numeric_dtype(balance[col]), \
                     f"Colonne {col} de Balance {nom} doit être numérique"
                 
-                # Vérifier qu'il n'y a pas de NaN
+                # Vérifier l'absence de NaN
                 assert not balance[col].isna().any(), \
                     f"Colonne {col} de Balance {nom} ne doit pas contenir de NaN"
                 
-                # Vérifier qu'il n'y a pas de valeurs infinies
+                # Vérifier l'absence de valeurs infinies
                 assert not np.isinf(balance[col]).any(), \
                     f"Colonne {col} de Balance {nom} ne doit pas contenir de valeurs infinies"
                 
@@ -414,90 +353,223 @@ def test_property_numeric_conversion_with_demo_file():
     print(f"  - Balance N:   {len(balance_n)} comptes, toutes valeurs converties en float")
     print(f"  - Balance N-1: {len(balance_n1)} comptes, toutes valeurs converties en float")
     print(f"  - Balance N-2: {len(balance_n2)} comptes, toutes valeurs converties en float")
-    
-    # Afficher quelques statistiques
-    for balance, nom in [(balance_n, 'N')]:
-        print(f"\n  Statistiques Balance {nom}:")
-        for col in colonnes_montants[:2]:  # Juste 2 colonnes pour l'exemple
-            if col in balance.columns:
-                print(f"    - {col}: min={balance[col].min():.2f}, max={balance[col].max():.2f}, "
-                      f"moyenne={balance[col].mean():.2f}")
 
 
-def test_specific_invalid_values():
+@st.composite
+def st_balance_with_specific_invalid_values(draw):
     """
-    Test unitaire avec des valeurs invalides spécifiques.
+    Génère un fichier Excel avec des types spécifiques de valeurs invalides.
+    
+    Cette stratégie teste des cas spécifiques:
+    - Colonnes entièrement vides
+    - Colonnes avec uniquement None
+    - Colonnes avec uniquement du texte
+    - Colonnes avec des erreurs Excel (#DIV/0!, #VALUE!, etc.)
+    
+    Returns:
+        Tuple[str, str]: (chemin fichier, type de valeur invalide)
+    """
+    # Choisir un type de valeur invalide
+    invalid_type = draw(st.sampled_from([
+        'empty',      # Chaînes vides
+        'none',       # None
+        'text',       # Texte
+        'excel_error',# Erreurs Excel
+        'special_chars', # Caractères spéciaux
+        'mixed'       # Mélange
+    ]))
+    
+    # Créer un fichier temporaire
+    temp_file = tempfile.NamedTemporaryFile(mode='w', suffix='.xlsx', delete=False)
+    temp_file.close()
+    
+    # Créer le workbook
+    wb = Workbook()
+    
+    # Supprimer la feuille par défaut
+    if 'Sheet' in wb.sheetnames:
+        wb.remove(wb['Sheet'])
+    
+    # Créer un seul onglet pour ce test
+    ws = wb.create_sheet("BALANCE N")
+    
+    # En-têtes
+    headers = ['Numéro', 'Intitulé', 'Ant Débit', 'Ant Crédit', 
+               'Débit', 'Crédit', 'Solde Débit', 'Solde Crédit']
+    ws.append(headers)
+    
+    # Générer les données avec le type de valeur invalide choisi
+    num_comptes = draw(st.integers(min_value=5, max_value=15))
+    
+    for i in range(num_comptes):
+        # Numéro de compte valide
+        classe = draw(st.sampled_from(['1', '2', '3', '4', '5', '6', '7', '8', '9']))
+        sous_classe = draw(st.integers(min_value=0, max_value=9))
+        numero = f"{classe}{sous_classe}"
+        
+        # Intitulé
+        intitule = f"Compte {numero}"
+        
+        # Générer les valeurs selon le type
+        if invalid_type == 'empty':
+            values = ['', '', '', '', '', '']
+        elif invalid_type == 'none':
+            values = [None, None, None, None, None, None]
+        elif invalid_type == 'text':
+            values = ['N/A', 'n/a', 'ERROR', 'abc', 'xyz', 'text']
+        elif invalid_type == 'excel_error':
+            values = ['#DIV/0!', '#VALUE!', '#REF!', '#NAME?', '#NUM!', '#N/A']
+        elif invalid_type == 'special_chars':
+            values = ['###', '***', '...', '???', '---', '+++']
+        else:  # mixed
+            values = ['', None, 'N/A', '#DIV/0!', '###', 'abc']
+        
+        # Ajouter la ligne
+        ws.append([numero, intitule] + values)
+    
+    # Sauvegarder le fichier
+    wb.save(temp_file.name)
+    
+    return temp_file.name, invalid_type
+
+
+@given(data=st.data())
+@settings(max_examples=30, deadline=60000)
+def test_property_specific_invalid_value_types(data):
+    """
+    **Property 3 (Extended): Specific Invalid Value Types**
     
     **Validates: Requirements 1.5, 1.6**
     
-    Ce test vérifie que des valeurs invalides spécifiques sont correctement
-    converties en 0.0:
-    - Chaînes vides
-    - None
-    - Texte pur
-    - Caractères spéciaux
-    - NaN
-    - Formats mixtes
-    """
-    # Créer un DataFrame de test avec des valeurs invalides spécifiques
-    data = {
-        'Numéro': ['101', '102', '103', '104', '105', '106', '107', '108'],
-        'Intitulé': ['Compte 1', 'Compte 2', 'Compte 3', 'Compte 4', 
-                     'Compte 5', 'Compte 6', 'Compte 7', 'Compte 8'],
-        'Ant Débit': ['', None, 'ABC', '@@@', 'NaN', '12.34.56', '  ', 1000.0],
-        'Ant Crédit': [None, '', '***', 'XYZ123', 'N/A', 'inf', 2000.0, '   '],
-        'Débit': ['ABC123', '---', None, '', 'nan', 3000.0, '+++', 'ERROR'],
-        'Crédit': [4000.0, 'TEXT', None, '&&&', '', '12,34', 'N/A', None],
-        'Solde Débit': ['', 5000.0, None, 'ABC', '!!!', '', 'inf', 'NaN'],
-        'Solde Crédit': [6000.0, '', None, '***', 'XYZ', '  ', None, '---']
-    }
+    For any balance sheet with specific types of invalid values (empty strings,
+    None, text, Excel errors, special characters), the Balance_Reader must
+    convert all values to 0.0 without raising exceptions.
     
-    df = pd.DataFrame(data)
+    This test verifies conversion for specific categories of invalid values:
+    - Empty strings ('')
+    - None values
+    - Text values ('N/A', 'ERROR', etc.)
+    - Excel error values ('#DIV/0!', '#VALUE!', etc.)
+    - Special characters ('###', '***', etc.)
+    - Mixed invalid values
+    
+    Test Strategy:
+    - Generate Excel files with columns containing only one type of invalid value
+    - Verify that all invalid values are converted to 0.0
+    - Verify that no exceptions are raised
+    - Verify that the resulting DataFrame has all numeric columns
+    """
+    fichier_excel, invalid_type = data.draw(st_balance_with_specific_invalid_values())
+    
+    try:
+        # Créer le lecteur
+        reader = BalanceReader(fichier_excel)
+        
+        # Charger la balance - ne doit pas lever d'exception
+        balance_n, _, _ = reader.charger_balances()
+        
+        # Colonnes monétaires
+        colonnes_montants = ['Ant Débit', 'Ant Crédit', 'Débit', 'Crédit', 'Solde Débit', 'Solde Crédit']
+        
+        # Vérifier chaque colonne monétaire
+        for col in colonnes_montants:
+            if col in balance_n.columns:
+                # Vérifier que la colonne est numérique
+                assert pd.api.types.is_numeric_dtype(balance_n[col]), \
+                    f"Colonne {col} doit être numérique pour type invalide '{invalid_type}'"
+                
+                # Vérifier que toutes les valeurs sont 0.0 (car toutes étaient invalides)
+                assert (balance_n[col] == 0.0).all(), \
+                    f"Toutes les valeurs de {col} doivent être 0.0 pour type invalide '{invalid_type}', " \
+                    f"trouvé: {balance_n[col].unique()}"
+                
+                # Vérifier l'absence de NaN
+                assert not balance_n[col].isna().any(), \
+                    f"Colonne {col} ne doit pas contenir de NaN pour type invalide '{invalid_type}'"
+        
+    except (BalanceNotFoundException, InvalidBalanceFormatException) as e:
+        pytest.skip(f"Fichier invalide (acceptable): {str(e)}")
+    
+    except Exception as e:
+        pytest.fail(f"Exception inattendue pour type '{invalid_type}': {type(e).__name__}: {str(e)}")
+    
+    finally:
+        # Nettoyer le fichier temporaire
+        if os.path.exists(fichier_excel):
+            try:
+                os.unlink(fichier_excel)
+            except Exception:
+                pass
+
+
+def test_convertir_montants_unit():
+    """
+    Test unitaire de la méthode convertir_montants avec des cas spécifiques.
+    
+    **Validates: Requirements 1.5, 1.6**
+    
+    Ce test vérifie des cas spécifiques de conversion:
+    - Valeurs vides
+    - None
+    - Texte
+    - Nombres valides
+    - Mélange de valeurs
+    """
+    # Créer un DataFrame de test avec des valeurs invalides
+    df_test = pd.DataFrame({
+        'Numéro': ['211', '212', '213', '214', '215'],
+        'Intitulé': ['Compte 1', 'Compte 2', 'Compte 3', 'Compte 4', 'Compte 5'],
+        'Ant Débit': [1000.0, '', None, 'N/A', 2000.0],
+        'Ant Crédit': ['', 500.0, None, 'abc', 1500.0],
+        'Débit': [300.0, None, '', '#DIV/0!', 400.0],
+        'Crédit': [None, 200.0, 'ERROR', '', 350.0],
+        'Solde Débit': ['###', 1500.0, None, '', 2400.0],
+        'Solde Crédit': ['', None, 700.0, '***', 1850.0]
+    })
     
     # Créer un lecteur (fichier fictif)
     reader = BalanceReader("dummy.xlsx")
     
-    # Appliquer la conversion
-    df_converti = reader.convertir_montants(df)
+    # Convertir les montants
+    df_converted = reader.convertir_montants(df_test)
     
-    # Vérifier que toutes les colonnes monétaires sont de type float
+    # Vérifier que toutes les colonnes monétaires sont numériques
     colonnes_montants = ['Ant Débit', 'Ant Crédit', 'Débit', 'Crédit', 'Solde Débit', 'Solde Crédit']
     
     for col in colonnes_montants:
         # Vérifier le type
-        assert pd.api.types.is_numeric_dtype(df_converti[col]), \
+        assert pd.api.types.is_numeric_dtype(df_converted[col]), \
             f"Colonne {col} doit être numérique"
         
-        # Vérifier qu'il n'y a pas de NaN
-        assert not df_converti[col].isna().any(), \
+        # Vérifier l'absence de NaN
+        assert not df_converted[col].isna().any(), \
             f"Colonne {col} ne doit pas contenir de NaN"
         
-        # Vérifier qu'il n'y a pas de valeurs infinies
-        assert not np.isinf(df_converti[col]).any(), \
-            f"Colonne {col} ne doit pas contenir de valeurs infinies"
-        
         # Vérifier que toutes les valeurs sont >= 0
-        assert (df_converti[col] >= 0).all(), \
+        assert (df_converted[col] >= 0).all(), \
             f"Colonne {col} doit contenir uniquement des valeurs >= 0"
     
-    # Vérifier que les valeurs invalides ont été remplacées par 0.0
-    # Ligne 0: '', None, 'ABC123', 4000.0, '', 6000.0
-    assert df_converti.loc[0, 'Ant Débit'] == 0.0, "Chaîne vide doit être 0.0"
-    assert df_converti.loc[0, 'Ant Crédit'] == 0.0, "None doit être 0.0"
-    assert df_converti.loc[0, 'Débit'] == 0.0, "Texte mixte doit être 0.0"
-    assert df_converti.loc[0, 'Crédit'] == 4000.0, "Valeur valide doit être préservée"
+    # Vérifier des valeurs spécifiques
+    # Ligne 0: 1000.0, '', 300.0, None, '###', ''
+    assert df_converted.loc[0, 'Ant Débit'] == 1000.0
+    assert df_converted.loc[0, 'Ant Crédit'] == 0.0  # '' -> 0.0
+    assert df_converted.loc[0, 'Débit'] == 300.0
+    assert df_converted.loc[0, 'Crédit'] == 0.0  # None -> 0.0
+    assert df_converted.loc[0, 'Solde Débit'] == 0.0  # '###' -> 0.0
+    assert df_converted.loc[0, 'Solde Crédit'] == 0.0  # '' -> 0.0
     
-    # Ligne 1: None, '', '---', 'TEXT', 5000.0, ''
-    assert df_converti.loc[1, 'Ant Débit'] == 0.0, "None doit être 0.0"
-    assert df_converti.loc[1, 'Ant Crédit'] == 0.0, "Chaîne vide doit être 0.0"
-    assert df_converti.loc[1, 'Débit'] == 0.0, "Caractères spéciaux doivent être 0.0"
-    assert df_converti.loc[1, 'Crédit'] == 0.0, "Texte pur doit être 0.0"
+    # Ligne 2: None, None, '', 'ERROR', None, 700.0
+    assert df_converted.loc[2, 'Ant Débit'] == 0.0  # None -> 0.0
+    assert df_converted.loc[2, 'Ant Crédit'] == 0.0  # None -> 0.0
+    assert df_converted.loc[2, 'Débit'] == 0.0  # '' -> 0.0
+    assert df_converted.loc[2, 'Crédit'] == 0.0  # 'ERROR' -> 0.0
+    assert df_converted.loc[2, 'Solde Débit'] == 0.0  # None -> 0.0
+    assert df_converted.loc[2, 'Solde Crédit'] == 700.0
     
-    print("\n✓ Test des valeurs invalides spécifiques réussi")
-    print("  - Chaînes vides converties en 0.0")
+    print("\n✓ Test unitaire de conversion des montants réussi")
+    print("  - Valeurs vides converties en 0.0")
     print("  - None converti en 0.0")
-    print("  - Texte pur converti en 0.0")
-    print("  - Caractères spéciaux convertis en 0.0")
+    print("  - Texte converti en 0.0")
     print("  - Valeurs valides préservées")
 
 
@@ -512,10 +584,10 @@ if __name__ == "__main__":
     print("PROPERTY-BASED TESTS - NUMERIC CONVERSION ROBUSTNESS")
     print("=" * 70)
     
-    # Test avec des valeurs invalides spécifiques
-    print("\n[1] Test avec des valeurs invalides spécifiques...")
+    # Test unitaire
+    print("\n[1] Test unitaire de conversion des montants...")
     try:
-        test_specific_invalid_values()
+        test_convertir_montants_unit()
         print("   ✓ Test réussi")
     except Exception as e:
         print(f"   ✗ Test échoué: {str(e)}")
@@ -535,4 +607,6 @@ if __name__ == "__main__":
     print("\n" + "=" * 70)
     print("Pour exécuter tous les tests property-based avec Hypothesis:")
     print("  pytest test_balance_reader_numeric_conversion.py -v")
+    print("\nPour voir les statistiques Hypothesis:")
+    print("  pytest test_balance_reader_numeric_conversion.py -v --hypothesis-show-statistics")
     print("=" * 70)

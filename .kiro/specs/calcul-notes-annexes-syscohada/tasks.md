@@ -31,13 +31,13 @@ This implementation plan creates a modular Python system to automate the calcula
     - **Property 2: Column Name Normalization**
     - **Validates: Requirements 1.4**
 
-  - [-] 2.4 Write property test for numeric conversion robustness
+  - [x] 2.4 Write property test for numeric conversion robustness
     - **Property 3: Numeric Conversion Robustness**
     - **Validates: Requirements 1.5, 1.6**
 
 
-- [ ] 3. Implement Account_Extractor module
-  - [ ] 3.1 Create account_extractor.py with AccountExtractor class
+- [x] 3. Implement Account_Extractor module
+  - [x] 3.1 Create account_extractor.py with AccountExtractor class
     - Implement __init__(balance: pd.DataFrame) method
     - Implement extraire_solde_compte(numero_compte: str) method returning 6 values dict
     - Implement extraire_comptes_multiples(racines: List[str]) method for summing multiple roots
@@ -45,7 +45,7 @@ This implementation plan creates a modular Python system to automate the calcula
     - Handle missing accounts gracefully by returning zeros
     - _Requirements: 2.1, 2.2, 2.3, 2.4, 2.5, 2.6_
 
-  - [ ]* 3.2 Write property test for account filtering
+  - [x] 3.2 Write property test for account filtering
     - **Property 4: Account Filtering by Root**
     - **Validates: Requirements 2.1, 2.5**
 
