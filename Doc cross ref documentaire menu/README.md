@@ -1,164 +1,240 @@
-# Documentation X-Ref Documentaire
+# Ouvrir X-Ref documentaire - Documentation
 
-## 🎯 Vue d'ensemble
+## Vue d'ensemble
 
-Ce dossier contient toute la documentation relative à l'intégration de la fonctionnalité X-Ref documentaire dans Claraverse. Cette fonctionnalité permet de gérer les papiers de travail d'audit via un système de cross-référence avec upload automatique vers Google Drive.
+Cette fonctionnalité permet d'ouvrir directement les documents référencés dans la table Cross-Références depuis Google Drive, avec affichage dans une barre latérale élégante.
 
-## 🚀 Démarrage Rapide
+## Fichiers créés
 
-1. **Lire en premier:** [00_LIRE_EN_PREMIER_XREF.txt](00_LIRE_EN_PREMIER_XREF.txt)
-2. **Guide rapide:** [QUICK_START_XREF.txt](QUICK_START_XREF.txt)
-3. **Tester:** Ouvrir [test-xref-documentaire.html](test-xref-documentaire.html) dans le navigateur
+1. **IMPLEMENTATION_OUVRIR_XREF.md** - Documentation technique complète
+2. **workflow_n8n_ouvrir_xref.json** - Workflow n8n pour la recherche dans Google Drive
+3. **GUIDE_TEST_OUVRIR_XREF.md** - Guide de test avec 10 scénarios
+4. **test-xref-ouvrir.ps1** - Script PowerShell de test
+5. **00_LIRE_EN_PREMIER.txt** - Guide de démarrage rapide
+6. **COMMANDES_RAPIDES.txt** - Commandes de test rapide
+7. **README.md** - Ce fichier
 
-## 📚 Documentation
+## Modifications apportées
 
-### Fichiers Essentiels
+### Fichier : `public/menu.js`
 
-- **[00_INTEGRATION_TERMINEE_12_AVRIL_2026.txt](00_INTEGRATION_TERMINEE_12_AVRIL_2026.txt)** - Récapitulatif final
-- **[INTEGRATION_XREF_DOCUMENTAIRE.md](INTEGRATION_XREF_DOCUMENTAIRE.md)** - Documentation technique complète
-- **[CODE_XREF_MENU_JS.js](CODE_XREF_MENU_JS.js)** - Code source des méthodes
-- **[WORKFLOW_N8N_XREF.json](WORKFLOW_N8N_XREF.json)** - Configuration n8n
+#### 1. Nouvelle méthode : `ouvrirXRefDocumentaire()`
 
-### Index et Guides
+Cette méthode :
+- Détecte si la table active est une table X-Ref
+- Extrait les données de la ligne sélectionnée
+- Construit le nom du fichier selon la nomenclature `[Cross references]-[Document]`
+- Appelle le workflow n8n pour rechercher le fichier dans Google Drive
+- Affiche le document dans une barre latérale
 
-- [00_INDEX_COMPLET_XREF.md](00_INDEX_COMPLET_XREF.md) - Index complet de tous les fichiers
-- [00_INDEX_XREF_DOCUMENTAIRE.md](00_INDEX_XREF_DOCUMENTAIRE.md) - Index de la documentation
-- [QUICK_START_XREF.txt](QUICK_START_XREF.txt) - Guide de démarrage en 3 étapes
+#### 2. Nouvelle méthode : `displayDocumentSidebar(file, fileName)`
 
-### Tests
+Cette méthode :
+- Crée une barre latérale à droite de l'écran
+- Affiche le document selon son type (PDF, Excel, Word, Image)
+- Fournit un bouton "Ouvrir dans Drive"
+- Gère l'animation d'ouverture/fermeture
 
-- [test-xref-documentaire.html](test-xref-documentaire.html) - Page de test interactive
-- [test-xref-integration.ps1](test-xref-integration.ps1) - Script de validation PowerShell
-- [test-xref-simple.ps1](test-xref-simple.ps1) - Script de test simplifié
+#### 3. Mise à jour du menu
 
-### Récapitulatifs
-
-- [RECAP_FINAL_XREF_12_AVRIL_2026.md](RECAP_FINAL_XREF_12_AVRIL_2026.md) - Récapitulatif détaillé
-- [SYNTHESE_VISUELLE_XREF.txt](SYNTHESE_VISUELLE_XREF.txt) - Synthèse visuelle avec diagrammes
-
-## ✨ Fonctionnalités
-
-### 1. Import de Documents
-- **Raccourci:** Ctrl+Shift+X
-- **Action:** Ouvre un formulaire n8n pour uploader des documents
-- **Destination:** Google Drive organisé par cycles comptables
-
-### 2. Affichage de la Table X-Ref
-- **Action:** Affiche la table dans une barre latérale droite
-- **Contenu:** Liste des documents avec leurs cross-références
-- **Interface:** Barre latérale animée de 400px
-
-### 3. Recherche de Documents
-- **Action:** Recherche par index ou nom de document
-- **Résultats:** Filtrage en temps réel
-- **Affichage:** Mise en évidence des résultats
-
-## 🔧 Configuration
-
-### Prérequis
-- n8n installé et configuré
-- Compte Google Drive avec accès API
-- Claraverse avec menu.js modifié
-
-### Installation
-
-1. **Importer le workflow n8n:**
-   ```bash
-   # Dans n8n: Import from File
-   # Fichier: WORKFLOW_N8N_XREF.json
-   ```
-
-2. **Configurer Google Drive:**
-   - Créer une connexion Google Drive dans n8n
-   - Autoriser l'accès au dossier "Dossier CAC"
-
-3. **Tester l'intégration:**
-   ```bash
-   # Ouvrir test-xref-documentaire.html
-   # Tester les 3 actions du menu
-   ```
-
-## 📊 Structure des Fichiers
-
-```
-Doc cross ref documentaire menu/
-├── 00_INTEGRATION_TERMINEE_12_AVRIL_2026.txt
-├── 00_LIRE_EN_PREMIER_XREF.txt
-├── 00_MISSION_ACCOMPLIE_XREF_12_AVRIL_2026.txt
-├── 00_INTEGRATION_XREF_COMPLETE_12_AVRIL_2026.txt
-├── 00_INDEX_COMPLET_XREF.md
-├── 00_INDEX_XREF_DOCUMENTAIRE.md
-├── CELEBRATION_XREF.txt
-├── CODE_XREF_MENU_JS.js
-├── COMMANDES_GIT_XREF.txt
-├── INTEGRATION_XREF_DOCUMENTAIRE.md
-├── QUICK_START_XREF.txt
-├── README.md (ce fichier)
-├── RECAP_FINAL_XREF_12_AVRIL_2026.md
-├── SYNTHESE_VISUELLE_XREF.txt
-├── WORKFLOW_N8N_XREF.json
-├── commit-xref-integration.ps1
-├── test-xref-documentaire.html
-├── test-xref-integration.ps1
-└── test-xref-simple.ps1
+Ajout dans la section "Papier de travail" :
+```javascript
+{ text: "📂 Ouvrir X-Ref documentaire", action: () => this.ouvrirXRefDocumentaire(), shortcut: "Ctrl+Shift+O" }
 ```
 
-## 🎯 Prochaines Étapes
+## Workflow n8n
 
-### Phase 1: Tests (Immédiat)
-- [ ] Ouvrir test-xref-documentaire.html
-- [ ] Tester les 3 actions du menu
-- [ ] Vérifier l'affichage de la barre latérale
+### Configuration requise
 
-### Phase 2: Configuration n8n (1-2 jours)
-- [ ] Importer WORKFLOW_N8N_XREF.json
-- [ ] Configurer Google Drive
-- [ ] Tester l'upload complet
+1. **Importer le workflow** : `workflow_n8n_ouvrir_xref.json`
+2. **Configurer Google Drive** : Ajouter les credentials
+3. **Activer le workflow**
+4. **Endpoint** : `https://hkj0631c.rpcl.app/webhook/cross_reference`
 
-### Phase 3: Intégration (1 semaine)
-- [ ] Récupérer l'ID des documents
-- [ ] Implémenter l'ouverture au clic
-- [ ] Ajouter la prévisualisation
+### Structure du workflow
 
-### Phase 4: Améliorations (2-3 semaines)
-- [ ] Synchronisation bidirectionnelle
-- [ ] Recherche avancée
-- [ ] Export de la table X-Ref
-- [ ] Gestion des versions
+```
+Webhook POST → Rechercher Dossier → Rechercher Fichier → Formater Réponse → Response
+```
 
-## 📞 Support
+### Payload
 
-### En cas de problème
+```json
+{
+  "index": "[I150]-Balances generale",
+  "dossier": "Dossier CAC"
+}
+```
 
-1. Consulter [INTEGRATION_XREF_DOCUMENTAIRE.md](INTEGRATION_XREF_DOCUMENTAIRE.md) (section Dépannage)
-2. Lire [QUICK_START_XREF.txt](QUICK_START_XREF.txt) (section Dépannage)
-3. Vérifier les logs dans la console (F12)
+### Réponse
 
-### Questions Fréquentes
+```json
+{
+  "success": true,
+  "file": {
+    "id": "1abc...",
+    "name": "[I150]-Balances generale.xlsx",
+    "webViewLink": "https://drive.google.com/file/d/...",
+    "mimeType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+  }
+}
+```
 
-**Q: Le formulaire ne s'ouvre pas?**  
-R: Vérifiez que les popups ne sont pas bloquées dans votre navigateur.
+## Utilisation
 
-**Q: La table X-Ref n'est pas détectée?**  
-R: Vérifiez que la table contient les colonnes "Cross references" et "Document".
+### 1. Préparer la table X-Ref
 
-**Q: Comment configurer n8n?**  
-R: Consultez [WORKFLOW_N8N_XREF.json](WORKFLOW_N8N_XREF.json) et la documentation n8n.
+Créer une table avec au minimum ces colonnes :
 
-## 📈 Statistiques
+| Cross references | Document |
+|-----------------|----------|
+| [I1] | Lead sheet trésorerie |
+| [I20] | Proces verbal inventaire de caisse |
+| [I150] | Balances generale |
 
-- **Lignes de code:** ~450
-- **Méthodes créées:** 5
-- **Fichiers de documentation:** 19
-- **Tests créés:** 3
-- **Temps d'implémentation:** ~2 heures
+### 2. Préparer Google Drive
 
-## 🎉 Conclusion
+Créer un dossier "Dossier CAC" et y ajouter les documents avec la nomenclature :
+- `[I1]-Lead sheet trésorerie.pdf`
+- `[I20]-Proces verbal inventaire de caisse.docx`
+- `[I150]-Balances generale.xlsx`
 
-L'intégration X-Ref documentaire est maintenant complète et prête pour les tests et le déploiement en production. Cette fonctionnalité améliore significativement la gestion des papiers de travail dans Claraverse.
+### 3. Ouvrir un document
+
+1. Cliquer sur une ligne de la table X-Ref
+2. Ouvrir le menu contextuel (clic droit)
+3. Naviguer vers "Papier de travail" > "📂 Ouvrir X-Ref documentaire"
+4. Le document s'affiche dans la barre latérale
+
+**Raccourci clavier** : `Ctrl+Shift+O`
+
+## Types de fichiers supportés
+
+- **PDF** : Affichage via Google Drive Viewer
+- **Excel** (.xlsx, .xls) : Affichage via Google Sheets Viewer
+- **Word** (.docx, .doc) : Affichage via Google Docs Viewer
+- **Images** (.jpg, .png, .gif) : Affichage direct
+- **Google Docs/Sheets/Slides** : Affichage natif
+- **Autres** : Lien de téléchargement
+
+## Tests
+
+### Test rapide du workflow
+
+```powershell
+.\test-xref-ouvrir.ps1
+```
+
+### Test manuel avec curl
+
+```bash
+curl -X POST "https://hkj0631c.rpcl.app/webhook/cross_reference" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "index": "[I150]-Balances generale",
+    "dossier": "Dossier CAC"
+  }'
+```
+
+### Tests dans Claraverse
+
+Voir `GUIDE_TEST_OUVRIR_XREF.md` pour les 10 scénarios de test complets.
+
+## Dépannage
+
+### Document non trouvé
+
+**Causes possibles :**
+- Nomenclature incorrecte du fichier
+- Fichier absent du dossier "Dossier CAC"
+- Permissions insuffisantes
+
+**Solution :**
+1. Vérifier l'orthographe exacte
+2. Vérifier l'emplacement du fichier
+3. Vérifier les permissions de partage
+
+### Erreur lors de la recherche
+
+**Causes possibles :**
+- Workflow n8n inactif
+- Credentials Google Drive invalides
+- Problème réseau
+
+**Solution :**
+1. Vérifier que le workflow est actif
+2. Vérifier les credentials dans n8n
+3. Consulter les logs n8n
+
+### Barre latérale ne s'affiche pas
+
+**Causes possibles :**
+- Erreur JavaScript
+- Conflit de z-index
+- Styles CSS non appliqués
+
+**Solution :**
+1. Ouvrir la console du navigateur
+2. Vérifier les erreurs JavaScript
+3. Rafraîchir la page
+
+## Architecture technique
+
+### Flux de données
+
+```
+1. Utilisateur sélectionne une ligne
+2. Menu contextuel > Ouvrir X-Ref
+3. Extraction des données (Cross ref + Document)
+4. Construction du nom de fichier
+5. Appel API vers n8n
+6. n8n recherche dans Google Drive
+7. Réponse avec informations du fichier
+8. Affichage dans la barre latérale
+```
+
+### Composants
+
+- **menu.js** : Logique métier et gestion du menu
+- **Workflow n8n** : Recherche dans Google Drive
+- **Barre latérale** : Affichage du document
+- **Google Drive API** : Accès aux fichiers
+
+## Améliorations futures
+
+1. **Cache** : Mémoriser les documents déjà ouverts
+2. **Historique** : Liste des derniers documents consultés
+3. **Annotations** : Permettre d'annoter les documents
+4. **Téléchargement** : Bouton de téléchargement direct
+5. **Partage** : Générer un lien de partage
+6. **Composant React** : Version React pour meilleure intégration
+7. **Prévisualisation** : Aperçu dans la liste
+8. **Recherche avancée** : Filtres et tri
+
+## Contribution
+
+Pour contribuer à cette fonctionnalité :
+
+1. Lire la documentation technique : `IMPLEMENTATION_OUVRIR_XREF.md`
+2. Exécuter les tests : `GUIDE_TEST_OUVRIR_XREF.md`
+3. Proposer des améliorations
+4. Soumettre des pull requests
+
+## Support
+
+Pour toute question ou problème :
+
+1. Consulter `00_LIRE_EN_PREMIER.txt`
+2. Vérifier `GUIDE_TEST_OUVRIR_XREF.md`
+3. Consulter les logs dans la console
+4. Vérifier les logs n8n
+
+## Licence
+
+Ce code fait partie du projet Claraverse.
 
 ---
 
-**Date:** 12 Avril 2026  
-**Version:** 1.0.0  
-**Statut:** ✅ COMPLET ET PRÊT
+**Date de création** : 12 avril 2026  
+**Version** : 1.0.0  
+**Auteur** : Équipe Claraverse
