@@ -1,0 +1,122 @@
+╔══════════════════════════════════════════════════════════════════════════════╗
+║              📋 VALEURS À COPIER-COLLER POUR RENDER                          ║
+║                    (Gardez ce fichier ouvert)                                ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+🎯 UTILISEZ CE FICHIER COMME RÉFÉRENCE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Copiez-collez les valeurs ci-dessous dans le formulaire Render.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1️⃣  NAME
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+clara-backend-production
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+2️⃣  LANGUAGE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Python 3
+
+(Sélectionnez dans le menu déroulant)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+3️⃣  BRANCH
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+main
+
+(Déjà correct, ne pas changer)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+4️⃣  REGION
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Frankfurt (EU Central)
+
+(Sélectionnez dans le menu déroulant)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+5️⃣  ROOT DIRECTORY
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+py_backend
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+6️⃣  BUILD COMMAND
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+pip install -r requirements.txt
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+7️⃣  START COMMAND
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+python main.py --host 0.0.0.0 --port $PORT
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+8️⃣  ENVIRONMENT VARIABLES (3 variables à ajouter)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+VARIABLE 1 :
+NAME_OF_VARIABLE : PYTHONUNBUFFERED
+value            : 1
+
+VARIABLE 2 :
+NAME_OF_VARIABLE : PYTHONDONTWRITEBYTECODE
+value            : 1
+
+VARIABLE 3 :
+NAME_OF_VARIABLE : HOST
+value            : 0.0.0.0
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+9️⃣  INSTANCE TYPE (Plan tarifaire)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Choisissez :
+
+Option A : Starter ($7/mois) - RECOMMANDÉ
+   → Pas de cold start
+   → Service professionnel
+
+Option B : Free ($0/mois) - Pour tester
+   → Cold start après 15 min
+   → Gratuit
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+✅ CHECKLIST
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+□ Name : clara-backend-production
+□ Language : Python 3
+□ Branch : main
+□ Region : Frankfurt (EU Central)
+□ Root Directory : py_backend
+□ Build Command : pip install -r requirements.txt
+□ Start Command : python main.py --host 0.0.0.0 --port $PORT
+□ Variable 1 : PYTHONUNBUFFERED = 1
+□ Variable 2 : PYTHONDONTWRITEBYTECODE = 1
+□ Variable 3 : HOST = 0.0.0.0
+□ Plan : Starter ou Free
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🎯 APRÈS AVOIR TOUT REMPLI
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Cliquez sur le bouton "Deploy Web Service" en bas de la page.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
