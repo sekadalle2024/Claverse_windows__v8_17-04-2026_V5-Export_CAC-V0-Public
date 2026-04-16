@@ -616,7 +616,12 @@
    - Ressources généreuses
    - Configuration simple
 
-🥈 Koyeb Starter ($5.50/mois)
+🥈 Zeabur Developer Pro ($5/mois)
+   - $10 de crédit/mois
+   - Interface moderne
+   - Multi-régions
+
+🥉 Koyeb Starter ($5.50/mois)
    - Migration facile depuis Koyeb Free
    - Pas de reconfiguration
 ```
@@ -628,37 +633,32 @@
    - Multi-régions
    - Scaling global
 
-🥈 Railway Pro ($20/mois)
+🥈 Zeabur Team ($15/mois)
+   - $20 de crédit/mois
+   - Collaboration d'équipe
+   - Multi-régions
+
+🥉 Railway Pro ($20/mois)
    - 32 GB RAM partagée
    - Support prioritaire
 ```
 
 ### 🧪 DÉVELOPPEMENT / TEST
 ```
-🥇 Fly.io Free
+🥇 Zeabur Free
+   - $5 crédit/mois renouvelable
+   - Pas de sleep mode
+   - Interface moderne
+
+🥈 Fly.io Free
    - 3 machines gratuites
    - Pas de sleep mode
    - Performance correcte
 
-🥈 Koyeb Free
+🥉 Koyeb Free
    - Configuration actuelle
    - Acceptable pour tests
 ```
-
-### 🏢 ENTREPRISE
-```
-🥇 AWS Lightsail ($3.50+/mois)
-   - Infrastructure AWS
-   - Scaling illimité
-   - Support entreprise
-
-🥈 Azure App Service ($13+/mois)
-   - Intégration Microsoft
-   - Support entreprise
-```
-
----
-
 ## 💡 DÉCISION FINALE RECOMMANDÉE
 
 ### 🎯 OPTION 1: RAILWAY (RECOMMANDÉ ⭐⭐⭐)
@@ -684,6 +684,90 @@
    5. Tester l'URL fournie
    
 ⏱️ TEMPS ESTIMÉ: 15-30 minutes
+```
+
+### 🎯 OPTION 1 BIS: ZEABUR DEVELOPER PRO (RECOMMANDÉ ⭐⭐⭐)
+
+**Prix:** $5/mois  
+**Migration:** Moyenne (nouveau provider)
+
+```
+✅ POURQUOI ZEABUR?
+   1. $10 de crédit/mois (double du gratuit)
+   2. Interface ultra-moderne et intuitive
+   3. Pas de sleep mode
+   4. Déploiement automatique via Github
+   5. Multi-régions (US, EU, Asia)
+   6. Support Docker natif
+   7. Scaling automatique
+   8. Plan gratuit permanent ($5 crédit/mois)
+   9. Métriques en temps réel
+
+📋 ÉTAPES DE MIGRATION:
+   1. Créer compte Zeabur
+   2. Connecter repository Github
+   3. Configurer variables d'environnement
+   4. Sélectionner région (Europe recommandé)
+### 🎯 OPTION 3: RENDER STARTER (ALTERNATIVE ⭐)
+
+**Prix:** $7/mois  
+**Migration:** Moyenne (nouveau provider)
+
+```
+✅ POURQUOI RENDER?
+   1. Plateforme mature et stable
+   2. Logs persistants (30 jours)
+   3. Support email
+   4. Uptime 99.9%
+
+⚠️ INCONVÉNIENTS:
+   - Plus cher que Railway, Zeabur et Koyeb
+   - Moins de ressources que Railway
+
+📋 ÉTAPES DE MIGRATION:
+   1. Créer compte Render
+   2. Connecter repository Github
+   3. Configurer variables d'environnement
+   4. Déployer
+   
+⏱️ TEMPS ESTIMÉ: 20-30 minutes
+```
+
+### 🎯 OPTION 4: ZEABUR FREE (TEST GRATUIT ⭐⭐)
+
+## 📝 TABLEAU RÉCAPITULATIF FINAL
+
+| Critère | Railway | Zeabur Pro | Koyeb Starter | Render Starter | Fly.io |
+|---------|---------|------------|---------------|----------------|--------|
+| **Prix/mois** | $5 | $5 | $5.50 | $7 | $1.94+ |
+| **RAM** | 8 GB* | Flexible** | 512 MB | 512 MB | 256 MB |
+| **Sleep Mode** | ❌ Non | ❌ Non | ❌ Non | ❌ Non | ❌ Non |
+| **Migration** | Moyenne | Facile | Facile | Moyenne | Difficile |
+| **Simplicité** | ⭐⭐⭐ | ⭐⭐⭐ | ⭐⭐⭐ | ⭐⭐ | ⭐ |
+| **Performance** | ⭐⭐⭐ | ⭐⭐⭐ | ⭐⭐ | ⭐⭐ | ⭐⭐⭐ |
+| **Support** | Communauté | Prioritaire | Email | Email | Communauté |
+| **Multi-régions** | ❌ Non | ✅ Oui | ✅ Oui | ✅ Oui | ✅ Oui |
+| **Plan Gratuit** | ❌ Non | ✅ Oui | ✅ Oui | ✅ Oui | ✅ Oui |
+| **Recommandation** | ⭐⭐⭐ | ⭐⭐⭐ | ⭐⭐ | ⭐ | ⭐⭐ |
+
+*RAM partagée entre tous les services  
+**Basé sur crédit, flexible selon usage
+
+---
+📋 ÉTAPES DE MIGRATION:
+   1. Créer compte Zeabur (gratuit)
+   2. Connecter repository Github
+   3. Configurer variables d'environnement
+   4. Déployer
+   5. Monitorer consommation crédit
+   
+⏱️ TEMPS ESTIMÉ: 10-20 minutes
+
+🎯 IDÉAL POUR:
+   - Tester sans engagement financier
+   - Projets avec trafic modéré
+   - Upgrade vers Pro si besoin
+```TEMPS ESTIMÉ: 15-30 minutes
 ```
 
 ### 🎯 OPTION 2: KOYEB STARTER (MIGRATION FACILE ⭐⭐)

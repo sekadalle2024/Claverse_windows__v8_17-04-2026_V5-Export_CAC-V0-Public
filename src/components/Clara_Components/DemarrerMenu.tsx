@@ -99,10 +99,10 @@ interface DemarrerMenuProps {
 // ============================================================
 
 const MODES: ModeItem[] = [
-  { id: 'normal', label: 'Cours', prefix: '' },
+  { id: 'normal', label: 'Mode normal', prefix: '' },
   { id: 'demo', label: 'Demo', prefix: '[Demo] = Activate\n' },
   { id: 'avance', label: 'Avancé', prefix: '[Mode] = Avancé\n' },
-  { id: 'methodo', label: 'Methodo audit', prefix: '[Mode] = Avancé\n[Guide Methodo] : Activate\n' },
+  { id: 'methodo', label: 'Methodo audit', prefix: '[Mode] = Avancé\n- [Methodo audit] : Activate\n' },
   { id: 'guide-commandes', label: 'Guide des commandes', prefix: '[Mode] = Avancé\n[Guide des commandes] : Activate\n' },
   { id: 'manuel', label: 'Manuel', prefix: '[Mode] = Manuel\n' }
 ];
@@ -3514,7 +3514,6 @@ Contenu de [Contexte de base]
 [Etape précédente] = Plan d'action de couverture des risques
 [Etape de mission] = Hiearchisation des risques
 [Modele] : Point de controle, risque, évaluation risque, probabilité, impact, Plan d'action de couverture des risques
-[Algorithme]= Hiearchisation
 [Nb de lignes] = 30`
               },
               {
@@ -3528,7 +3527,6 @@ Contenu de [Contexte de base]
 [Modele] : Point de controle, risque, évaluation risque, probabilité, impact, Plan d'action de couverture des risques
 [Variable 1] = Contenu de [Variable 1]
 [Variable 2] = Contenu de [Variable 2]
-[Algorithme]= Hiearchisation
 [Nb de lignes] = 30`
               },
               {
@@ -3542,7 +3540,6 @@ Contenu de [Contexte de base]
 [Modele] : Point de controle, risque, évaluation risque, probabilité, impact, Plan d'action de couverture des risques
 [Variable 1] = Contenu de [Variable 1]
 [Variable 2] = Contenu de [Variable 2]
-[Algorithme]= Hiearchisation
 [Router] = Database
 [User_id] = ohada
 [Database] = workspace_02
@@ -3559,7 +3556,6 @@ Contenu de [Contexte de base]
 [Modele] : Point de controle, risque, évaluation risque, probabilité, impact, Plan d'action de couverture des risques
 [Variable 1] = Contenu de [Variable 1]
 [Variable 2] = Contenu de [Variable 2]
-[Algorithme]= Hiearchisation
 [Router] = Document
 [Nb de lignes] = 30`
               }
@@ -3579,7 +3575,6 @@ Contenu de [Contexte de base]
 [Etape précédente] = Hiearchisation des risques
 [Etape de mission] = Priorisation des risques
 [Modele] : Point de controle, risque, évaluation risque, probabilité, impact, Plan d'action de couverture des risques
-[Algorithme]= Priorisation
 [Nb de lignes] = 30`
               },
               {
@@ -3591,7 +3586,6 @@ Contenu de [Contexte de base]
 [Etape précédente] = Hiearchisation des risques
 [Etape de mission] = Priorisation des risques
 [Modele] : Point de controle, risque, évaluation risque, probabilité, impact, Plan d'action de couverture des risques
-[Algorithme]= Priorisation
 [Variable 1] = Contenu de [Variable 1]
 [Variable 2] = Contenu de [Variable 2]
 [Nb de lignes] = 30`
@@ -3605,7 +3599,6 @@ Contenu de [Contexte de base]
 [Etape précédente] = Hiearchisation des risques
 [Etape de mission] = Priorisation des risques
 [Modele] : Point de controle, risque, évaluation risque, probabilité, impact, Plan d'action de couverture des risques
-[Algorithme]= Priorisation
 [Variable 1] = Contenu de [Variable 1]
 [Variable 2] = Contenu de [Variable 2]
 [Router] = Document
@@ -3620,7 +3613,6 @@ Contenu de [Contexte de base]
 [Etape précédente] = Hiearchisation des risques
 [Etape de mission] = Priorisation des risques
 [Modele] : Point de controle, risque, évaluation risque, probabilité, impact, Plan d'action de couverture des risques
-[Algorithme]= Priorisation
 [Variable 1] = Contenu de [Variable 1]
 [Variable 2] = Contenu de [Variable 2]
 [Router] = Database
@@ -3644,7 +3636,6 @@ Contenu de [Contexte de base]
 [Etape précédente] = Priorisation des risques
 [Etape de mission] = Plan annuel d'audit interne
 [Modele] : Point de controle, risque, évaluation risque, probabilité, impact, Plan d'action de couverture des risques
-[Algorithme]= Plan annuel d'audit
 [Nb de lignes] = 30`
               },
               {
@@ -3656,7 +3647,6 @@ Contenu de [Contexte de base]
 [Etape précédente] = Priorisation des risques
 [Etape de mission] = Plan annuel d'audit interne
 [Modele] : Point de controle, risque, évaluation risque, probabilité, impact, Plan d'action de couverture des risques
-[Algorithme] = Plan annuel d'audit
 [Variable 1] = Contenu de [Variable 1]
 [Variable 2] = Contenu de [Variable 2]
 [Nb de lignes] = 30`
@@ -3670,7 +3660,6 @@ Contenu de [Contexte de base]
 [Etape précédente] = Priorisation des risques
 [Etape de mission] = Plan annuel d'audit interne
 [Modele] : Point de controle, risque, évaluation risque, probabilité, impact, Plan d'action de couverture des risques
-[Algorithme] = Plan annuel d'audit
 [Variable 1] = Contenu de [Variable 1]
 [Variable 2] = Contenu de [Variable 2]
 [Router] = Document
@@ -3685,74 +3674,12 @@ Contenu de [Contexte de base]
 [Etape précédente] = Priorisation des risques
 [Etape de mission] = Plan annuel d'audit interne
 [Modele] : Point de controle, risque, évaluation risque, probabilité, impact, Plan d'action de couverture des risques
-[Algorithme] = Plan annuel d'audit
 [Variable 1] = Contenu de [Variable 1]
 [Variable 2] = Contenu de [Variable 2]
 [Router] = Database
 [User_id] = ohada
 [Database] = workspace_02
 [Nb de lignes] = 30`
-              }
-            ]
-          },
-          {
-            id: 'eap-rapport-elaboration-plan',
-            label: "Rapport d'élaboration du plan annuel d'audit",
-            icon: <FileCheck className="w-4 h-4" />,
-            modes: [
-              {
-                id: 'normal',
-                label: 'Normal',
-                command: `[Command] = Etape de mission
-[Logiciel] = E-audit plan
-[Processus] = rapprochements bancaires
-[Etape précédente] = Plan annuel d'audit interne
-[Etape de mission] = Rapport d'élaboration du plan annuel d'audit
-[Modele] : Base
-[Nb de pages] = 5`
-              },
-              {
-                id: 'avance',
-                label: 'Avancé',
-                command: `[Command] = Etape de mission
-[Logiciel] = E-audit plan
-[Processus] = rapprochements bancaires
-[Etape précédente] = Plan annuel d'audit interne
-[Etape de mission] = Rapport d'élaboration du plan annuel d'audit
-[Modele] : Base
-[Variable 1] = Contenu de [Variable 1]
-[Variable 2] = Contenu de [Variable 2]
-[Nb de pages] = 5`
-              },
-              {
-                id: 'document',
-                label: 'Document',
-                command: `[Command] = Etape de mission
-[Logiciel] = E-audit plan
-[Processus] = rapprochements bancaires
-[Etape précédente] = Plan annuel d'audit interne
-[Etape de mission] = Rapport d'élaboration du plan annuel d'audit
-[Modele] : Base
-[Variable 1] = Contenu de [Variable 1]
-[Variable 2] = Contenu de [Variable 2]
-[Router] = Document
-[Nb de pages] = 5`
-              },
-              {
-                id: 'database',
-                label: 'Database',
-                command: `[Command] = Etape de mission
-[Logiciel] = E-audit plan
-[Processus] = rapprochements bancaires
-[Etape précédente] = Plan annuel d'audit interne
-[Etape de mission] = Rapport d'élaboration du plan annuel d'audit
-[Modele] : Base
-[Variable 1] = Contenu de [Variable 1]
-[Variable 2] = Contenu de [Variable 2]
-[Router] = Database
-[User_id] = ohada
-[Database] = workspace_02
-[Nb de pages] = 5`
               }
             ]
           }

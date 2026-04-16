@@ -49,7 +49,7 @@ This implementation plan creates a modular Python system to automate the calcula
     - **Property 4: Account Filtering by Root**
     - **Validates: Requirements 2.1, 2.5**
 
-  - [ ]* 3.3 Write property test for account extraction completeness
+  - [-] 3.3 Write property test for account extraction completeness
     - **Property 5: Account Extraction Completeness**
     - **Validates: Requirements 2.2, 2.6**
 

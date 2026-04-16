@@ -327,7 +327,7 @@ export class ClaraApiService {
 
 
   // Timeout configurable (en millisecondes)
-  private n8nTimeout = 10 * 60 * 1000; // 10 minutes par défaut pour les workflows LLM
+  private n8nTimeout = 5 * 60 * 1000; // 5 minutes par défaut pour les workflows LLM
 
   constructor() {
     // Initialize the recovery service
@@ -2082,8 +2082,20 @@ export class ClaraApiService {
             ? `${timeoutMinutes} minute${timeoutMinutes > 1 ? "s" : ""}${timeoutSeconds > 0 ? ` ${timeoutSeconds}s` : ""}`
             : `${timeoutSeconds} secondes`;
 
-        errorMessage = `⏱️ **Request timeout**: The n8n workflow took too long to respond (>${timeoutDisplay}).`;
-        troubleshootingTips = `\n\n**This is normal for complex LLM workflows.**\n\n**Solutions:**\n\n1. **Increase timeout** (recommended for LLM tasks):\n   \`\`\`javascript\n   // In browser console:\n   claraApiService.setN8nTimeout(15 * 60 * 1000); // 15 minutes\n   \`\`\`\n\n2. **Simplify your request**:\n   - Reduce the number of items to generate\n   - Break complex tasks into smaller requests\n   - Example: Ask for 10 items instead of 25\n\n3. **Optimize n8n workflow**:\n   - Check if the LLM model is responding slowly\n   - Review workflow execution logs in n8n\n   - Consider using a faster model\n   - Add intermediate "Respond to Webhook" for progress updates\n\n**Current timeout**: ${timeoutDisplay}\n**Recommended for LLM**: 10-15 minutes`;
+        // Message de notification système en cas de timeout
+        errorMessage = `## Notification système\n\n⏱️ **Délai d'attente dépassé** (>${timeoutDisplay})\n\n`;
+        errorMessage += `Nous sommes en surcharge de requêtes.\n\n`;
+        errorMessage += `**Merci de notifier l'événement à l'éditeur par WhatsApp :**\n\n`;
+        errorMessage += `📱 **+225 05 44 13 07 98**\n\n`;
+        errorMessage += `---\n\n`;
+        errorMessage += `### Informations techniques\n\n`;
+        errorMessage += `| Rubrique | Description |\n`;
+        errorMessage += `|----------|-------------|\n`;
+        errorMessage += `| **Endpoint** | ${resolvedEndpoint} |\n`;
+        errorMessage += `| **Timeout configuré** | ${timeoutDisplay} |\n`;
+        errorMessage += `| **Type d'erreur** | Délai d'attente dépassé |\n`;
+        
+        troubleshootingTips = "";
       } else if (
         err.message.includes("Failed to fetch") ||
         err.message.includes("NetworkError")
