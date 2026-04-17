@@ -10,8 +10,9 @@ PyPDF2==3.0.1
 python-docx>=1.1.0
 
 # Validation - Version compatible sans compilation Rust
-pydantic==2.8.2
-pydantic-core==2.20.1
+# Utilise des versions avec wheels pré-compilés pour Python 3.11-3.13
+pydantic==2.6.4
+pydantic-core==2.16.3
 
 # Configuration
 python-dotenv==1.0.1
