@@ -51,3 +51,10 @@ Thumbs.db
 *.tmp
 *.bak
 *.swp
+
+# Dossiers a exclure du push
+node_modules/
+.netlify/
+deploiement-netlify/.netlify/
+backend.zip
+tests-html/

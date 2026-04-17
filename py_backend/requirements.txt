@@ -9,8 +9,9 @@ PyPDF2==3.0.1
 # Word Export
 python-docx>=1.1.0
 
-# Validation
-pydantic==2.9.0
+# Validation - Version compatible sans compilation Rust
+pydantic==2.6.4
+pydantic-core==2.16.3
 
 # Configuration
 python-dotenv==1.0.1
