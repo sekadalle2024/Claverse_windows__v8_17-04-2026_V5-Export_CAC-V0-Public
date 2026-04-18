@@ -1,10 +1,28 @@
-# Documentation Déploiement Koyeb - Clara Backend
+# Documentation Déploiement Backend - Clara
 
 ## 📋 Vue d'ensemble
 
-Ce dossier contient toute la documentation et les scripts nécessaires pour déployer et gérer le backend Python de Clara sur Koyeb.
+Ce dossier contient toute la documentation et les scripts nécessaires pour déployer et gérer le backend Python de Clara sur différentes plateformes cloud.
 
-**Méthode de déploiement**: Intégration Github (déploiement automatique)
+## 🚀 Options de Déploiement Disponibles
+
+### 1. Render (Recommandé - Plan Hobby) ⭐
+- **Coût:** $0/mois (plan Free) ou $7/mois (plan Starter)
+- **Avantages:** Facile, CLI puissante, pas de carte bancaire requise
+- **Quick Start:** `QUICK_START_RENDER_CLI_HOBBY.txt`
+- **Guide complet:** `GUIDE_DEPLOIEMENT_RENDER_CLI_16_AVRIL_2026.md`
+- **Astuce:** Éviter cold start avec UptimeRobot (gratuit)
+
+### 2. Railway (Alternative)
+- **Coût:** $5 crédit gratuit
+- **Avantages:** Simple, pas de cold start
+- **Guide:** `00_DEPLOIEMENT_RAILWAY_CLI_16_AVRIL_2026.txt`
+
+### 3. Koyeb (Option initiale)
+- **Coût:** Plan gratuit disponible
+- **Inconvénient:** Nécessite carte bancaire
+- **Méthode:** Intégration Github (déploiement automatique)
+- **Guide:** Voir sections ci-dessous
 
 ## 🚀 Démarrage rapide
 

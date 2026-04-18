@@ -1,48 +1,38 @@
-================================================================================
-⚡⚡⚡ COMMENCER ICI MAINTENANT ⚡⚡⚡
-================================================================================
+╔═══════════════════════════════════════════════════════════╗
+║                                                           ║
+║    👉 COMMENCER ICI MAINTENANT                           ║
+║    17 AVRIL 2026                                         ║
+║                                                           ║
+╚═══════════════════════════════════════════════════════════╝
 
-SITUATION:
-----------
-✅ Backend redémarré et accessible
-❌ Erreur "failed to fetch" persiste
-🎯 Prêt pour le diagnostic
+🎯 VOUS ÊTES SUR GITHUB
 
-================================================================================
-🚀 ACTION IMMÉDIATE (30 SECONDES)
-================================================================================
+Vous avez uploadé runtime.txt.
+Vous voyez "Commit directly to the main branch".
 
-Exécuter cette commande:
+═══════════════════════════════════════════════════════════
 
-.\test-direct-import.ps1
+✅ ACTION IMMÉDIATE (10 SECONDES)
 
-Ce script va:
-✅ Tester l'import de la balance
-✅ Afficher l'erreur exacte si elle existe
-✅ Indiquer la prochaine étape
+CLIQUEZ SUR LE BOUTON VERT "COMMIT CHANGES"
 
-C'EST TOUT! Le script fait le reste.
+═══════════════════════════════════════════════════════════
 
-================================================================================
-📊 RÉSULTATS POSSIBLES
-================================================================================
+📖 APRÈS LE CLIC
 
-✅ SI LE TEST RÉUSSIT:
-→ Le script indiquera comment observer les logs du backend
-→ Suivre les instructions affichées
+Lire ce fichier:
+→ PROCHAINE_ETAPE_VERIFICATION_RENDER.txt
 
-❌ SI LE TEST ÉCHOUE:
-→ L'erreur sera affichée avec tous les détails
-→ Copier le message d'erreur complet et le fournir
+Il vous expliquera comment vérifier que tout fonctionne.
 
-================================================================================
-📚 POUR PLUS DE DÉTAILS
-================================================================================
+═══════════════════════════════════════════════════════════
 
-- 00_DEMARRAGE_RAPIDE_DIAGNOSTIC.txt (guide simple)
-- 00_INDEX_DIAGNOSTIC_07_AVRIL_2026.md (navigation complète)
-- 00_RECAP_CONTINUATION_07_AVRIL_2026.txt (contexte complet)
+🎉 C'EST TOUT!
 
-================================================================================
-FIN - EXÉCUTER LA COMMANDE CI-DESSUS
-================================================================================
+Simple, non?
+
+═══════════════════════════════════════════════════════════
+
+Créé le: 17 Avril 2026
+
+═══════════════════════════════════════════════════════════

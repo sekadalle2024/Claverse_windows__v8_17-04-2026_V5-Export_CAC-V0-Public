@@ -1,0 +1,103 @@
+╔════════════════════════════════════════════════════════════════╗
+║     SAUVEGARDE CLARAVERSE SUR GITHUB - 18 AVRIL 2026          ║
+║                                                                ║
+║  Repository: Claverse_windows__v8_18-04-2026_V5-Export_CAC    ║
+╚════════════════════════════════════════════════════════════════╝
+
+📋 SITUATION ACTUELLE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+✓ Repository configuré
+✓ Branche: master
+✓ 1 commit en avance sur origin
+✓ Nombreux fichiers modifiés/nouveaux à sauvegarder
+
+🚀 MÉTHODE RECOMMANDÉE (SIMPLE)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Exécutez cette commande dans PowerShell :
+
+    .\push-claraverse-v8-18-avril-2026-final.ps1
+
+Ce script va :
+1. Vérifier la configuration Git
+2. Ajouter tous les fichiers
+3. Créer un commit
+4. Pousser vers GitHub avec retry automatique
+
+⏱️ Durée estimée : 5-10 minutes
+
+
+🔄 MÉTHODE ALTERNATIVE (SI ÉCHEC)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Si le projet est trop volumineux (>140MB), utilisez :
+
+    .\push-commits-multiples-18-avril-2026.ps1
+
+Ce script va :
+- Diviser les fichiers en lots de 50
+- Créer un commit par lot
+- Pousser chaque lot séparément
+
+⏱️ Durée estimée : 15-30 minutes
+
+
+📝 COMMANDES MANUELLES (SI NÉCESSAIRE)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. Ajouter tous les fichiers :
+   git add .
+
+2. Créer un commit :
+   git commit -m "Sauvegarde ClaraVerse V8 - 18 Avril 2026"
+
+3. Vérifier le remote :
+   git remote -v
+
+4. Pousser vers GitHub :
+   git push -u origin master
+
+
+⚠️ EN CAS DE PROBLÈME
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+ERREUR: "remote: error: File too large"
+→ Utilisez le script push-commits-multiples-18-avril-2026.ps1
+
+ERREUR: "Authentication failed"
+→ Vérifiez vos identifiants GitHub
+→ Utilisez un Personal Access Token si nécessaire
+
+ERREUR: "Connection timeout"
+→ Vérifiez votre connexion Internet
+→ Réessayez dans quelques minutes
+
+ERREUR: Fichiers sensibles détectés
+→ Lisez le fichier Doc_Github_Issue/SOLUTION_PROJET_140MB_16_AVRIL_2026.md
+
+
+✅ APRÈS LA SAUVEGARDE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Vérifiez que tout est bien sauvegardé :
+
+1. Visitez votre repository sur GitHub
+2. Vérifiez que les fichiers sont présents
+3. Vérifiez la date du dernier commit
+
+URL du repository :
+https://github.com/sekadalle2024/Claverse_windows__v8_18-04-2026_V5-Export_CAC-V0-Public
+
+
+📚 DOCUMENTATION UTILE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+- Doc_Github_Issue/SOLUTION_PROJET_140MB_16_AVRIL_2026.md
+- push-commits-multiples-140mb-16-avril-2026.ps1 (ancien script)
+- Doc_Github_Issue/README.md
+
+
+═══════════════════════════════════════════════════════════════════
+Date de création : 18 Avril 2026
+Dernière mise à jour : 18 Avril 2026
+═══════════════════════════════════════════════════════════════════
