@@ -1,9 +1,21 @@
+# Fichiers volumineux
+*.pdf
+*.xlsm
+*.xlsx
+*.xls
+Liasse*.xlsm
+Doc calcul notes annexes/Ressources/*.pdf
+P000*.xls
+
 # Python
 __pycache__/
 *.py[cod]
 *$py.class
 *.so
 .Python
+env/
+venv/
+ENV/
 build/
 develop-eggs/
 dist/
@@ -20,12 +32,6 @@ wheels/
 .installed.cfg
 *.egg
 
-# Virtual Environment
-venv/
-ENV/
-env/
-.venv
-
 # IDE
 .vscode/
 .idea/
@@ -33,45 +39,19 @@ env/
 *.swo
 *~
 
-# Environment variables
-.env
-.env.local
-.env.*.local
-
-# Logs
-*.log
-logs/
-
-# Database
-*.db
-*.sqlite
-*.sqlite3
-
 # OS
 .DS_Store
 Thumbs.db
 
-# Temporary files
-*.tmp
-*.temp
-temp/
-tmp/
+# Logs
+*.log
 
-# Excel files (exemples)
-*.xls
-*.xlsx
-~$*.xlsx
-
-# Data directory
+# Data
 data/
-*.csv
+*.db
+*.sqlite
 
-# Pytest
-.pytest_cache/
-.coverage
-htmlcov/
-
-# MyPy
-.mypy_cache/
-.dmypy.json
-dmypy.json
+# Test files
+test_*.xlsx
+test_*.xlsm
+*_test.xlsx
